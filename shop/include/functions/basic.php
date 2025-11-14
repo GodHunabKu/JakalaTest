@@ -908,13 +908,19 @@
 
 		global $database;
 
-		
+
+
+		// Check if sort_order column exists
+		$has_sort_order = check_item_column("sort_order");
+
+		// Use sort_order if available, otherwise fallback to id
+		$order_by = $has_sort_order ? 'ORDER BY sort_order ASC, id ASC' : 'ORDER BY id ASC';
 
 		$sth = $database->runQuerySqlite('SELECT id, type, pay_type, coins, vnum, expire, discount
 
 			FROM item_shop_items
 
-			WHERE category = ? ORDER BY id ASC');
+			WHERE category = ? ' . $order_by);
 
 		$sth->bindParam(1, $category, PDO::PARAM_INT);
 
@@ -922,7 +928,7 @@
 
 		$result = $sth->fetchAll();
 
-		
+
 
 		return $result;
 

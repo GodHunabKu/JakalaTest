@@ -1,8 +1,8 @@
 <?php
 // ----------- INIZIO DEL FILE pages/shop/item.php -----------
 
-// Il router (index.php) ha già definito $get_item (l'ID dell'oggetto nello shop)
-// Se non è definito o non è numerico, esce per sicurezza.
+// Il router (index.php) ha giï¿½ definito $get_item (l'ID dell'oggetto nello shop)
+// Se non ï¿½ definito o non ï¿½ numerico, esce per sicurezza.
 if (!isset($get_item) || !is_numeric($get_item)) {
     redirect($shop_url);
 }
@@ -23,7 +23,7 @@ if ($item[0]['discount'] > 0) {
     $total = $item[0]['coins'];
 }
 
-// Se l'oggetto è di tipo 'bonus selezionabili', recuperiamo i bonus disponibili
+// Se l'oggetto ï¿½ di tipo 'bonus selezionabili', recuperiamo i bonus disponibili
 if ($item[0]['type'] == 3) {
     $bonuses = is_get_bonus_selection($get_item);
     $bonuses_name = is_get_bonuses_new_name();
@@ -42,7 +42,7 @@ if ($item[0]['type'] == 3) {
 $proto_details = get_item_details_from_proto($item[0]['vnum']);
 // =======================================================
 
-// A questo punto, il resto del file HTML/PHP userà i dati dalle variabili $item e $proto_details
+// A questo punto, il resto del file HTML/PHP userï¿½ i dati dalle variabili $item e $proto_details
 ?>
 
 <!-- Struttura basata sullo screenshot fornito -->
@@ -76,6 +76,10 @@ $proto_details = get_item_details_from_proto($item[0]['vnum']);
         <!-- Pannello Admin -->
         <?php if(is_loggedin() && web_admin_level()>=9): ?>
         <div class="admin-actions-bar">
+            <a href="<?php print $shop_url.'edit/item/'.$get_item.'/'; ?>" class="btn-admin btn-admin-success">
+                <i class="fas fa-edit"></i>
+                <span>Edit Item</span>
+            </a>
             <a href="<?php print $shop_url.'remove/item/'.$get_item.'/'.$item[0]['category'].'/'; ?>" class="btn-admin btn-admin-danger" onclick="return confirm('Sicuro di voler rimuovere questo oggetto?')">
                 <i class="fas fa-trash"></i>
                 <span>Rimuovere oggetto</span>
@@ -91,7 +95,7 @@ $proto_details = get_item_details_from_proto($item[0]['vnum']);
         <div class="item-main-details">
             <div class="item-image-box">
                 <!-- Immagine e nome come nello screenshot -->
-                <img src="<?php print $shop_url; ?>images/items/<?php print get_item_image($item[0]['vnum']); ?>.png" alt="<?php echo $proto_details ? $proto_details['name'] : 'Oggetto'; ?>">
+                <img src="<?php print $shop_url; ?>images/items/<?php print get_item_image($item[0]['vnum'], $item[0]['id']); ?>.png" alt="<?php echo $proto_details ? $proto_details['name'] : 'Oggetto'; ?>">
                 <h3><?php echo $proto_details ? $proto_details['name'] : 'Oggetto non Trovato'; ?></h3>
             </div>
             

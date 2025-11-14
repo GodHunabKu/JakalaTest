@@ -55,6 +55,14 @@
         ?>
         <a href="<?php print $shop_url.'item/'.$row['id'].'/'; ?>" class="item-card <?php if(!is_loggedin()) print 'item-card-locked'; ?>">
             <div class="item-card-inner">
+                <?php if(is_loggedin() && web_admin_level()>=9) { ?>
+                <!-- Admin Edit Button -->
+                <a href="<?php print $shop_url.'edit/item/'.$row['id'].'/'; ?>" class="item-edit-btn" onclick="event.stopPropagation(); event.preventDefault(); window.location.href=this.href;">
+                    <i class="fas fa-edit"></i>
+                    <span>Edit</span>
+                </a>
+                <?php } ?>
+
                 <!-- Item Image -->
                 <div class="item-image-wrapper">
                     <?php if(!is_loggedin()) { ?>
@@ -66,7 +74,7 @@
                     <?php } ?>
                     
                     <div class="item-image">
-                        <img src="<?php print $shop_url; ?>images/items/<?php print get_item_image($row['vnum']); ?>.png" alt="<?php if(!$item_name_db) print get_item_name($row['vnum']); else print get_item_name_locale_name($row['vnum']); ?>">
+                        <img src="<?php print $shop_url; ?>images/items/<?php print get_item_image($row['vnum'], $row['id']); ?>.png" alt="<?php if(!$item_name_db) print get_item_name($row['vnum']); else print get_item_name_locale_name($row['vnum']); ?>">
                     </div>
                     
                     <!-- Badges (visible only if logged in) -->

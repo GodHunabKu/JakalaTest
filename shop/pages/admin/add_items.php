@@ -15,34 +15,70 @@
     </div>
 
     <?php
+    /**
+     * Helper function to append custom fields to INSERT query
+     */
+    function append_custom_fields(&$columns, &$placeholders, &$values, $custom_image, $sort_order) {
+        $has_custom_image = check_item_column("custom_image");
+        $has_sort_order = check_item_column("sort_order");
+
+        if ($has_custom_image) {
+            $columns[] = 'custom_image';
+            $placeholders[] = '?';
+            $values[] = $custom_image;
+        }
+
+        if ($has_sort_order) {
+            $columns[] = 'sort_order';
+            $placeholders[] = '?';
+            $values[] = $sort_order;
+        }
+    }
+
     // LOGICA PHP ESISTENTE PER GESTIRE IL SUBMIT DEL MODULO
     $added = false;
-    
+
     if(isset($_POST['add']))
     {
         $time_settings = get_settings_time(1);
         $time2_settings = get_settings_time(2);
         $absorption_settings = get_settings_time(3);
-        
+
         $time = $time2 = 0;
         if($_POST['count']<=0)
             $_POST['count']=1;
-        
-        for($i=0;$i<=6;$i++) 
+
+        for($i=0;$i<=6;$i++)
             if($_POST['attrtype'.$i]==0)
                 $_POST['attrvalue'.$i]=0;
-            
+
         if(check_item_column("applytype0"))
-            for($i=0;$i<=7;$i++) 
+            for($i=0;$i<=7;$i++)
                 if($_POST['applytype'.$i]==0)
                     $_POST['applyvalue'.$i]=0;
-                
+
         $socket0 = !empty($_POST['socket0']) ? $_POST['socket0'] : 0;
         $socket1 = !empty($_POST['socket1']) ? $_POST['socket1'] : 0;
         $socket2 = !empty($_POST['socket2']) ? $_POST['socket2'] : 0;
-            
+
         $item_unique = 0;
-                    
+
+        // Gestione custom_image e sort_order
+        $custom_image = !empty($_POST['custom_image']) ? trim($_POST['custom_image']) : null;
+        $sort_order = !empty($_POST['sort_order']) ? intval($_POST['sort_order']) : null;
+
+        // Controlla se le colonne esistono nel database
+        $has_custom_image = check_item_column("custom_image");
+        $has_sort_order = check_item_column("sort_order");
+
+        // Se sort_order non è specificato, usa l'ID massimo + 1
+        if ($has_sort_order && $sort_order === null) {
+            $max_sort = $database->runQuerySqlite('SELECT MAX(sort_order) as max_sort FROM item_shop_items WHERE category = ?');
+            $max_sort->execute([$get_category]);
+            $max_result = $max_sort->fetch(PDO::FETCH_ASSOC);
+            $sort_order = ($max_result && $max_result['max_sort']) ? $max_result['max_sort'] + 1 : 0;
+        }
+
         $expire = 0;
         if(!empty($_POST['promotion_months']) || !empty($_POST['promotion_days']) || !empty($_POST['promotion_hours']) || !empty($_POST['promotion_minutes']))
             $expire = strtotime("now +".intval($_POST['promotion_months'])." month +".intval($_POST['promotion_days'])." day +".intval($_POST['promotion_hours'])." hours +".intval($_POST['promotion_minutes'])." minute - 1 hour UTC");
@@ -132,6 +168,31 @@
     }
     
     if($added) {
+        // Update custom fields if they exist in database
+        if ($has_custom_image || $has_sort_order) {
+            $last_id = $database->lastInsertId();
+
+            $update_fields = [];
+            $update_values = [];
+
+            if ($has_custom_image) {
+                $update_fields[] = 'custom_image = ?';
+                $update_values[] = $custom_image;
+            }
+
+            if ($has_sort_order) {
+                $update_fields[] = 'sort_order = ?';
+                $update_values[] = $sort_order;
+            }
+
+            if (!empty($update_fields)) {
+                $update_values[] = $last_id;
+                $update_sql = "UPDATE item_shop_items SET " . implode(', ', $update_fields) . " WHERE id = ?";
+                $update_stmt = $database->runQuerySqlite($update_sql);
+                $update_stmt->execute($update_values);
+            }
+        }
+
         print '<div class="alert alert-success" style="margin-bottom: 20px;">'.$lang_shop['item_added'].'</div>';
     }
     ?>
@@ -208,6 +269,25 @@
                         Description
                     </label>
                     <textarea class="form-textarea" name="description" rows="4" placeholder="Enter item description (optional)..."></textarea>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-image"></i>
+                            Custom Image Name (Optional)
+                        </label>
+                        <input type="text" class="form-input" name="custom_image" placeholder="es: incantamedi o incantamedi.png">
+                        <small class="form-hint">Leave empty to use VNUM-based image. Enter custom name (with or without .png)</small>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-sort"></i>
+                            Sort Order (Optional)
+                        </label>
+                        <input type="number" class="form-input" name="sort_order" placeholder="Auto" min="0">
+                        <small class="form-hint">Leave empty for automatic ordering. Lower numbers appear first.</small>
+                    </div>
                 </div>
 
                 <!-- Bonuses Section -->
