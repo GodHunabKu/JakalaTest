@@ -1934,21 +1934,49 @@ body:has(.fullscreen-login-wrapper) .shop-footer {
     gap: 20px;
     align-items: center;
     justify-content: center;
-    min-height: 400px;
+    min-height: 500px;
+    position: relative;
+    overflow: hidden;
 }
 
+/* Animated background glow */
+.item-image-box::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(220, 20, 60, 0.15) 0%, transparent 70%);
+    animation: itemGlow 4s ease-in-out infinite;
+    z-index: 0;
+}
+
+@keyframes itemGlow {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+}
+
+/* Image container per scalare bene tutti gli item */
 .item-image-box img {
-    max-width: 250px;
-    max-height: 250px;
+    width: 400px;
+    height: 400px;
     object-fit: contain;
-    filter: drop-shadow(0 0 30px rgba(220, 20, 60, 0.6));
+    image-rendering: auto;
+    image-rendering: crisp-edges;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    filter: drop-shadow(0 0 40px rgba(220, 20, 60, 0.7));
     animation: floatItem 3s ease-in-out infinite;
     margin: 0 auto;
+    position: relative;
+    z-index: 1;
 }
 
 @keyframes floatItem {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-15px); }
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-15px) scale(1.05); }
 }
 
 .item-image-box h3 {
@@ -1960,6 +1988,8 @@ body:has(.fullscreen-login-wrapper) .shop-footer {
     text-transform: uppercase;
     letter-spacing: 2px;
     text-shadow: 0 0 20px rgba(220, 20, 60, 0.5);
+    position: relative;
+    z-index: 1;
 }
 
 /* Item Stats Box */
@@ -2084,15 +2114,16 @@ body:has(.fullscreen-login-wrapper) .shop-footer {
 
 .price-content {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    gap: 15px;
     padding: 35px 25px;
 }
 
 .price-content img {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
     object-fit: contain;
     filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.8));
     animation: coinSpin 3s linear infinite;
@@ -2105,7 +2136,7 @@ body:has(.fullscreen-login-wrapper) .shop-footer {
 
 .price-amount {
     font-family: var(--font-heading);
-    font-size: 42px;
+    font-size: 48px;
     font-weight: 900;
     color: var(--one-gold);
     line-height: 1;
@@ -2741,17 +2772,27 @@ textarea:focus {
     }
 
     .item-image-box {
-        min-height: 300px;
+        min-height: 400px;
         padding: 30px 20px;
     }
 
+    .item-image-box::before {
+        width: 300px;
+        height: 300px;
+    }
+
     .item-image-box img {
-        max-width: 200px;
-        max-height: 200px;
+        width: 300px;
+        height: 300px;
     }
 
     .item-image-box h3 {
         font-size: 22px;
+    }
+
+    .price-content img {
+        width: 40px;
+        height: 40px;
     }
 
     .price-amount {
@@ -2793,12 +2834,17 @@ textarea:focus {
 
     .item-image-box {
         padding: 20px;
-        min-height: 250px;
+        min-height: 350px;
+    }
+
+    .item-image-box::before {
+        width: 250px;
+        height: 250px;
     }
 
     .item-image-box img {
-        max-width: 150px;
-        max-height: 150px;
+        width: 250px;
+        height: 250px;
     }
 
     .item-image-box h3 {
@@ -2806,9 +2852,13 @@ textarea:focus {
     }
 
     .price-content {
-        flex-direction: column;
-        gap: 15px;
+        gap: 12px;
         padding: 25px 20px;
+    }
+
+    .price-content img {
+        width: 35px;
+        height: 35px;
     }
 
     .price-amount {
