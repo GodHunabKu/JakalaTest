@@ -52,47 +52,31 @@ $proto_details = get_item_details_from_proto($item[0]['vnum']);
     <?php
     if(is_loggedin()) {
         if(isset($_POST['buy']) && isset($_POST['buy_key']) && $_POST['buy_key'] == $_SESSION['buy_key']) {
-            // Logica di acquisto completa con validazione
-            $purchase_success = false;
-            $purchase_error = '';
-
-            // Verifica fondi sufficienti (CORRETTO: >= invece di <=)
+            // Verifica fondi sufficienti
             if(is_coins($item[0]['pay_type'] - 1) >= $total) {
 
-                // Gestione bonus selection se presente
-                $selected_bonuses = array();
-                if($item[0]['type'] == 3 && isset($available_bonuses) && count($available_bonuses) > 0) {
-                    // Raccogli bonus selezionati dal form
+                // Gestione bonus selection solo per item type 3
+                $bonus_array = array();
+                if($item[0]['type'] == 3) {
+                    // Raccogli bonus selezionati
                     foreach($available_bonuses as $bonus_id => $bonus_value) {
                         if(isset($_POST['bonus_' . $bonus_id])) {
-                            $selected_bonuses[$bonus_id] = intval($_POST['bonus_' . $bonus_id]);
+                            $bonus_array[$bonus_id] = intval($_POST['bonus_' . $bonus_id]);
                         }
                     }
-
-                    // Verifica che tutti i bonus richiesti siano selezionati
-                    if(count($selected_bonuses) < $count) {
-                        $purchase_error = 'Devi selezionare tutti i bonus richiesti!';
-                    }
                 }
 
-                // Procedi con l'acquisto se non ci sono errori
-                if(empty($purchase_error)) {
-                    if (is_buy_item($get_item, $selected_bonuses)) {
-                        is_pay_coins($item[0]['pay_type'] - 1, $total);
-                        $purchase_success = true;
-                    } else {
-                        $purchase_error = 'Spazio insufficiente nel magazzino item shop!';
-                    }
+                // Tenta acquisto
+                $buy_result = is_buy_item($get_item, $bonus_array);
+
+                if($buy_result) {
+                    is_pay_coins($item[0]['pay_type'] - 1, $total);
+                    echo '<div class="alert alert-success"><i class="fas fa-check-circle"></i> <strong>Acquisto completato!</strong> L\'oggetto è stato aggiunto al tuo inventario.</div>';
+                } else {
+                    echo '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> <strong>Errore!</strong> Spazio insufficiente nell\'inventario.</div>';
                 }
             } else {
-                $purchase_error = 'Fondi insufficienti! Hai solo ' . number_format(is_coins($item[0]['pay_type'] - 1)) . ' coins.';
-            }
-
-            // Mostra messaggio risultato
-            if($purchase_success) {
-                echo '<div class="alert alert-success"><i class="fas fa-check-circle"></i> Acquisto effettuato con successo!</div>';
-            } else if(!empty($purchase_error)) {
-                echo '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> ' . $purchase_error . '</div>';
+                echo '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> <strong>Fondi insufficienti!</strong> Hai solo <strong>' . number_format(is_coins($item[0]['pay_type'] - 1)) . '</strong> coins, servono <strong>' . number_format($total) . '</strong> coins.</div>';
             }
         }
         $_SESSION['buy_key'] = mt_rand(1, 1000);

@@ -74,9 +74,10 @@
 /* Container principale pagina item */
 .item-view-container {
     display: grid;
-    grid-template-columns: 1.5fr 1fr;
-    gap: 30px;
-    margin-top: 20px;
+    grid-template-columns: 1fr 420px;
+    gap: 40px;
+    margin-top: 30px;
+    padding: 0 10px;
 }
 
 /* Colonna sinistra - Dettagli item */
@@ -90,18 +91,19 @@
 .item-image-box {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    border-radius: 16px;
+    border-radius: 20px;
     overflow: hidden;
-    box-shadow: var(--shadow-lg);
-    padding: 30px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    padding: 40px 30px;
     text-align: center;
     position: relative;
-    min-height: 240px;
+    min-height: 260px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     background: linear-gradient(135deg, rgba(220, 20, 60, 0.08) 0%, rgba(139, 0, 0, 0.08) 100%);
+    margin-bottom: 5px;
 }
 
 /* Riquadro interno per icona nel dettaglio */
@@ -146,15 +148,17 @@
 /* Nome item sotto l'immagine */
 .item-image-box h3 {
     font-family: var(--font-heading);
-    font-size: 24px;
+    font-size: 26px;
     font-weight: 900;
     color: var(--text-primary);
     margin: 0;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    text-shadow: 0 0 20px rgba(220, 20, 60, 0.5);
+    letter-spacing: 3px;
+    text-shadow: 0 0 25px rgba(220, 20, 60, 0.6);
     position: relative;
     z-index: 2;
+    line-height: 1.3;
+    padding: 0 15px;
 }
 
 /* Promo Timer Box */
@@ -181,26 +185,37 @@
 .item-stats-box {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    border-radius: 16px;
+    border-radius: 20px;
     overflow: hidden;
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
 .item-stats-box h4 {
     font-family: var(--font-heading);
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 900;
     color: var(--text-primary);
     margin: 0;
-    padding: 20px 25px;
-    background: linear-gradient(135deg, rgba(220, 20, 60, 0.1) 0%, rgba(139, 0, 0, 0.1) 100%);
+    padding: 22px 28px;
+    background: linear-gradient(135deg, rgba(220, 20, 60, 0.12) 0%, rgba(139, 0, 0, 0.12) 100%);
     border-bottom: 2px solid var(--one-scarlet);
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
 }
 
 .item-stats-content {
-    padding: 0;
+    padding: 5px 0;
+}
+
+.item-stats-content ul {
+    padding: 20px 28px !important;
+    margin: 0 !important;
+}
+
+.item-stats-content li {
+    margin-bottom: 14px !important;
+    font-size: 15px !important;
+    color: #ddd !important;
 }
 
 /* Colonna destra - Purchase Panel */
@@ -215,38 +230,39 @@
 
 /* Price Box */
 .price-box {
-    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%);
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.12) 0%, rgba(255, 215, 0, 0.06) 100%);
     border: 2px solid var(--one-gold);
-    border-radius: 16px;
+    border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 10px 40px rgba(255, 215, 0, 0.3);
+    box-shadow: 0 10px 40px rgba(255, 215, 0, 0.35);
 }
 
 .price-box h4 {
     font-family: var(--font-heading);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 900;
     color: #000;
     margin: 0;
-    padding: 15px 20px;
+    padding: 18px 22px;
     background: var(--gold-gradient);
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 2.5px;
 }
 
 .price-content {
-    padding: 30px 25px;
+    padding: 38px 28px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
 .price-content img {
-    width: 60px;
-    height: 60px;
-    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.8));
+    width: 70px;
+    height: 70px;
+    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.9));
     animation: coinSpin 3s linear infinite;
+    margin-bottom: 5px;
 }
 
 @keyframes coinSpin {
@@ -256,48 +272,50 @@
 
 .price-amount {
     font-family: var(--font-heading);
-    font-size: 42px;
+    font-size: 48px;
     font-weight: 900;
     color: var(--one-gold);
     line-height: 1;
-    text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+    text-shadow: 0 0 25px rgba(255, 215, 0, 0.7);
+    margin-bottom: 3px;
 }
 
 .price-currency {
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
     color: var(--text-secondary);
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
 }
 
 /* Description Box */
 .description-box {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    border-radius: 12px;
+    border-radius: 20px;
     overflow: hidden;
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
 .description-box h4 {
     font-family: var(--font-heading);
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 13px;
+    font-weight: 900;
     color: var(--text-primary);
     margin: 0;
-    padding: 15px 20px;
-    background: rgba(255, 255, 255, 0.02);
+    padding: 18px 22px;
+    background: rgba(255, 255, 255, 0.03);
     border-bottom: 1px solid var(--glass-border);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 2.5px;
 }
 
 .description-box p {
-    padding: 20px;
-    color: var(--text-secondary);
-    line-height: 1.8;
+    padding: 24px 22px;
+    color: #ccc;
+    line-height: 1.9;
     margin: 0;
+    font-size: 15px;
 }
 
 /* Compatibilità con vecchie classi showcase */
@@ -356,60 +374,85 @@
    FIX PULSANTE ACQUISTA
    ================================= */
 
-/* Pulsante acquista - migliorato e più visibile */
+/* Pulsante acquista - FIGO FIGO */
 .btn-purchase-main,
 .btn-purchase-new {
     width: 100%;
-    padding: 20px 25px !important;
-    background: var(--accent-gradient) !important;
-    border: none !important;
-    border-radius: 12px;
+    padding: 24px 30px !important;
+    background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%) !important;
+    border: 2px solid rgba(220, 20, 60, 0.5) !important;
+    border-radius: 16px;
     color: white !important;
     font-family: var(--font-heading);
-    font-size: 17px !important;
+    font-size: 18px !important;
     font-weight: 900 !important;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
     cursor: pointer;
-    box-shadow: 0 10px 40px rgba(220, 20, 60, 0.5);
+    box-shadow:
+        0 0 30px rgba(220, 20, 60, 0.6),
+        0 10px 40px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex !important;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 15px;
     position: relative;
     overflow: hidden;
 }
 
+.btn-purchase-main::before,
+.btn-purchase-new::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-purchase-main:hover::before,
+.btn-purchase-new:hover::before {
+    left: 100%;
+}
+
 .btn-purchase-main i,
 .btn-purchase-new i {
-    font-size: 20px;
+    font-size: 22px;
 }
 
 .btn-purchase-main:hover:not(:disabled),
 .btn-purchase-new:hover:not(:disabled) {
-    transform: translateY(-3px) !important;
-    box-shadow: 0 15px 50px rgba(220, 20, 60, 0.7) !important;
+    transform: translateY(-4px) scale(1.02) !important;
+    box-shadow:
+        0 0 50px rgba(220, 20, 60, 0.9),
+        0 20px 60px rgba(220, 20, 60, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+    border-color: rgba(220, 20, 60, 0.8) !important;
 }
 
 .btn-purchase-main:active:not(:disabled),
 .btn-purchase-new:active:not(:disabled) {
-    transform: translateY(-1px) !important;
+    transform: translateY(-2px) scale(1.01) !important;
 }
 
 /* Pulsante disabilitato */
 .btn-purchase-main:disabled,
 .btn-purchase-new:disabled {
-    background: linear-gradient(135deg, #555 0%, #333 100%) !important;
-    color: #999 !important;
+    background: linear-gradient(135deg, #444 0%, #222 100%) !important;
+    border-color: rgba(100, 100, 100, 0.3) !important;
+    color: #888 !important;
     cursor: not-allowed !important;
-    box-shadow: none !important;
-    opacity: 0.6;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+    opacity: 0.7;
 }
 
 /* Form acquisto - migliore spaziatura */
 #buy_item_form {
-    margin-top: 20px;
+    margin-top: 25px;
 }
 
 /* =================================
