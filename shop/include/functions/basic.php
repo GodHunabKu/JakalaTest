@@ -2307,3 +2307,105 @@
         return null;
     }
 }
+
+// ===================================
+// STATISTICHE SHOP PROFESSIONALI
+// ===================================
+
+/**
+ * Ottiene i 5 prodotti più venduti
+ */
+function get_top_selling_items($limit = 5) {
+    global $database;
+
+    try {
+        $sth = $database->runQuerySqlite("
+            SELECT
+                isi.id,
+                isi.vnum,
+                isi.coins,
+                isi.pay_type,
+                COUNT(l.id) as total_sales
+            FROM item_shop_items isi
+            LEFT JOIN item_shop_log l ON isi.id = l.item_id
+            GROUP BY isi.id
+            HAVING total_sales > 0
+            ORDER BY total_sales DESC, isi.coins DESC
+            LIMIT ?
+        ");
+        $sth->bindParam(1, $limit, PDO::PARAM_INT);
+        $sth->execute();
+        return $sth->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        return [];
+    }
+}
+
+/**
+ * Ottiene i top 3 donatori (utenti con più coins spesi)
+ */
+function get_top_donors($limit = 3) {
+    global $database;
+
+    try {
+        $sth = $database->runQuerySqlite("
+            SELECT
+                l.buyer,
+                SUM(l.coins) as total_spent,
+                COUNT(l.id) as total_purchases
+            FROM item_shop_log l
+            GROUP BY l.buyer
+            ORDER BY total_spent DESC
+            LIMIT ?
+        ");
+        $sth->bindParam(1, $limit, PDO::PARAM_INT);
+        $sth->execute();
+        return $sth->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        return [];
+    }
+}
+
+/**
+ * Ottiene statistiche generali dello shop
+ */
+function get_shop_statistics() {
+    global $database;
+
+    $stats = [
+        'total_items' => 0,
+        'total_categories' => 0,
+        'total_sales' => 0,
+        'total_users' => 0
+    ];
+
+    try {
+        // Totale items
+        $sth = $database->runQuerySqlite("SELECT COUNT(*) as count FROM item_shop_items");
+        $sth->execute();
+        $result = $sth->fetch(PDO::FETCH_ASSOC);
+        $stats['total_items'] = $result['count'];
+
+        // Totale categorie
+        $sth = $database->runQuerySqlite("SELECT COUNT(*) as count FROM item_shop_categories");
+        $sth->execute();
+        $result = $sth->fetch(PDO::FETCH_ASSOC);
+        $stats['total_categories'] = $result['count'];
+
+        // Totale vendite
+        $sth = $database->runQuerySqlite("SELECT COUNT(*) as count FROM item_shop_log");
+        $sth->execute();
+        $result = $sth->fetch(PDO::FETCH_ASSOC);
+        $stats['total_sales'] = $result['count'];
+
+        // Totale utenti che hanno acquistato
+        $sth = $database->runQuerySqlite("SELECT COUNT(DISTINCT buyer) as count FROM item_shop_log");
+        $sth->execute();
+        $result = $sth->fetch(PDO::FETCH_ASSOC);
+        $stats['total_users'] = $result['count'];
+
+        return $stats;
+    } catch (Exception $e) {
+        return $stats;
+    }
+}

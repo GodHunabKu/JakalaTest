@@ -84,7 +84,7 @@
     <div class="item-action-footer">
         <?php if(is_loggedin()) { ?>
             <div class="item-final-price">
-                <img src="<?php print $shop_url; ?>images/md.png" alt="MD Coins">
+                <img src="<?php print $shop_url; ?>images/monet.png" alt="MD Coins">
                 <div class="price-details">
                     <span class="current-price">
                         <?php print number_format($total); ?>

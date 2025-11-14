@@ -4175,5 +4175,273 @@ textarea:focus {
 }
 
 /* =================================
+   WIDGETS STATISTICHE SHOP
+   ================================= */
+
+/* Top Items List */
+.top-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.top-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.top-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateX(5px);
+    border-color: var(--one-scarlet);
+}
+
+.top-item-rank {
+    font-size: 24px;
+    min-width: 35px;
+    text-align: center;
+}
+
+.top-item-image {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(220, 20, 60, 0.1) 0%, rgba(139, 0, 0, 0.1) 100%);
+    border-radius: 10px;
+    padding: 5px;
+}
+
+.top-item-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.top-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.top-item-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.top-item-sales {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.top-item-sales i {
+    color: var(--one-gold);
+}
+
+/* Top Donors List */
+.top-donors-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.top-donor {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.top-donor-gold {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 215, 0, 0.05) 100%);
+    border-color: rgba(255, 215, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+}
+
+.top-donor-silver {
+    background: linear-gradient(135deg, rgba(192, 192, 192, 0.15) 0%, rgba(192, 192, 192, 0.05) 100%);
+    border-color: rgba(192, 192, 192, 0.3);
+}
+
+.top-donor-bronze {
+    background: linear-gradient(135deg, rgba(205, 127, 50, 0.15) 0%, rgba(205, 127, 50, 0.05) 100%);
+    border-color: rgba(205, 127, 50, 0.3);
+}
+
+.top-donor-rank {
+    font-size: 28px;
+    min-width: 40px;
+    text-align: center;
+}
+
+.top-donor-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.top-donor-name {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+.top-donor-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.donor-spent,
+.donor-purchases {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.donor-spent img {
+    vertical-align: middle;
+}
+
+.donor-spent {
+    color: var(--one-gold);
+    font-weight: 600;
+}
+
+/* Shop Statistics Grid */
+.shop-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.stat-icon {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--one-scarlet) 0%, rgba(139, 0, 0, 0.8) 100%);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(220, 20, 60, 0.3);
+}
+
+.stat-icon i {
+    font-size: 20px;
+    color: white;
+}
+
+.stat-info {
+    flex: 1;
+}
+
+.stat-value {
+    font-family: var(--font-heading);
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--one-gold);
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Stats Card Animations */
+.stats-card {
+    animation: slideInUp 0.6s ease-out;
+}
+
+.stats-card:nth-child(4) { animation-delay: 0.1s; }
+.stats-card:nth-child(5) { animation-delay: 0.2s; }
+.stats-card:nth-child(6) { animation-delay: 0.3s; }
+
+.top-item-rank,
+.top-donor-rank {
+    animation: bounceIn 0.8s ease-out;
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .shop-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-item {
+        padding: 12px;
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .stat-icon i {
+        font-size: 18px;
+    }
+
+    .stat-value {
+        font-size: 18px;
+    }
+}
+
+/* =================================
    END OF SHOP ONE CSS
    ================================= */

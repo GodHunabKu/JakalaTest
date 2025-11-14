@@ -170,7 +170,7 @@ $proto_details = get_item_details_from_proto($item[0]['vnum']);
             <div class="price-box">
                 <h4>PREZZO</h4>
                 <div class="price-content">
-                    <img src="<?php print $shop_url; ?>images/md.png" alt="MD Coins">
+                    <img src="<?php print $shop_url; ?>images/monet.png" alt="MD Coins">
                     <span class="price-amount"><?php echo number_format($total); ?></span>
                     <span class="price-currency">MD COINS</span>
                 </div>

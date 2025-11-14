@@ -18,9 +18,9 @@ include 'include/functions/header.php';
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    
-    <!-- Shop ONE CSS - Unificato e Ottimizzato -->
-    <link rel="stylesheet" type="text/css" href="<?php print $shop_url; ?>assets/css/shop-one.css" />
+
+    <!-- Shop ONE CSS V2 - Unificato e Ottimizzato con Statistiche -->
+    <link rel="stylesheet" type="text/css" href="<?php print $shop_url; ?>assets/css/shop-one-v2.css?v=2.0" />
     
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="<?php print $shop_url; ?>assets/img/logosito.png">
@@ -257,6 +257,136 @@ include 'include/functions/header.php';
                         </div>
                     </div>
                     <?php } ?>
+
+                    <!-- Top Selling Products -->
+                    <div class="sidebar-card stats-card">
+                        <div class="card-header">
+                            <i class="fas fa-fire"></i>
+                            <h3>Più Venduti</h3>
+                        </div>
+                        <div class="card-body">
+                            <?php
+                            $top_items = get_top_selling_items(5);
+                            if(empty($top_items)) {
+                                echo '<div class="widget-empty-state">
+                                        <i class="fas fa-shopping-bag"></i>
+                                        <p>Nessuna vendita ancora</p>
+                                      </div>';
+                            } else {
+                                echo '<div class="top-items-list">';
+                                $rank = 1;
+                                foreach($top_items as $item) {
+                                    $item_name = !$item_name_db ? get_item_name($item['vnum']) : get_item_name_locale_name($item['vnum']);
+                                    $medal = $rank == 1 ? '🥇' : ($rank == 2 ? '🥈' : ($rank == 3 ? '🥉' : $rank));
+                                    echo '<a href="'.$shop_url.'item/'.$item['id'].'/" class="top-item">
+                                            <div class="top-item-rank">'.$medal.'</div>
+                                            <div class="top-item-image">
+                                                <img src="'.$shop_url.'images/items/'.get_item_image($item['vnum'], $item['id']).'.png" alt="'.$item_name.'">
+                                            </div>
+                                            <div class="top-item-info">
+                                                <div class="top-item-name">'.htmlspecialchars($item_name).'</div>
+                                                <div class="top-item-sales">
+                                                    <i class="fas fa-shopping-cart"></i>
+                                                    <span>'.number_format($item['total_sales']).' vendite</span>
+                                                </div>
+                                            </div>
+                                          </a>';
+                                    $rank++;
+                                }
+                                echo '</div>';
+                            }
+                            ?>
+                        </div>
+                    </div>
+
+                    <!-- Top Donors -->
+                    <?php if(is_loggedin()) { ?>
+                    <div class="sidebar-card stats-card">
+                        <div class="card-header">
+                            <i class="fas fa-trophy"></i>
+                            <h3>Top Donatori</h3>
+                        </div>
+                        <div class="card-body">
+                            <?php
+                            $top_donors = get_top_donors(3);
+                            if(empty($top_donors)) {
+                                echo '<div class="widget-empty-state">
+                                        <i class="fas fa-users"></i>
+                                        <p>Nessun donatore ancora</p>
+                                      </div>';
+                            } else {
+                                echo '<div class="top-donors-list">';
+                                $rank = 1;
+                                foreach($top_donors as $donor) {
+                                    $medal = $rank == 1 ? '👑' : ($rank == 2 ? '🥈' : '🥉');
+                                    $crown_class = $rank == 1 ? 'top-donor-gold' : ($rank == 2 ? 'top-donor-silver' : 'top-donor-bronze');
+                                    echo '<div class="top-donor '.$crown_class.'">
+                                            <div class="top-donor-rank">'.$medal.'</div>
+                                            <div class="top-donor-info">
+                                                <div class="top-donor-name">'.htmlspecialchars($donor['buyer']).'</div>
+                                                <div class="top-donor-stats">
+                                                    <span class="donor-spent">
+                                                        <img src="'.$shop_url.'images/monet.png" style="width: 16px; height: 16px;">
+                                                        '.number_format($donor['total_spent']).' MD
+                                                    </span>
+                                                    <span class="donor-purchases">
+                                                        <i class="fas fa-shopping-bag"></i>
+                                                        '.number_format($donor['total_purchases']).' acquisti
+                                                    </span>
+                                                </div>
+                                            </div>
+                                          </div>';
+                                    $rank++;
+                                }
+                                echo '</div>';
+                            }
+                            ?>
+                        </div>
+                    </div>
+                    <?php } ?>
+
+                    <!-- Shop Statistics -->
+                    <div class="sidebar-card stats-card">
+                        <div class="card-header">
+                            <i class="fas fa-chart-bar"></i>
+                            <h3>Statistiche Shop</h3>
+                        </div>
+                        <div class="card-body">
+                            <?php
+                            $stats = get_shop_statistics();
+                            echo '<div class="shop-stats-grid">
+                                    <div class="stat-item">
+                                        <div class="stat-icon"><i class="fas fa-box"></i></div>
+                                        <div class="stat-info">
+                                            <div class="stat-value">'.number_format($stats['total_items']).'</div>
+                                            <div class="stat-label">Prodotti</div>
+                                        </div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-icon"><i class="fas fa-th-large"></i></div>
+                                        <div class="stat-info">
+                                            <div class="stat-value">'.number_format($stats['total_categories']).'</div>
+                                            <div class="stat-label">Categorie</div>
+                                        </div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
+                                        <div class="stat-info">
+                                            <div class="stat-value">'.number_format($stats['total_sales']).'</div>
+                                            <div class="stat-label">Vendite</div>
+                                        </div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                                        <div class="stat-info">
+                                            <div class="stat-value">'.number_format($stats['total_users']).'</div>
+                                            <div class="stat-label">Clienti</div>
+                                        </div>
+                                    </div>
+                                  </div>';
+                            ?>
+                        </div>
+                    </div>
                 </aside>
                 <?php } ?>
 
@@ -387,8 +517,8 @@ include 'include/functions/header.php';
         </div>
     </footer>
 
-<!-- Shop ONE JavaScript - Unificato e Ottimizzato -->
-<script src="<?php print $shop_url; ?>assets/js/shop-one.js"></script>
+<!-- Shop ONE JavaScript V2 - Unificato e Ottimizzato -->
+<script src="<?php print $shop_url; ?>assets/js/shop-one-v2.js?v=2.0"></script>
 <?php if(file_exists('include/functions/js.php')) include 'include/functions/js.php'; ?>
 </body>
 </html>

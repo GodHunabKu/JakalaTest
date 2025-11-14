@@ -38,7 +38,7 @@
                                     ?>
                                 </span>
                                 <div class="item-price">
-                                    <img src="<?php print $shop_url; ?>images/md.png" alt="MD Coins">
+                                    <img src="<?php print $shop_url; ?>images/monet.png" alt="MD Coins">
                                     <span><?php print number_format($last['coins']); ?></span>
                                 </div>
                             </div>
