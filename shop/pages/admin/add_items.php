@@ -170,7 +170,7 @@
     if($added) {
         // Update custom fields if they exist in database
         if ($has_custom_image || $has_sort_order) {
-            $last_id = $database->lastInsertId();
+            $last_id = $database->getSqliteBonuslastInsertId();
 
             $update_fields = [];
             $update_values = [];

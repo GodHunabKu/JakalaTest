@@ -14,8 +14,7 @@ function ensure_custom_image_column() {
 
     // Se non esiste, creala
     try {
-        $db = $database->getPDO();
-        $db->exec("ALTER TABLE item_shop_items ADD COLUMN custom_image TEXT DEFAULT NULL");
+        $database->execQuerySqlite("ALTER TABLE item_shop_items ADD COLUMN custom_image TEXT DEFAULT NULL");
         return true;
     } catch(Exception $e) {
         error_log("Error creating custom_image column: " . $e->getMessage());
@@ -33,11 +32,10 @@ function ensure_sort_order_column() {
 
     // Se non esiste, creala
     try {
-        $db = $database->getPDO();
-        $db->exec("ALTER TABLE item_shop_items ADD COLUMN sort_order INTEGER DEFAULT 0");
+        $database->execQuerySqlite("ALTER TABLE item_shop_items ADD COLUMN sort_order INTEGER DEFAULT 0");
 
         // Inizializza sort_order per item esistenti
-        $db->exec("UPDATE item_shop_items SET sort_order = id WHERE sort_order = 0 OR sort_order IS NULL");
+        $database->execQuerySqlite("UPDATE item_shop_items SET sort_order = id WHERE sort_order = 0 OR sort_order IS NULL");
 
         return true;
     } catch(Exception $e) {
