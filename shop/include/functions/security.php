@@ -67,7 +67,7 @@ function validate_page($page) {
     $allowed_pages = [
         'home', 'items', 'item', 'login', 'logout',
         'categories', 'add_items', 'add_items_bonus', 'edit_item',
-        'settings', 'paypal', 'coins', 'pay'
+        'settings', 'paypal', 'migrate_database', 'coins', 'pay'
     ];
 
     return in_array($page, $allowed_pages, true) ? $page : 'home';

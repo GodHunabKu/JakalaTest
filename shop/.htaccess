@@ -100,6 +100,7 @@ Options -Indexes
     # Admin pages
     RewriteRule ^settings/?$ index.php?p=settings [L,QSA]
     RewriteRule ^admin/paypal/?$ index.php?p=paypal [L,QSA]
+    RewriteRule ^admin/migrate/?$ index.php?p=migrate_database [L,QSA]
     RewriteRule ^categories/?$ index.php?p=categories [L,QSA]
     RewriteRule ^add/item/([0-9]+)/?$ index.php?p=add_items&category=$1 [L,QSA]
     RewriteRule ^add/bonus/item/([0-9]+)/?$ index.php?p=add_items_bonus&category=$1 [L,QSA]

@@ -312,6 +312,9 @@ include 'include/functions/header.php';
                         case 'paypal':
                             include 'pages/admin/paypal.php';
                             break;
+                        case 'migrate_database':
+                            include 'pages/admin/migrate_database.php';
+                            break;
                         case 'coins':
                             include 'pages/shop/coins.php';
                             break;
