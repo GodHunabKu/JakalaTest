@@ -2293,8 +2293,8 @@ body:has(.fullscreen-login-wrapper) .shop-footer {
 }
 
 @keyframes floatItem {
-    0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-15px) scale(1.05); }
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
 }
 
 .item-image-box h3 {

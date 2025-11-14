@@ -886,7 +886,7 @@
 @keyframes particle-float {
     0% {
         transform: translateY(0) rotate(0deg);
-        opacity: 0;
+        opacity: 0.3;
     }
     10% {
         opacity: 1;
@@ -896,7 +896,7 @@
     }
     100% {
         transform: translateY(-100px) rotate(360deg);
-        opacity: 0;
+        opacity: 1; /* Le particelle NON spariscono più */
     }
 }
 
@@ -905,6 +905,7 @@
     pointer-events: none;
     font-size: 20px;
     animation: particle-float 3s ease-out forwards;
+    /* Le particelle rimangono visibili anche dopo l'animazione */
 }
 </style>
 
@@ -956,7 +957,8 @@ document.addEventListener('DOMContentLoaded', function() {
             particle.style.animationDelay = (i * 0.1) + 's';
             element.appendChild(particle);
 
-            setTimeout(() => particle.remove(), 3000);
+            // Le particelle rimangono molto più a lungo (30 secondi invece di 3)
+            setTimeout(() => particle.remove(), 30000);
         }
     }
 
@@ -1054,7 +1056,8 @@ document.addEventListener('DOMContentLoaded', function() {
         particle.style.zIndex = '10';
 
         element.appendChild(particle);
-        setTimeout(() => particle.remove(), 2000);
+        // Le mini particelle rimangono più a lungo (20 secondi)
+        setTimeout(() => particle.remove(), 20000);
     }
 
     // Highlight del contact badge quando lo vedi

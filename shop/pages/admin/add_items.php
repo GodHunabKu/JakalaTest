@@ -54,14 +54,24 @@
         if($_POST['count']<=0)
             $_POST['count']=1;
 
-        for($i=0;$i<=6;$i++)
+        for($i=0;$i<=6;$i++) {
+            if(!isset($_POST['attrtype'.$i])) $_POST['attrtype'.$i] = 0;
+            if(!isset($_POST['attrvalue'.$i])) $_POST['attrvalue'.$i] = 0;
             if($_POST['attrtype'.$i]==0)
                 $_POST['attrvalue'.$i]=0;
+        }
 
-        if(check_item_column("applytype0"))
-            for($i=0;$i<=7;$i++)
+        if(check_item_column("applytype0")) {
+            for($i=0;$i<=7;$i++) {
+                if(!isset($_POST['applytype'.$i])) $_POST['applytype'.$i] = 0;
+                if(!isset($_POST['applyvalue'.$i])) $_POST['applyvalue'.$i] = 0;
                 if($_POST['applytype'.$i]==0)
                     $_POST['applyvalue'.$i]=0;
+            }
+        }
+
+        // Absorption field (potrebbe non esistere)
+        if(!isset($_POST['absorption'])) $_POST['absorption'] = 0;
 
         $socket0 = !empty($_POST['socket0']) ? $_POST['socket0'] : 0;
         $socket1 = !empty($_POST['socket1']) ? $_POST['socket1'] : 0;
