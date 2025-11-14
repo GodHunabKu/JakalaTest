@@ -48,10 +48,16 @@
 	if($current_page=='item' || $current_page=='buy')
 	{
 		$get_item = isset($_GET['id']) ? validate_id($_GET['id'], 1, 999999) : 1;
-		
+
 		$item = array();
 		$item = is_item_select($get_item);
-		
+
+		// Define item_name for use in sidebar and templates
+		if(!$item_name_db)
+			$item_name = get_item_name($item[0]['vnum']);
+		else
+			$item_name = get_item_name_locale_name($item[0]['vnum']);
+
 		if($item[0]['type']==3) {
 			$bonuses_name = is_get_bonuses_new_name();
 			$bonuses = is_get_bonus_selection($get_item);

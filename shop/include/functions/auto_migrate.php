@@ -4,11 +4,33 @@
  * Aggiunge colonne al database automaticamente quando servono
  */
 
+/**
+ * Check if a column exists in SQLite item_shop_items table
+ */
+function check_sqlite_column($column_name) {
+    global $database;
+
+    try {
+        $stmt = $database->runQuerySqlite("PRAGMA table_info(item_shop_items)");
+        $stmt->execute();
+        $columns = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach($columns as $col) {
+            if($col['name'] === $column_name) {
+                return true;
+            }
+        }
+        return false;
+    } catch(Exception $e) {
+        return false;
+    }
+}
+
 function ensure_custom_image_column() {
     global $database;
 
-    // Controlla se esiste già
-    if (check_item_column("custom_image")) {
+    // Controlla se esiste già usando la funzione SQLite
+    if (check_sqlite_column("custom_image")) {
         return true;
     }
 
@@ -17,7 +39,10 @@ function ensure_custom_image_column() {
         $database->execQuerySqlite("ALTER TABLE item_shop_items ADD COLUMN custom_image TEXT DEFAULT NULL");
         return true;
     } catch(Exception $e) {
-        error_log("Error creating custom_image column: " . $e->getMessage());
+        // Solo log se non è un errore di colonna duplicata
+        if(strpos($e->getMessage(), 'duplicate column') === false) {
+            error_log("Error creating custom_image column: " . $e->getMessage());
+        }
         return false;
     }
 }
@@ -25,8 +50,8 @@ function ensure_custom_image_column() {
 function ensure_sort_order_column() {
     global $database;
 
-    // Controlla se esiste già
-    if (check_item_column("sort_order")) {
+    // Controlla se esiste già usando la funzione SQLite
+    if (check_sqlite_column("sort_order")) {
         return true;
     }
 
@@ -39,7 +64,10 @@ function ensure_sort_order_column() {
 
         return true;
     } catch(Exception $e) {
-        error_log("Error creating sort_order column: " . $e->getMessage());
+        // Solo log se non è un errore di colonna duplicata
+        if(strpos($e->getMessage(), 'duplicate column') === false) {
+            error_log("Error creating sort_order column: " . $e->getMessage());
+        }
         return false;
     }
 }
