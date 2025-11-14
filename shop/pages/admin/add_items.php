@@ -37,11 +37,14 @@
 
     // LOGICA PHP ESISTENTE PER GESTIRE IL SUBMIT DEL MODULO
     $added = false;
+    $error_message = '';
 
     if(isset($_POST['add']))
     {
         // CSRF Protection
         csrf_check();
+
+        try {
 
         $time_settings = get_settings_time(1);
         $time2_settings = get_settings_time(2);
@@ -100,73 +103,94 @@
             
         if(check_item_column("applytype0") && check_item_sash($_POST['vnum']) && $time2==0)
         {
-            $added = true;
             $stmt = $database->runQuerySqlite('INSERT INTO item_shop_items (category, description, pay_type, coins, count, vnum, socket'.$absorption_settings.', socket'.$time_settings.', attrtype0, attrvalue0, attrtype1 , attrvalue1, attrtype2, attrvalue2, attrtype3, attrvalue3, attrtype4, attrvalue4, attrtype5, attrvalue5, attrtype6, attrvalue6, applytype0, applyvalue0, applytype1, applyvalue1, applytype2, applyvalue2, applytype3, applyvalue3, applytype4, applyvalue4, applytype5, applyvalue5, applytype6, applyvalue6, applytype7, applyvalue7, expire, item_unique) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
-            $stmt->execute(array($get_category, $_POST['description'], $_POST['method_pay'], $_POST['coins'], $_POST['count'], $_POST['vnum'], $_POST['absorption'], $time,
-                                $_POST['attrtype0'], $_POST['attrvalue0'], $_POST['attrtype1'], $_POST['attrvalue1'], $_POST['attrtype2'], $_POST['attrvalue2'], 
-                                $_POST['attrtype3'], $_POST['attrvalue3'], $_POST['attrtype4'], $_POST['attrvalue4'], $_POST['attrtype5'], $_POST['attrvalue5'], 
-                                $_POST['attrtype6'], $_POST['attrvalue6'], 
-                                $_POST['applytype0'], $_POST['applyvalue0'], $_POST['applytype1'], $_POST['applyvalue1'], $_POST['applytype2'], $_POST['applyvalue2'], 
-                                $_POST['applytype3'], $_POST['applyvalue3'], $_POST['applytype4'], $_POST['applyvalue4'], $_POST['applytype5'], $_POST['applyvalue5'], 
+            $result = $stmt->execute(array($get_category, $_POST['description'], $_POST['method_pay'], $_POST['coins'], $_POST['count'], $_POST['vnum'], $_POST['absorption'], $time,
+                                $_POST['attrtype0'], $_POST['attrvalue0'], $_POST['attrtype1'], $_POST['attrvalue1'], $_POST['attrtype2'], $_POST['attrvalue2'],
+                                $_POST['attrtype3'], $_POST['attrvalue3'], $_POST['attrtype4'], $_POST['attrvalue4'], $_POST['attrtype5'], $_POST['attrvalue5'],
+                                $_POST['attrtype6'], $_POST['attrvalue6'],
+                                $_POST['applytype0'], $_POST['applyvalue0'], $_POST['applytype1'], $_POST['applyvalue1'], $_POST['applytype2'], $_POST['applyvalue2'],
+                                $_POST['applytype3'], $_POST['applyvalue3'], $_POST['applytype4'], $_POST['applyvalue4'], $_POST['applytype5'], $_POST['applyvalue5'],
                                 $_POST['applytype6'], $_POST['applyvalue6'], $_POST['applytype7'], $_POST['applyvalue7'], $expire, $item_unique));
+            if(!$result) {
+                throw new Exception('Failed to insert item (sash with time)');
+            }
+            $added = true;
         }
         else if(check_item_column("applytype0") && check_item_sash($_POST['vnum']) && $time2)
         {
-            $added = true;
             $type = 1;
             $stmt = $database->runQuerySqlite('INSERT INTO item_shop_items (category, description, pay_type, coins, count, vnum, socket'.$absorption_settings.', socket'.$time2_settings.', attrtype0, attrvalue0, attrtype1 , attrvalue1, attrtype2, attrvalue2, attrtype3, attrvalue3, attrtype4, attrvalue4, attrtype5, attrvalue5, attrtype6, attrvalue6, applytype0, applyvalue0, applytype1, applyvalue1, applytype2, applyvalue2, applytype3, applyvalue3, applytype4, applyvalue4, applytype5, applyvalue5, applytype6, applyvalue6, applytype7, applyvalue7, type, expire, item_unique) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
-            $stmt->execute(array($get_category, $_POST['description'], $_POST['method_pay'], $_POST['coins'], $_POST['count'], $_POST['vnum'], $_POST['absorption'], $time2,
-                                $_POST['attrtype0'], $_POST['attrvalue0'], $_POST['attrtype1'], $_POST['attrvalue1'], $_POST['attrtype2'], $_POST['attrvalue2'], 
-                                $_POST['attrtype3'], $_POST['attrvalue3'], $_POST['attrtype4'], $_POST['attrvalue4'], $_POST['attrtype5'], $_POST['attrvalue5'], 
-                                $_POST['attrtype6'], $_POST['attrvalue6'], 
-                                $_POST['applytype0'], $_POST['applyvalue0'], $_POST['applytype1'], $_POST['applyvalue1'], $_POST['applytype2'], $_POST['applyvalue2'], 
-                                $_POST['applytype3'], $_POST['applyvalue3'], $_POST['applytype4'], $_POST['applyvalue4'], $_POST['applytype5'], $_POST['applyvalue5'], 
+            $result = $stmt->execute(array($get_category, $_POST['description'], $_POST['method_pay'], $_POST['coins'], $_POST['count'], $_POST['vnum'], $_POST['absorption'], $time2,
+                                $_POST['attrtype0'], $_POST['attrvalue0'], $_POST['attrtype1'], $_POST['attrvalue1'], $_POST['attrtype2'], $_POST['attrvalue2'],
+                                $_POST['attrtype3'], $_POST['attrvalue3'], $_POST['attrtype4'], $_POST['attrvalue4'], $_POST['attrtype5'], $_POST['attrvalue5'],
+                                $_POST['attrtype6'], $_POST['attrvalue6'],
+                                $_POST['applytype0'], $_POST['applyvalue0'], $_POST['applytype1'], $_POST['applyvalue1'], $_POST['applytype2'], $_POST['applyvalue2'],
+                                $_POST['applytype3'], $_POST['applyvalue3'], $_POST['applytype4'], $_POST['applyvalue4'], $_POST['applytype5'], $_POST['applyvalue5'],
                                 $_POST['applytype6'], $_POST['applyvalue6'], $_POST['applytype7'], $_POST['applyvalue7'], $type, $expire, $item_unique));
+            if(!$result) {
+                throw new Exception('Failed to insert item (sash with time2)');
+            }
+            $added = true;
         }
         else if(check_item_column("applytype0") && ($socket0 || $socket1 || $socket2))
         {
-            $added = true;
             $type = 2;
             $stmt = $database->runQuerySqlite('INSERT INTO item_shop_items (category, description, pay_type, coins, count, vnum, socket0, socket1, socket2, attrtype0, attrvalue0, attrtype1 , attrvalue1, attrtype2, attrvalue2, attrtype3, attrvalue3, attrtype4, attrvalue4, attrtype5, attrvalue5, attrtype6, attrvalue6, applytype0, applyvalue0, applytype1, applyvalue1, applytype2, applyvalue2, applytype3, applyvalue3, applytype4, applyvalue4, applytype5, applyvalue5, applytype6, applyvalue6, applytype7, applyvalue7, type, expire, item_unique) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
-            $stmt->execute(array($get_category, $_POST['description'], $_POST['method_pay'], $_POST['coins'], $_POST['count'], $_POST['vnum'], $socket0, $socket1, $socket2,
-                                $_POST['attrtype0'], $_POST['attrvalue0'], $_POST['attrtype1'], $_POST['attrvalue1'], $_POST['attrtype2'], $_POST['attrvalue2'], 
-                                $_POST['attrtype3'], $_POST['attrvalue3'], $_POST['attrtype4'], $_POST['attrvalue4'], $_POST['attrtype5'], $_POST['attrvalue5'], 
-                                $_POST['attrtype6'], $_POST['attrvalue6'], 
-                                $_POST['applytype0'], $_POST['applyvalue0'], $_POST['applytype1'], $_POST['applyvalue1'], $_POST['applytype2'], $_POST['applyvalue2'], 
-                                $_POST['applytype3'], $_POST['applyvalue3'], $_POST['applytype4'], $_POST['applyvalue4'], $_POST['applytype5'], $_POST['applyvalue5'], 
+            $result = $stmt->execute(array($get_category, $_POST['description'], $_POST['method_pay'], $_POST['coins'], $_POST['count'], $_POST['vnum'], $socket0, $socket1, $socket2,
+                                $_POST['attrtype0'], $_POST['attrvalue0'], $_POST['attrtype1'], $_POST['attrvalue1'], $_POST['attrtype2'], $_POST['attrvalue2'],
+                                $_POST['attrtype3'], $_POST['attrvalue3'], $_POST['attrtype4'], $_POST['attrvalue4'], $_POST['attrtype5'], $_POST['attrvalue5'],
+                                $_POST['attrtype6'], $_POST['attrvalue6'],
+                                $_POST['applytype0'], $_POST['applyvalue0'], $_POST['applytype1'], $_POST['applyvalue1'], $_POST['applytype2'], $_POST['applyvalue2'],
+                                $_POST['applytype3'], $_POST['applyvalue3'], $_POST['applytype4'], $_POST['applyvalue4'], $_POST['applytype5'], $_POST['applyvalue5'],
                                 $_POST['applytype6'], $_POST['applyvalue6'], $_POST['applytype7'], $_POST['applyvalue7'], $type, $expire, $item_unique));
+            if(!$result) {
+                throw new Exception('Failed to insert item (with sockets and applytype)');
+            }
+            $added = true;
         }
         else if($socket0 || $socket1 || $socket2)
         {
-            $added = true;
             $stmt = $database->runQuerySqlite('INSERT INTO item_shop_items (category, description, pay_type, coins, count, vnum, socket0, socket1, socket2, attrtype0, attrvalue0, attrtype1 , attrvalue1, attrtype2, attrvalue2, attrtype3, attrvalue3, attrtype4, attrvalue4, attrtype5, attrvalue5, attrtype6, attrvalue6, expire, item_unique) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
-            $stmt->execute(array($get_category, $_POST['description'], $_POST['method_pay'], $_POST['coins'], $_POST['count'], $_POST['vnum'], $socket0, $socket1, $socket2,
-                                $_POST['attrtype0'], $_POST['attrvalue0'], $_POST['attrtype1'], $_POST['attrvalue1'], $_POST['attrtype2'], $_POST['attrvalue2'], 
-                                $_POST['attrtype3'], $_POST['attrvalue3'], $_POST['attrtype4'], $_POST['attrvalue4'], $_POST['attrtype5'], $_POST['attrvalue5'], 
+            $result = $stmt->execute(array($get_category, $_POST['description'], $_POST['method_pay'], $_POST['coins'], $_POST['count'], $_POST['vnum'], $socket0, $socket1, $socket2,
+                                $_POST['attrtype0'], $_POST['attrvalue0'], $_POST['attrtype1'], $_POST['attrvalue1'], $_POST['attrtype2'], $_POST['attrvalue2'],
+                                $_POST['attrtype3'], $_POST['attrvalue3'], $_POST['attrtype4'], $_POST['attrvalue4'], $_POST['attrtype5'], $_POST['attrvalue5'],
                                 $_POST['attrtype6'], $_POST['attrvalue6'], $expire, $item_unique));
+            if(!$result) {
+                throw new Exception('Failed to insert item (with sockets)');
+            }
+            $added = true;
         }
         else if($time2==0 && $time > 0)
         {
-            $added = true;
             $stmt = $database->runQuerySqlite('INSERT INTO item_shop_items (category, description, pay_type, coins, count, vnum, socket'.$time_settings.', attrtype0, attrvalue0, attrtype1 , attrvalue1, attrtype2, attrvalue2, attrtype3, attrvalue3, attrtype4, attrvalue4, attrtype5, attrvalue5, attrtype6, attrvalue6, expire, item_unique) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
-            $stmt->execute(array($get_category, $_POST['description'], $_POST['method_pay'], $_POST['coins'], $_POST['count'], $_POST['vnum'], $time,
-                                $_POST['attrtype0'], $_POST['attrvalue0'], $_POST['attrtype1'], $_POST['attrvalue1'], $_POST['attrtype2'], $_POST['attrvalue2'], 
-                                $_POST['attrtype3'], $_POST['attrvalue3'], $_POST['attrtype4'], $_POST['attrvalue4'], $_POST['attrtype5'], $_POST['attrvalue5'], 
+            $result = $stmt->execute(array($get_category, $_POST['description'], $_POST['method_pay'], $_POST['coins'], $_POST['count'], $_POST['vnum'], $time,
+                                $_POST['attrtype0'], $_POST['attrvalue0'], $_POST['attrtype1'], $_POST['attrvalue1'], $_POST['attrtype2'], $_POST['attrvalue2'],
+                                $_POST['attrtype3'], $_POST['attrvalue3'], $_POST['attrtype4'], $_POST['attrvalue4'], $_POST['attrtype5'], $_POST['attrvalue5'],
                                 $_POST['attrtype6'], $_POST['attrvalue6'], $expire, $item_unique));
-        } else if ($time2 > 0) {
+            if(!$result) {
+                throw new Exception('Failed to insert item (with time)');
+            }
             $added = true;
+        } else if ($time2 > 0) {
             $stmt = $database->runQuerySqlite('INSERT INTO item_shop_items (category, description, pay_type, coins, count, vnum, socket'.$time2_settings.', attrtype0, attrvalue0, attrtype1 , attrvalue1, attrtype2, attrvalue2, attrtype3, attrvalue3, attrtype4, attrvalue4, attrtype5, attrvalue5, attrtype6, attrvalue6, expire, item_unique) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
-            $stmt->execute(array($get_category, $_POST['description'], $_POST['method_pay'], $_POST['coins'], $_POST['count'], $_POST['vnum'], $time2,
-                                $_POST['attrtype0'], $_POST['attrvalue0'], $_POST['attrtype1'], $_POST['attrvalue1'], $_POST['attrtype2'], $_POST['attrvalue2'], 
-                                $_POST['attrtype3'], $_POST['attrvalue3'], $_POST['attrtype4'], $_POST['attrvalue4'], $_POST['attrtype5'], $_POST['attrvalue5'], 
+            $result = $stmt->execute(array($get_category, $_POST['description'], $_POST['method_pay'], $_POST['coins'], $_POST['count'], $_POST['vnum'], $time2,
+                                $_POST['attrtype0'], $_POST['attrvalue0'], $_POST['attrtype1'], $_POST['attrvalue1'], $_POST['attrtype2'], $_POST['attrvalue2'],
+                                $_POST['attrtype3'], $_POST['attrvalue3'], $_POST['attrtype4'], $_POST['attrvalue4'], $_POST['attrtype5'], $_POST['attrvalue5'],
                                 $_POST['attrtype6'], $_POST['attrvalue6'], $expire, $item_unique));
+            if(!$result) {
+                throw new Exception('Failed to insert item (with time2)');
+            }
+            $added = true;
         } else {
-             $added = true;
              $stmt = $database->runQuerySqlite('INSERT INTO item_shop_items (category, description, pay_type, coins, count, vnum, attrtype0, attrvalue0, attrtype1 , attrvalue1, attrtype2, attrvalue2, attrtype3, attrvalue3, attrtype4, attrvalue4, attrtype5, attrvalue5, attrtype6, attrvalue6, expire, item_unique) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
-             $stmt->execute(array($get_category, $_POST['description'], $_POST['method_pay'], $_POST['coins'], $_POST['count'], $_POST['vnum'],
+             $result = $stmt->execute(array($get_category, $_POST['description'], $_POST['method_pay'], $_POST['coins'], $_POST['count'], $_POST['vnum'],
                                  $_POST['attrtype0'], $_POST['attrvalue0'], $_POST['attrtype1'], $_POST['attrvalue1'], $_POST['attrtype2'], $_POST['attrvalue2'],
                                  $_POST['attrtype3'], $_POST['attrvalue3'], $_POST['attrtype4'], $_POST['attrvalue4'], $_POST['attrtype5'], $_POST['attrvalue5'],
                                  $_POST['attrtype6'], $_POST['attrvalue6'], $expire, $item_unique));
+             if(!$result) {
+                 throw new Exception('Failed to insert item (basic)');
+             }
+             $added = true;
         }
     }
     
@@ -174,6 +198,10 @@
         // Update custom fields if they exist in database
         if ($has_custom_image || $has_sort_order) {
             $last_id = $database->getSqliteBonuslastInsertId();
+
+            if(!$last_id) {
+                throw new Exception('Failed to get last insert ID');
+            }
 
             $update_fields = [];
             $update_values = [];
@@ -192,11 +220,27 @@
                 $update_values[] = $last_id;
                 $update_sql = "UPDATE item_shop_items SET " . implode(', ', $update_fields) . " WHERE id = ?";
                 $update_stmt = $database->runQuerySqlite($update_sql);
-                $update_stmt->execute($update_values);
+                $update_result = $update_stmt->execute($update_values);
+
+                if(!$update_result) {
+                    throw new Exception('Failed to update custom fields (custom_image/sort_order)');
+                }
             }
         }
 
-        print '<div class="alert alert-success" style="margin-bottom: 20px;">'.$lang_shop['item_added'].'</div>';
+        print '<div class="alert alert-success" style="margin-bottom: 20px;"><i class="fas fa-check-circle"></i> '.$lang_shop['item_added'].'</div>';
+    }
+
+    } catch (Exception $e) {
+        $error_message = $e->getMessage();
+        error_log("Shop Item Add Error: " . $error_message);
+        print '<div class="alert alert-danger" style="margin-bottom: 20px;"><i class="fas fa-exclamation-triangle"></i> <strong>Errore:</strong> ' . htmlspecialchars($error_message) . '</div>';
+    }
+    }
+
+    // Display error if any
+    if(!empty($error_message) && !$added) {
+        print '<div class="alert alert-warning" style="margin-bottom: 20px;"><i class="fas fa-info-circle"></i> L\'oggetto non è stato aggiunto. Controlla i dati inseriti.</div>';
     }
     ?>
 
@@ -482,7 +526,7 @@
     </form>
 </div>
 
-<!-- Stile per l'anteprima -->
+<!-- Stile per l'anteprima e gli alert -->
 <style>
 .item-preview-box, .item-preview-error {
     display: flex;
@@ -514,6 +558,48 @@
 }
 .item-preview-error i {
     margin-right: 10px;
+}
+
+/* Alert Styles */
+.alert {
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 1px solid;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 15px;
+    line-height: 1.5;
+    animation: slideInDown 0.4s ease-out;
+}
+.alert i {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+.alert-success {
+    background: linear-gradient(135deg, rgba(46, 213, 115, 0.15) 0%, rgba(46, 213, 115, 0.05) 100%);
+    border-color: rgba(46, 213, 115, 0.4);
+    color: #1e874b;
+}
+.alert-danger {
+    background: linear-gradient(135deg, rgba(235, 77, 75, 0.15) 0%, rgba(235, 77, 75, 0.05) 100%);
+    border-color: rgba(235, 77, 75, 0.4);
+    color: #c0392b;
+}
+.alert-warning {
+    background: linear-gradient(135deg, rgba(255, 159, 67, 0.15) 0%, rgba(255, 159, 67, 0.05) 100%);
+    border-color: rgba(255, 159, 67, 0.4);
+    color: #d68910;
+}
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 </style>
 
