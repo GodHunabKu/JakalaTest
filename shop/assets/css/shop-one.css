@@ -2825,6 +2825,560 @@ textarea:focus {
     }
 }
 
+/* =========================================================
+   FORM ELEMENTS - Specifici per Admin & Pages
+   ========================================================= */
+
+.form-input,
+.form-select {
+    width: 100%;
+    padding: 14px 20px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid var(--glass-border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 15px;
+    font-family: var(--font-primary);
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.form-input:focus,
+.form-select:focus {
+    outline: none;
+    border-color: var(--one-scarlet);
+    background: rgba(0, 0, 0, 0.7);
+    box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.15);
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.form-label i {
+    color: var(--one-scarlet);
+    font-size: 16px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================
+   COMPLETE BUTTON SYSTEM
+   ========================================================= */
+
+/* Submit Buttons */
+.btn-submit {
+    width: 100%;
+    padding: 18px 28px;
+    background: var(--accent-gradient);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(220, 20, 60, 0.4);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-submit:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(220, 20, 60, 0.6);
+}
+
+.btn-submit:active {
+    transform: translateY(-1px);
+}
+
+.btn-submit::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s;
+}
+
+.btn-submit:hover::before {
+    left: 100%;
+}
+
+/* Cancel Button */
+.btn-cancel {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 28px;
+    background: transparent;
+    border: 2px solid var(--glass-border);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    font-family: var(--font-heading);
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.btn-cancel:hover {
+    border-color: var(--one-scarlet);
+    color: var(--one-scarlet);
+    background: rgba(220, 20, 60, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Back Button */
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 24px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: var(--transition);
+    margin-bottom: 25px;
+}
+
+.btn-back:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--one-scarlet);
+    color: var(--text-primary);
+    transform: translateX(-5px);
+}
+
+.btn-back i {
+    font-size: 16px;
+    transition: var(--transition);
+}
+
+.btn-back:hover i {
+    transform: translateX(-3px);
+}
+
+/* Toggle All Button */
+.btn-toggle-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--transition);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-toggle-all:hover {
+    background: rgba(255, 215, 0, 0.1);
+    border-color: var(--one-gold);
+    color: var(--one-gold);
+}
+
+.btn-toggle-all i {
+    font-size: 14px;
+}
+
+/* Action Buttons (per tabelle) */
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+    text-decoration: none;
+}
+
+.btn-action.btn-primary {
+    background: var(--accent-gradient);
+    color: white;
+    box-shadow: 0 3px 10px rgba(220, 20, 60, 0.3);
+}
+
+.btn-action.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(220, 20, 60, 0.5);
+}
+
+.btn-action.btn-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #bd2130 100%);
+    color: white;
+    box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3);
+}
+
+.btn-action.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.5);
+}
+
+/* Admin Button Variants - Success & Info */
+.btn-admin-success {
+    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+    color: white;
+    box-shadow: 0 5px 20px rgba(40, 167, 69, 0.3);
+}
+
+.btn-admin-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(40, 167, 69, 0.5);
+}
+
+.btn-admin-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%);
+    color: white;
+    box-shadow: 0 5px 20px rgba(23, 162, 184, 0.3);
+}
+
+.btn-admin-info:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(23, 162, 184, 0.5);
+}
+
+/* Logout Page Buttons */
+.btn-logout-home,
+.btn-logout-login {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px 32px;
+    border-radius: 12px;
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    border: none;
+}
+
+.btn-logout-home {
+    background: var(--accent-gradient);
+    color: white;
+    box-shadow: 0 10px 30px rgba(220, 20, 60, 0.4);
+}
+
+.btn-logout-home:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(220, 20, 60, 0.6);
+}
+
+.btn-logout-login {
+    background: transparent;
+    border: 2px solid var(--glass-border);
+    color: var(--text-secondary);
+}
+
+.btn-logout-login:hover {
+    border-color: var(--one-scarlet);
+    color: var(--text-primary);
+    background: rgba(220, 20, 60, 0.1);
+}
+
+/* Notice Login Button */
+.btn-notice-login {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 28px;
+    background: var(--accent-gradient);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-weight: 700;
+    font-size: 15px;
+    text-decoration: none;
+    box-shadow: 0 8px 25px rgba(220, 20, 60, 0.4);
+    transition: var(--transition);
+}
+
+.btn-notice-login:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(220, 20, 60, 0.6);
+}
+
+.btn-notice-login i {
+    font-size: 18px;
+}
+
+/* Package Buttons (Coins Page) */
+.btn-package {
+    width: 100%;
+    padding: 18px 24px;
+    background: var(--accent-gradient);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(220, 20, 60, 0.4);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-package:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(220, 20, 60, 0.6);
+}
+
+.btn-package:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.btn-package::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-package:hover::after {
+    width: 300px;
+    height: 300px;
+}
+
+/* Button Groups */
+.button-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+    flex-wrap: wrap;
+}
+
+.button-group .btn-submit {
+    flex: 1;
+    min-width: 200px;
+}
+
+.button-group .btn-cancel {
+    flex: 1;
+    min-width: 200px;
+}
+
+@media (max-width: 768px) {
+    .button-group {
+        flex-direction: column;
+    }
+
+    .button-group .btn-submit,
+    .button-group .btn-cancel {
+        width: 100%;
+    }
+}
+
+/* =========================================================
+   TABLE STYLES (per pagine admin)
+   ========================================================= */
+
+.admin-table {
+    width: 100%;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.admin-table thead {
+    background: rgba(220, 20, 60, 0.1);
+}
+
+.admin-table th {
+    padding: 16px 20px;
+    text-align: left;
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 2px solid var(--glass-border);
+}
+
+.admin-table td {
+    padding: 16px 20px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-table tbody tr {
+    transition: var(--transition);
+}
+
+.admin-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Table Actions Column */
+.table-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* =========================================================
+   PACKAGE CARDS (Coins Page)
+   ========================================================= */
+
+.packages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+    padding: 20px 0;
+}
+
+.package-card {
+    background: var(--glass-bg);
+    border: 2px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 35px 30px;
+    text-align: center;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.package-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--accent-gradient);
+    transform: scaleX(0);
+    transition: transform 0.4s;
+}
+
+.package-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--one-scarlet);
+    box-shadow: 0 20px 60px rgba(220, 20, 60, 0.4);
+}
+
+.package-card:hover::before {
+    transform: scaleX(1);
+}
+
+.package-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-gradient);
+    border-radius: 50%;
+    box-shadow: 0 10px 30px rgba(220, 20, 60, 0.3);
+}
+
+.package-icon i {
+    font-size: 40px;
+    color: white;
+}
+
+.package-amount {
+    font-family: var(--font-heading);
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--text-primary);
+    margin: 15px 0;
+}
+
+.package-price {
+    font-size: 24px;
+    color: var(--one-gold);
+    font-weight: 700;
+    margin-bottom: 25px;
+}
+
+.package-features {
+    list-style: none;
+    margin: 20px 0;
+    padding: 0;
+}
+
+.package-features li {
+    color: var(--text-secondary);
+    font-size: 14px;
+    padding: 8px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.package-features li i {
+    color: var(--one-scarlet);
+    font-size: 12px;
+}
+
+@media (max-width: 768px) {
+    .packages-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* =================================
    ANIMATIONS & UTILITIES
    ================================= */

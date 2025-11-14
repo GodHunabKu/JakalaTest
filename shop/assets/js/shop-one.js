@@ -29,6 +29,10 @@
         initSmoothScrolling();
         initFormValidation();
         initTooltips();
+        initToggleAllBonuses();
+        initButtonAnimations();
+        initTableInteractions();
+        initPackageCards();
 
         console.log('%c⚔️ ONE SHOP - Ultimate Edition Loaded!',
             'color: #DC143C; font-size: 16px; font-weight: bold; text-shadow: 0 0 10px rgba(220, 20, 60, 0.5);');
@@ -352,12 +356,215 @@
     }
 
     /**
+     * Toggle All Bonuses (per pagina add_items_bonus)
+     */
+    function initToggleAllBonuses() {
+        const toggleBtn = document.querySelector('.btn-toggle-all');
+        if (!toggleBtn) return;
+
+        toggleBtn.addEventListener('click', function() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"][name^="bonus"]');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = !allChecked;
+
+                // Trigger change event per eventuali listener
+                const event = new Event('change', { bubbles: true });
+                checkbox.dispatchEvent(event);
+            });
+
+            // Update button text
+            this.innerHTML = allChecked
+                ? '<i class="fas fa-check-square"></i> Seleziona Tutti'
+                : '<i class="fas fa-square"></i> Deseleziona Tutti';
+        });
+    }
+
+    /**
+     * Button Animations - Effetti click per tutti i pulsanti
+     */
+    function initButtonAnimations() {
+        const buttons = document.querySelectorAll('.btn-submit, .btn-package, .btn-purchase-main, .btn-admin');
+
+        buttons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                // Ripple effect
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.className = 'ripple-effect';
+
+                this.appendChild(ripple);
+
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Add ripple CSS dynamically if not present
+        if (!document.getElementById('ripple-styles')) {
+            const style = document.createElement('style');
+            style.id = 'ripple-styles';
+            style.textContent = `
+                .ripple-effect {
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.6);
+                    transform: scale(0);
+                    animation: ripple-animation 0.6s ease-out;
+                    pointer-events: none;
+                }
+                @keyframes ripple-animation {
+                    to {
+                        transform: scale(2);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+
+    /**
+     * Table Interactions (per tabelle admin)
+     */
+    function initTableInteractions() {
+        const tables = document.querySelectorAll('.admin-table');
+        if (tables.length === 0) return;
+
+        tables.forEach(table => {
+            const rows = table.querySelectorAll('tbody tr');
+
+            rows.forEach(row => {
+                // Highlight row on hover
+                row.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.01)';
+                });
+
+                row.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+
+                // Confirm delete actions
+                const deleteButtons = row.querySelectorAll('.btn-danger, .btn-admin-danger');
+                deleteButtons.forEach(btn => {
+                    if (!btn.hasAttribute('onclick')) {
+                        btn.addEventListener('click', function(e) {
+                            if (!confirm('Sei sicuro di voler eliminare questo elemento?')) {
+                                e.preventDefault();
+                                return false;
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    }
+
+    /**
+     * Package Cards (per coins page)
+     */
+    function initPackageCards() {
+        const packageCards = document.querySelectorAll('.package-card');
+        if (packageCards.length === 0) return;
+
+        packageCards.forEach(card => {
+            // Add hover parallax effect
+            card.addEventListener('mousemove', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+
+                this.style.transform = `translateY(-10px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) rotateX(0) rotateY(0)';
+            });
+        });
+
+        // Handle package button clicks
+        const packageButtons = document.querySelectorAll('.btn-package');
+        packageButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                if (this.disabled) return;
+
+                // Add loading state
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Elaborazione...';
+                this.disabled = true;
+
+                // Simulate processing (remove in production, handle via form submit)
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                }, 2000);
+            });
+        });
+    }
+
+    /**
+     * Form Enhancement - Real-time validation feedback
+     */
+    function enhanceFormInputs() {
+        const inputs = document.querySelectorAll('.form-input, .form-select, input[type="text"], input[type="number"], input[type="email"]');
+
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.hasAttribute('required') && !this.value.trim()) {
+                    this.style.borderColor = '#dc3545';
+                } else {
+                    this.style.borderColor = '';
+                }
+            });
+
+            input.addEventListener('input', function() {
+                this.style.borderColor = '';
+            });
+        });
+    }
+
+    /**
+     * Toggle All Bonuses - Funzione globale per onclick HTML
+     */
+    window.toggleAllBonuses = function() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][name^="bonus"]');
+        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = !allChecked;
+        });
+
+        // Update button text if exists
+        const btn = document.querySelector('.btn-toggle-all');
+        if (btn) {
+            btn.innerHTML = allChecked
+                ? '<i class="fas fa-check-square"></i> Seleziona Tutti'
+                : '<i class="fas fa-square"></i> Deseleziona Tutti';
+        }
+    };
+
+    /**
      * Export funzioni globali se necessario
      */
     window.ONESHOP = {
         formatNumber: formatNumber,
         closeMobileMenu: closeMobileMenu,
-        toggleMobileMenu: toggleMobileMenu
+        toggleMobileMenu: toggleMobileMenu,
+        enhanceFormInputs: enhanceFormInputs,
+        toggleAllBonuses: window.toggleAllBonuses
     };
 
     /**
