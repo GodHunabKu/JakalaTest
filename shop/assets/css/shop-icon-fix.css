@@ -93,10 +93,10 @@
     border-radius: 16px;
     overflow: hidden;
     box-shadow: var(--shadow-lg);
-    padding: 40px;
+    padding: 30px;
     text-align: center;
     position: relative;
-    min-height: 350px;
+    min-height: 240px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -111,11 +111,11 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 200px;
-    height: 200px;
+    width: 140px;
+    height: 140px;
     background: rgba(0, 0, 0, 0.3);
     border: 2px solid rgba(220, 20, 60, 0.3);
-    border-radius: 16px;
+    border-radius: 12px;
     box-shadow:
         0 4px 20px rgba(0, 0, 0, 0.4) inset,
         0 0 30px rgba(220, 20, 60, 0.2);
@@ -123,18 +123,18 @@
 
 /* Immagine item nel dettaglio */
 .item-image-box img {
-    max-height: 150px !important;
-    max-width: 150px !important;
+    max-height: 96px !important;
+    max-width: 96px !important;
     width: auto !important;
     height: auto !important;
     object-fit: contain !important;
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
-    filter: drop-shadow(0 0 30px rgba(220, 20, 60, 0.7));
+    filter: drop-shadow(0 0 25px rgba(220, 20, 60, 0.7));
     position: relative;
     z-index: 2;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     transition: all 0.3s ease;
 }
 
@@ -413,22 +413,22 @@
     }
 
     .item-image-box {
-        min-height: 280px;
-        padding: 30px;
+        min-height: 220px;
+        padding: 25px;
     }
 
     .item-image-box::before {
-        width: 160px;
-        height: 160px;
+        width: 120px;
+        height: 120px;
     }
 
     .item-image-box img {
-        max-height: 120px !important;
-        max-width: 120px !important;
+        max-height: 80px !important;
+        max-width: 80px !important;
     }
 
     .item-image-box h3 {
-        font-size: 20px;
+        font-size: 18px;
     }
 
     .price-amount {
@@ -461,22 +461,22 @@
 
     /* Dettaglio item */
     .item-image-box {
-        min-height: 250px;
-        padding: 25px;
+        min-height: 200px;
+        padding: 20px;
     }
 
     .item-image-box::before {
-        width: 140px;
-        height: 140px;
+        width: 100px;
+        height: 100px;
     }
 
     .item-image-box img {
-        max-height: 100px !important;
-        max-width: 100px !important;
+        max-height: 70px !important;
+        max-width: 70px !important;
     }
 
     .item-image-box h3 {
-        font-size: 18px;
+        font-size: 16px;
         letter-spacing: 1px;
     }
 
