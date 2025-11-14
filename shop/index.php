@@ -22,6 +22,7 @@ include 'include/functions/header.php';
     <!-- Shop ONE CSS -->
     <link rel="stylesheet" type="text/css" href="<?php print $shop_url; ?>assets/css/shop-one-ultimate10.css" />
     <link rel="stylesheet" type="text/css" href="<?php print $shop_url; ?>assets/css/shop-one-fix-v5.css" />
+    <link rel="stylesheet" type="text/css" href="<?php print $shop_url; ?>assets/css/shop-one-fix-v6.css" />
     
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="<?php print $shop_url; ?>assets/img/logosito.png">
