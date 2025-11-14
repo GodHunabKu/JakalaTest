@@ -22,7 +22,8 @@ include 'include/functions/header.php';
     <!-- Shop ONE CSS -->
     <link rel="stylesheet" type="text/css" href="<?php print $shop_url; ?>assets/css/shop-one-ultimate10.css" />
     <link rel="stylesheet" type="text/css" href="<?php print $shop_url; ?>assets/css/shop-one-fix-v5.css" />
-    
+    <link rel="stylesheet" type="text/css" href="<?php print $shop_url; ?>assets/css/shop-icon-fix.css" />
+
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="<?php print $shop_url; ?>assets/img/logosito.png">
 </head>
@@ -420,26 +421,11 @@ include 'include/functions/header.php';
 $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip();
 });
-
-document.addEventListener('DOMContentLoaded', function() {
-    const mobileToggle = document.getElementById('mobileMenuToggle');
-    const mobileMenu = document.getElementById('mobileMenu');
-    
-    if (mobileToggle && mobileMenu) {
-        mobileToggle.addEventListener('click', function() {
-            mobileMenu.classList.toggle('active');
-            this.classList.toggle('active');
-        });
-        
-        document.addEventListener('click', function(e) {
-            if (!mobileMenu.contains(e.target) && !mobileToggle.contains(e.target)) {
-                mobileMenu.classList.remove('active');
-                mobileToggle.classList.remove('active');
-            }
-        });
-    }
-});
 </script>
+
+<!-- Shop ONE JavaScript -->
+<script src="<?php print $shop_url; ?>assets/js/shop-one5.js"></script>
+
 <?php if(file_exists('include/functions/js.php')) include 'include/functions/js.php'; ?>
 </body>
 </html>
