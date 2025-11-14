@@ -1,8 +1,8 @@
 <?php
 // ----------- INIZIO DEL FILE pages/shop/item.php -----------
 
-// Il router (index.php) ha già definito $get_item (l'ID dell'oggetto nello shop)
-// Se non è definito o non è numerico, esce per sicurezza.
+// Il router (index.php) ha giï¿½ definito $get_item (l'ID dell'oggetto nello shop)
+// Se non ï¿½ definito o non ï¿½ numerico, esce per sicurezza.
 if (!isset($get_item) || !is_numeric($get_item)) {
     redirect($shop_url);
 }
@@ -23,7 +23,7 @@ if ($item[0]['discount'] > 0) {
     $total = $item[0]['coins'];
 }
 
-// Se l'oggetto è di tipo 'bonus selezionabili', recuperiamo i bonus disponibili
+// Se l'oggetto ï¿½ di tipo 'bonus selezionabili', recuperiamo i bonus disponibili
 if ($item[0]['type'] == 3) {
     $bonuses = is_get_bonus_selection($get_item);
     $bonuses_name = is_get_bonuses_new_name();
@@ -42,7 +42,7 @@ if ($item[0]['type'] == 3) {
 $proto_details = get_item_details_from_proto($item[0]['vnum']);
 // =======================================================
 
-// A questo punto, il resto del file HTML/PHP userà i dati dalle variabili $item e $proto_details
+// A questo punto, il resto del file HTML/PHP userï¿½ i dati dalle variabili $item e $proto_details
 ?>
 
 <!-- Struttura basata sullo screenshot fornito -->
@@ -52,18 +52,47 @@ $proto_details = get_item_details_from_proto($item[0]['vnum']);
     <?php
     if(is_loggedin()) {
         if(isset($_POST['buy']) && isset($_POST['buy_key']) && $_POST['buy_key'] == $_SESSION['buy_key']) {
-            // ... (Qui ci andrebbe la logica di acquisto completa, come nel tuo file originale)
-            // Per esempio:
-            $ok = 0;
-            if($total <= is_coins($item[0]['pay_type'] - 1)) {
-                if (is_buy_item($get_item, [])) { // Passiamo un array vuoto per i bonus se non applicabile
-                    is_pay_coins($item[0]['pay_type'] - 1, $total);
-                    echo '<div class="alert alert-success">Acquisto effettuato con successo!</div>';
-                } else {
-                    echo '<div class="alert alert-danger">Spazio insufficiente nel magazzino item shop!</div>';
+            // Logica di acquisto completa con validazione
+            $purchase_success = false;
+            $purchase_error = '';
+
+            // Verifica fondi sufficienti (CORRETTO: >= invece di <=)
+            if(is_coins($item[0]['pay_type'] - 1) >= $total) {
+
+                // Gestione bonus selection se presente
+                $selected_bonuses = array();
+                if($item[0]['type'] == 3 && isset($available_bonuses) && count($available_bonuses) > 0) {
+                    // Raccogli bonus selezionati dal form
+                    foreach($available_bonuses as $bonus_id => $bonus_value) {
+                        if(isset($_POST['bonus_' . $bonus_id])) {
+                            $selected_bonuses[$bonus_id] = intval($_POST['bonus_' . $bonus_id]);
+                        }
+                    }
+
+                    // Verifica che tutti i bonus richiesti siano selezionati
+                    if(count($selected_bonuses) < $count) {
+                        $purchase_error = 'Devi selezionare tutti i bonus richiesti!';
+                    }
+                }
+
+                // Procedi con l'acquisto se non ci sono errori
+                if(empty($purchase_error)) {
+                    if (is_buy_item($get_item, $selected_bonuses)) {
+                        is_pay_coins($item[0]['pay_type'] - 1, $total);
+                        $purchase_success = true;
+                    } else {
+                        $purchase_error = 'Spazio insufficiente nel magazzino item shop!';
+                    }
                 }
             } else {
-                 echo '<div class="alert alert-danger">Fondi insufficienti!</div>';
+                $purchase_error = 'Fondi insufficienti! Hai solo ' . number_format(is_coins($item[0]['pay_type'] - 1)) . ' coins.';
+            }
+
+            // Mostra messaggio risultato
+            if($purchase_success) {
+                echo '<div class="alert alert-success"><i class="fas fa-check-circle"></i> Acquisto effettuato con successo!</div>';
+            } else if(!empty($purchase_error)) {
+                echo '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> ' . $purchase_error . '</div>';
             }
         }
         $_SESSION['buy_key'] = mt_rand(1, 1000);

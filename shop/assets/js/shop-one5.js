@@ -75,11 +75,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 return false;
             }
 
+            // Validazione bonus selection se presente
+            const bonusSelects = this.querySelectorAll('select[name^="bonus_"]');
+            let hasUnselectedBonus = false;
+
+            bonusSelects.forEach(function(select) {
+                if (!select.value || select.value === '' || select.value === '0') {
+                    hasUnselectedBonus = true;
+                    select.style.borderColor = '#dc3545';
+                    select.style.boxShadow = '0 0 0 3px rgba(220, 53, 69, 0.25)';
+                }
+            });
+
+            if (hasUnselectedBonus) {
+                e.preventDefault();
+                showNotification('Seleziona tutti i bonus richiesti!', 'error');
+
+                // Scroll al primo select non selezionato
+                const firstUnselected = Array.from(bonusSelects).find(s => !s.value || s.value === '' || s.value === '0');
+                if (firstUnselected) {
+                    firstUnselected.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return false;
+            }
+
             // Conferma acquisto
-            const itemName = document.querySelector('.item-name, .showcase-item-name h2, h3');
+            const itemName = document.querySelector('.item-image-box h3, .item-name, h3');
             const itemNameText = itemName ? itemName.textContent.trim() : 'questo oggetto';
 
-            if (!confirm('Confermi l\'acquisto di ' + itemNameText + '?')) {
+            if (!confirm('Confermi l\'acquisto di:\n\n' + itemNameText + '\n\nL\'acquisto verrà elaborato immediatamente.')) {
                 e.preventDefault();
                 return false;
             }
@@ -89,13 +113,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 buyButton.disabled = true;
                 const originalText = buyButton.innerHTML;
                 buyButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>ELABORAZIONE...</span>';
+                buyButton.style.opacity = '0.6';
+                buyButton.style.cursor = 'not-allowed';
 
-                // Re-abilita dopo 3 secondi in caso di errore
+                // Re-abilita dopo 5 secondi se la pagina non viene ricaricata
                 setTimeout(function() {
                     buyButton.disabled = false;
                     buyButton.innerHTML = originalText;
-                }, 3000);
+                    buyButton.style.opacity = '1';
+                    buyButton.style.cursor = 'pointer';
+                }, 5000);
             }
+
+            // Mostra notifica processing
+            showNotification('Elaborazione acquisto in corso...', 'info');
+        });
+
+        // Reset stile quando si seleziona un bonus
+        const bonusSelects = purchaseForm.querySelectorAll('select[name^="bonus_"]');
+        bonusSelects.forEach(function(select) {
+            select.addEventListener('change', function() {
+                if (this.value && this.value !== '' && this.value !== '0') {
+                    this.style.borderColor = '';
+                    this.style.boxShadow = '';
+                }
+            });
         });
     }
 
