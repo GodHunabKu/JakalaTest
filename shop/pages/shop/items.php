@@ -111,7 +111,7 @@
                     <?php if(is_loggedin()) { ?>
                     <!-- Price visible only when logged in -->
                     <div class="item-price">
-                        <img src="<?php print $shop_url; ?>images/<?php print ($row['pay_type']==1) ? 'md' : 'jd'; ?>.png" alt="Coins">
+                        <img src="<?php print $shop_url; ?>images/<?php print ($row['pay_type']==1) ? 'monet' : 'jd'; ?>.png" alt="Coins">
                         <span><?php print number_format($row['coins'], 0, '', ','); ?></span>
                     </div>
                     <?php } else { ?>

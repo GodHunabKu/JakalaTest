@@ -11,12 +11,12 @@
  */
 function get_item_image($vnum, $item_id = null)
 {
-    global $db;
+    global $database;
 
     // Se è fornito item_id, controlla se esiste un'immagine custom
     if ($item_id !== null) {
         try {
-            $stmt = $db->prepare("SELECT custom_image FROM items WHERE id = ?");
+            $stmt = $database->runQuerySqlite("SELECT custom_image FROM item_shop_items WHERE id = ?");
             $stmt->execute([$item_id]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
