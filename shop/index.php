@@ -108,15 +108,11 @@ include 'include/functions/header.php';
                         <span>Login</span>
                     </a>
                     <?php } else { ?>
-                    <!-- Coins Display -->
+                    <!-- Coins Display - Solo MD -->
                     <div class="coins-display">
                         <div class="coin-item coin-md">
                             <img src="<?php print $shop_url; ?>images/md2.png" alt="MD">
                             <span class="coin-amount"><?php print number_format(is_coins(), 0, '', ','); ?></span>
-                        </div>
-                        <div class="coin-item coin-jd">
-                            <img src="<?php print $shop_url; ?>images/jd.png" alt="JD">
-                            <span class="coin-amount"><?php print number_format(is_coins(1), 0, '', ','); ?></span>
                         </div>
                     </div>
                     
