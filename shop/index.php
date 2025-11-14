@@ -47,22 +47,7 @@ include 'include/functions/header.php';
                     </span>
                 </div>
                 <div class="top-right">
-                    <!-- Language Selector -->
-                    <div class="language-selector">
-                        <button class="lang-btn">
-                            <i class="fas fa-globe"></i>
-                            <span><?php print $language_codes[$language_code]; ?></span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="lang-dropdown">
-                            <?php foreach($language_codes as $key => $value) { ?>
-                            <a href="<?php print $shop_url; ?>?lang=<?php print $key; ?>" class="lang-item">
-                                <img src="<?php print $shop_url; ?>assets/img/language/<?php print $key; ?>.png" alt="<?php print $value; ?>">
-                                <span><?php print $value; ?></span>
-                            </a>
-                            <?php } ?>
-                        </div>
-                    </div>
+                    <!-- Language removed - Italian only -->
                 </div>
             </div>
         </div>
@@ -207,7 +192,7 @@ include 'include/functions/header.php';
                             <?php } ?>
                                 <div class="wallet-item wallet-md">
                                     <div class="wallet-icon">
-                                        <img src="<?php print $shop_url; ?>images/md2.png" alt="MD">
+                                        <img src="<?php print $shop_url; ?>images/monet.png" alt="MD">
                                     </div>
                                     <div class="wallet-info">
                                         <span class="wallet-label">MD Coins</span>

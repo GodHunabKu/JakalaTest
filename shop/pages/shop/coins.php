@@ -108,7 +108,7 @@
                     <div class="price-package">
                         <div class="package-badge">STARTER</div>
                         <div class="package-coins">
-                            <img src="<?php print $shop_url; ?>images/md2.png" alt="MD">
+                            <img src="<?php print $shop_url; ?>images/monet.png" alt="MD">
                             <span class="coins-amount">125</span>
                             <span class="coins-label">MD Coins</span>
                         </div>
@@ -120,7 +120,7 @@
                     <div class="price-package">
                         <div class="package-badge">BASE</div>
                         <div class="package-coins">
-                            <img src="<?php print $shop_url; ?>images/md2.png" alt="MD">
+                            <img src="<?php print $shop_url; ?>images/monet.png" alt="MD">
                             <span class="coins-amount">250</span>
                             <span class="coins-label">MD Coins</span>
                         </div>
@@ -132,7 +132,7 @@
                     <div class="price-package">
                         <div class="package-badge">PREMIUM</div>
                         <div class="package-coins">
-                            <img src="<?php print $shop_url; ?>images/md2.png" alt="MD">
+                            <img src="<?php print $shop_url; ?>images/monet.png" alt="MD">
                             <span class="coins-amount">750</span>
                             <span class="coins-label">MD Coins</span>
                         </div>
@@ -141,22 +141,24 @@
                         </div>
                     </div>
 
-                    <div class="price-package">
-                        <div class="package-badge">GOLD</div>
+                    <div class="price-package popular">
+                        <div class="package-badge">GOLD +5%</div>
                         <div class="package-coins">
-                            <img src="<?php print $shop_url; ?>images/md2.png" alt="MD">
-                            <span class="coins-amount">1,250</span>
+                            <img src="<?php print $shop_url; ?>images/monet.png" alt="MD">
+                            <span class="coins-amount">1,312</span>
                             <span class="coins-label">MD Coins</span>
+                            <span class="bonus-label">(1,250 + 62 BONUS)</span>
                         </div>
                         <div class="package-price">
                             <span class="price">50€</span>
+                            <span class="bonus-info">+5% BONUS</span>
                         </div>
                     </div>
 
                     <div class="price-package popular">
                         <div class="package-badge">PLATINUM +10%</div>
                         <div class="package-coins">
-                            <img src="<?php print $shop_url; ?>images/md2.png" alt="MD">
+                            <img src="<?php print $shop_url; ?>images/monet.png" alt="MD">
                             <span class="coins-amount">4,125</span>
                             <span class="coins-label">MD Coins</span>
                             <span class="bonus-label">(3,750 + 375 BONUS)</span>
@@ -170,7 +172,7 @@
                     <div class="price-package popular">
                         <div class="package-badge">DIAMOND +20%</div>
                         <div class="package-coins">
-                            <img src="<?php print $shop_url; ?>images/md2.png" alt="MD">
+                            <img src="<?php print $shop_url; ?>images/monet.png" alt="MD">
                             <span class="coins-amount">9,000</span>
                             <span class="coins-label">MD Coins</span>
                             <span class="bonus-label">(7,500 + 1,500 BONUS)</span>
@@ -182,9 +184,9 @@
                     </div>
                 </div>
 
-                <div class="pricing-note">
+                <div class="pricing-note pulsing">
                     <i class="fas fa-star"></i>
-                    <p>I pacchetti PLATINUM e DIAMOND includono MD Coins bonus! Più doni, più ricevi!</p>
+                    <p>I pacchetti da 50€ in su includono MD Coins bonus! Più doni, più ricevi!</p>
                 </div>
             </div>
 
@@ -647,4 +649,359 @@
         justify-content: center;
     }
 }
+
+/* ANIMAZIONI POTENTI */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes shine {
+    0% {
+        background-position: -200% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(255, 215, 0, 0.8), 0 0 60px rgba(255, 215, 0, 0.6);
+    }
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Applicazione animazioni */
+.donation-header {
+    animation: slideInUp 0.8s ease-out;
+}
+
+.payment-method {
+    animation: slideInUp 0.8s ease-out;
+    animation-fill-mode: both;
+}
+
+.payment-method:nth-child(1) { animation-delay: 0.1s; }
+.payment-method:nth-child(2) { animation-delay: 0.2s; }
+.payment-method:nth-child(3) { animation-delay: 0.3s; }
+.payment-method:nth-child(4) { animation-delay: 0.4s; }
+
+.step-item {
+    animation: slideInUp 0.8s ease-out;
+    animation-fill-mode: both;
+}
+
+.step-item:nth-child(1) { animation-delay: 0.2s; }
+.step-item:nth-child(2) { animation-delay: 0.3s; }
+.step-item:nth-child(3) { animation-delay: 0.4s; }
+.step-item:nth-child(4) { animation-delay: 0.5s; }
+.step-item:nth-child(5) { animation-delay: 0.6s; }
+
+.price-package {
+    animation: slideInUp 0.8s ease-out, float 3s ease-in-out infinite;
+    animation-fill-mode: both;
+}
+
+.price-package:nth-child(1) { animation-delay: 0.1s, 0.1s; }
+.price-package:nth-child(2) { animation-delay: 0.2s, 0.3s; }
+.price-package:nth-child(3) { animation-delay: 0.3s, 0.5s; }
+.price-package:nth-child(4) { animation-delay: 0.4s, 0.7s; }
+.price-package:nth-child(5) { animation-delay: 0.5s, 0.9s; }
+.price-package:nth-child(6) { animation-delay: 0.6s, 1.1s; }
+
+.price-package.popular {
+    animation: slideInUp 0.8s ease-out, float 3s ease-in-out infinite, glow 2s ease-in-out infinite;
+}
+
+.pricing-note.pulsing {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.header-icon {
+    animation: float 3s ease-in-out infinite, rotate 20s linear infinite;
+}
+
+.package-coins img {
+    animation: float 2s ease-in-out infinite;
+}
+
+.contact-badge {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Effetto shine sui badge */
+.package-badge {
+    background: linear-gradient(135deg, var(--one-scarlet) 0%, rgba(139, 0, 0, 0.8) 50%, var(--one-scarlet) 100%);
+    background-size: 200% auto;
+    animation: shine 3s linear infinite;
+}
+
+.price-package.popular .package-badge {
+    background: linear-gradient(135deg, var(--one-gold) 0%, #FFD700 50%, var(--one-gold) 100%);
+    background-size: 200% auto;
+    animation: shine 3s linear infinite;
+}
+
+/* Hover enhancements */
+.price-package:hover {
+    animation: float 3s ease-in-out infinite, pulse 0.5s ease-out;
+}
+
+.payment-method:hover {
+    animation: pulse 0.5s ease-out;
+}
+
+/* Particle effect container */
+.donation-info-card {
+    position: relative;
+    overflow: visible;
+}
+
+@keyframes particle-float {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.particle {
+    position: absolute;
+    pointer-events: none;
+    font-size: 20px;
+    animation: particle-float 3s ease-out forwards;
+}
 </style>
+
+<script>
+// JAVASCRIPT POTENTE PER ANIMAZIONI DONAZIONI
+document.addEventListener('DOMContentLoaded', function() {
+
+    // Counter animato per i numeri delle coins
+    function animateCounter(element, target, duration = 2000) {
+        let start = 0;
+        const increment = target / (duration / 16);
+        const timer = setInterval(() => {
+            start += increment;
+            if (start >= target) {
+                element.textContent = target.toLocaleString('it-IT');
+                clearInterval(timer);
+            } else {
+                element.textContent = Math.floor(start).toLocaleString('it-IT');
+            }
+        }, 16);
+    }
+
+    // Anima i numeri al caricamento
+    const coinAmounts = document.querySelectorAll('.coins-amount');
+    coinAmounts.forEach((element, index) => {
+        const originalText = element.textContent.replace(/,/g, '');
+        const target = parseInt(originalText);
+        setTimeout(() => {
+            animateCounter(element, target, 1500);
+        }, 500 + (index * 200));
+    });
+
+    // Effetto particelle quando hover sui pacchetti
+    const packages = document.querySelectorAll('.price-package');
+    packages.forEach(pkg => {
+        pkg.addEventListener('mouseenter', function(e) {
+            createParticles(this);
+        });
+    });
+
+    function createParticles(element) {
+        const particles = ['💎', '✨', '⭐', '💰', '🎁', '🌟'];
+        for (let i = 0; i < 5; i++) {
+            const particle = document.createElement('span');
+            particle.className = 'particle';
+            particle.textContent = particles[Math.floor(Math.random() * particles.length)];
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = '50%';
+            particle.style.animationDelay = (i * 0.1) + 's';
+            element.appendChild(particle);
+
+            setTimeout(() => particle.remove(), 3000);
+        }
+    }
+
+    // Effetto click sui pacchetti
+    packages.forEach(pkg => {
+        pkg.addEventListener('click', function(e) {
+            // Crea effetto ripple
+            const ripple = document.createElement('div');
+            ripple.style.position = 'absolute';
+            ripple.style.width = '20px';
+            ripple.style.height = '20px';
+            ripple.style.borderRadius = '50%';
+            ripple.style.background = 'rgba(255, 215, 0, 0.6)';
+            ripple.style.left = e.offsetX + 'px';
+            ripple.style.top = e.offsetY + 'px';
+            ripple.style.transform = 'translate(-50%, -50%)';
+            ripple.style.animation = 'pulse 0.6s ease-out';
+            ripple.style.pointerEvents = 'none';
+
+            this.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+
+            // Mostra messaggio incoraggiante
+            showEncouragementMessage(this);
+        });
+    });
+
+    function showEncouragementMessage(element) {
+        const messages = [
+            '💎 Ottima scelta!',
+            '🌟 Fantastico!',
+            '⭐ Supporta il server!',
+            '🎁 Il miglior investimento!',
+            '💰 Ricevi bonus extra!'
+        ];
+
+        const existingMsg = element.querySelector('.encouragement-msg');
+        if (existingMsg) return;
+
+        const msg = document.createElement('div');
+        msg.className = 'encouragement-msg';
+        msg.textContent = messages[Math.floor(Math.random() * messages.length)];
+        msg.style.position = 'absolute';
+        msg.style.top = '-30px';
+        msg.style.left = '50%';
+        msg.style.transform = 'translateX(-50%)';
+        msg.style.background = 'linear-gradient(135deg, var(--one-gold), #DAA520)';
+        msg.style.color = 'black';
+        msg.style.padding = '8px 16px';
+        msg.style.borderRadius = '20px';
+        msg.style.fontSize = '12px';
+        msg.style.fontWeight = '900';
+        msg.style.whiteSpace = 'nowrap';
+        msg.style.zIndex = '1000';
+        msg.style.boxShadow = '0 4px 15px rgba(255, 215, 0, 0.5)';
+        msg.style.animation = 'slideInUp 0.3s ease-out, pulse 1s ease-in-out infinite';
+        msg.style.pointerEvents = 'none';
+
+        element.style.position = 'relative';
+        element.appendChild(msg);
+
+        setTimeout(() => {
+            msg.style.animation = 'slideInUp 0.3s ease-out reverse';
+            setTimeout(() => msg.remove(), 300);
+        }, 2000);
+    }
+
+    // Auto-scroll smooth verso i pacchetti quando si clicca sul pulsante
+    const donateButtons = document.querySelectorAll('a[href*="coins"]');
+    donateButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            const pricingSection = document.querySelector('.pricing-section');
+            if (pricingSection && !this.getAttribute('href').includes('#')) {
+                return; // Lascia che il link normale funzioni
+            }
+        });
+    });
+
+    // Effetto confetti quando si passa sui pacchetti popolari
+    const popularPackages = document.querySelectorAll('.price-package.popular');
+    popularPackages.forEach(pkg => {
+        setInterval(() => {
+            if (!pkg.matches(':hover')) {
+                createMiniParticle(pkg);
+            }
+        }, 2000);
+    });
+
+    function createMiniParticle(element) {
+        const particle = document.createElement('span');
+        particle.textContent = '✨';
+        particle.style.position = 'absolute';
+        particle.style.fontSize = '12px';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.pointerEvents = 'none';
+        particle.style.animation = 'particle-float 2s ease-out forwards';
+        particle.style.zIndex = '10';
+
+        element.appendChild(particle);
+        setTimeout(() => particle.remove(), 2000);
+    }
+
+    // Highlight del contact badge quando lo vedi
+    const contactBadges = document.querySelectorAll('.contact-badge');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animation = 'pulse 2s ease-in-out infinite, glow 2s ease-in-out infinite';
+            }
+        });
+    }, { threshold: 0.5 });
+
+    contactBadges.forEach(badge => observer.observe(badge));
+
+    // Effetto typing per il titolo
+    const mainTitle = document.querySelector('.donation-header h2');
+    if (mainTitle) {
+        const originalText = mainTitle.textContent;
+        mainTitle.textContent = '';
+        let i = 0;
+
+        setTimeout(() => {
+            const typeInterval = setInterval(() => {
+                if (i < originalText.length) {
+                    mainTitle.textContent += originalText.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(typeInterval);
+                }
+            }, 50);
+        }, 500);
+    }
+
+    console.log('🎉 Sistema donazioni caricato con successo!');
+    console.log('💎 Animazioni attive per invogliare le donazioni!');
+});
+</script>

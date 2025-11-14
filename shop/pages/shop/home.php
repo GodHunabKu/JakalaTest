@@ -143,8 +143,8 @@
         if(!count($list)) {
             echo '<div class="empty-state">
                     <i class="fas fa-box-open"></i>
-                    <h3>No categories available</h3>
-                    <p>Check back soon for new items!</p>
+                    <h3>Nessuna categoria disponibile</h3>
+                    <p>Torna presto per nuovi oggetti!</p>
                   </div>';
         } else {
             foreach($list as $row) {
@@ -164,7 +164,7 @@
                 <div class="category-content">
                     <h3 class="category-name"><?php print $row['name']; ?></h3>
                     <div class="category-action">
-                        <span>View Items</span>
+                        <span>Visualizza Oggetti</span>
                         <i class="fas fa-arrow-right"></i>
                     </div>
                 </div>

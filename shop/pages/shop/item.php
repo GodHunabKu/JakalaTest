@@ -197,4 +197,434 @@ $proto_details = get_item_details_from_proto($item[0]['vnum']);
         </div>
 
     </div>
+
+    <!-- Modal Conferma Acquisto -->
+    <div id="purchaseConfirmModal" class="modal-overlay" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <i class="fas fa-shopping-cart"></i>
+                <h3>Conferma Acquisto</h3>
+            </div>
+            <div class="modal-body">
+                <div class="modal-item-preview">
+                    <img src="<?php print $shop_url; ?>images/items/<?php print get_item_image($item[0]['vnum'], $item[0]['id']); ?>.png" alt="Item">
+                    <div class="modal-item-info">
+                        <h4><?php if(!$item_name_db) print get_item_name($item[0]['vnum']); else print get_item_name_locale_name($item[0]['vnum']); ?></h4>
+                        <p>Quantità: <strong><?php print $item[0]['count']; ?>x</strong></p>
+                    </div>
+                </div>
+
+                <div class="modal-price-summary">
+                    <div class="summary-row">
+                        <span>Prezzo unitario:</span>
+                        <span class="price-value">
+                            <img src="<?php print $shop_url; ?>images/monet.png" alt="MD" style="width: 20px; height: 20px;">
+                            <?php print number_format($item[0]['coins'], 0, '', ','); ?> MD
+                        </span>
+                    </div>
+                    <?php if($item[0]['discount'] > 0): ?>
+                    <div class="summary-row discount">
+                        <span>Sconto:</span>
+                        <span class="discount-value">-<?php print $item[0]['discount']; ?>%</span>
+                    </div>
+                    <?php endif; ?>
+                    <div class="summary-row total">
+                        <span>Totale:</span>
+                        <span class="total-value">
+                            <img src="<?php print $shop_url; ?>images/monet.png" alt="MD" style="width: 24px; height: 24px;">
+                            <?php print number_format($total, 0, '', ','); ?> MD
+                        </span>
+                    </div>
+                </div>
+
+                <div class="modal-wallet-info">
+                    <p>Il tuo saldo attuale: <strong><?php print number_format(is_coins($item[0]['pay_type']-1), 0, '', ','); ?> MD</strong></p>
+                    <p>Saldo dopo l'acquisto: <strong class="remaining-balance"><?php print number_format(is_coins($item[0]['pay_type']-1) - $total, 0, '', ','); ?> MD</strong></p>
+                </div>
+
+                <p class="modal-question">Sei sicuro di voler procedere con l'acquisto?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-modal btn-cancel" onclick="closeConfirmModal()">
+                    <i class="fas fa-times"></i>
+                    <span>Annulla</span>
+                </button>
+                <button type="button" class="btn-modal btn-confirm" onclick="confirmPurchase()">
+                    <i class="fas fa-check"></i>
+                    <span>Conferma Acquisto</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(10px);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .modal-container {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        max-width: 500px;
+        width: 100%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        animation: slideUp 0.3s ease-out;
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, rgba(220, 20, 60, 0.2) 0%, rgba(139, 0, 0, 0.2) 100%);
+        padding: 25px;
+        text-align: center;
+        border-bottom: 1px solid var(--glass-border);
+        border-radius: 20px 20px 0 0;
+    }
+
+    .modal-header i {
+        font-size: 48px;
+        color: var(--one-scarlet);
+        margin-bottom: 15px;
+        display: block;
+        animation: float 2s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .modal-header h3 {
+        font-family: var(--font-heading);
+        font-size: 24px;
+        font-weight: 900;
+        color: var(--text-primary);
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .modal-body {
+        padding: 30px;
+    }
+
+    .modal-item-preview {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid var(--glass-border);
+        margin-bottom: 25px;
+    }
+
+    .modal-item-preview img {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+    }
+
+    .modal-item-info h4 {
+        font-family: var(--font-heading);
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0 0 8px 0;
+    }
+
+    .modal-item-info p {
+        margin: 0;
+        color: var(--text-secondary);
+    }
+
+    .modal-price-summary {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid var(--glass-border);
+        margin-bottom: 20px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .summary-row:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    .summary-row.total {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 2px solid var(--one-scarlet);
+    }
+
+    .price-value, .total-value {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: var(--one-gold);
+    }
+
+    .discount-value {
+        color: #4CAF50;
+        font-weight: 700;
+    }
+
+    .total-value {
+        font-family: var(--font-heading);
+        font-size: 20px;
+        font-weight: 900;
+    }
+
+    .modal-wallet-info {
+        background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%);
+        border: 1px solid rgba(255, 215, 0, 0.3);
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+
+    .modal-wallet-info p {
+        margin: 8px 0;
+        color: var(--text-secondary);
+    }
+
+    .modal-wallet-info strong {
+        color: var(--one-gold);
+        font-family: var(--font-heading);
+    }
+
+    .remaining-balance {
+        font-size: 18px;
+    }
+
+    .modal-question {
+        text-align: center;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 20px 0 0 0;
+    }
+
+    .modal-footer {
+        padding: 20px 30px 30px;
+        display: flex;
+        gap: 15px;
+    }
+
+    .btn-modal {
+        flex: 1;
+        padding: 15px 25px;
+        border: none;
+        border-radius: 12px;
+        font-family: var(--font-heading);
+        font-size: 14px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        color: var(--text-primary);
+    }
+
+    .btn-cancel:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .btn-confirm {
+        background: linear-gradient(135deg, var(--one-scarlet) 0%, rgba(139, 0, 0, 0.9) 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(220, 20, 60, 0.4);
+    }
+
+    .btn-confirm:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(220, 20, 60, 0.6);
+    }
+
+    @media (max-width: 600px) {
+        .modal-container {
+            margin: 20px;
+        }
+
+        .modal-footer {
+            flex-direction: column;
+        }
+
+        .btn-modal {
+            width: 100%;
+        }
+    }
+    </style>
+
+    <script>
+    // Gestione conferma acquisto
+    document.addEventListener('DOMContentLoaded', function() {
+        const buyForm = document.getElementById('buy_item_form');
+        const modal = document.getElementById('purchaseConfirmModal');
+
+        if (buyForm) {
+            buyForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Mostra modal
+                modal.style.display = 'flex';
+
+                // Aggiungi particelle
+                createCelebrationParticles();
+            });
+        }
+    });
+
+    function closeConfirmModal() {
+        const modal = document.getElementById('purchaseConfirmModal');
+        modal.style.animation = 'fadeIn 0.3s ease-out reverse';
+        setTimeout(() => {
+            modal.style.display = 'none';
+            modal.style.animation = '';
+        }, 300);
+    }
+
+    function confirmPurchase() {
+        const buyForm = document.getElementById('buy_item_form');
+
+        // Crea effetto confetti
+        createConfetti();
+
+        // Disabilita i bottoni del modal
+        const confirmBtn = document.querySelector('.btn-confirm');
+        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Acquisto in corso...</span>';
+        confirmBtn.disabled = true;
+
+        // Submit del form reale dopo 500ms
+        setTimeout(() => {
+            buyForm.submit();
+        }, 500);
+    }
+
+    function createCelebrationParticles() {
+        const modal = document.querySelector('.modal-container');
+        const particles = ['💎', '✨', '⭐', '🎁'];
+
+        for (let i = 0; i < 10; i++) {
+            const particle = document.createElement('span');
+            particle.textContent = particles[Math.floor(Math.random() * particles.length)];
+            particle.style.position = 'fixed';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = '0';
+            particle.style.fontSize = '24px';
+            particle.style.pointerEvents = 'none';
+            particle.style.zIndex = '10001';
+            particle.style.animation = 'particleFall 3s ease-out forwards';
+            particle.style.animationDelay = (i * 0.1) + 's';
+
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), 3000);
+        }
+    }
+
+    function createConfetti() {
+        const confettiCount = 50;
+        const confettiChars = ['💎', '✨', '⭐', '💰', '🎁', '🌟', '🎉'];
+
+        for (let i = 0; i < confettiCount; i++) {
+            const confetti = document.createElement('div');
+            confetti.textContent = confettiChars[Math.floor(Math.random() * confettiChars.length)];
+            confetti.style.position = 'fixed';
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.top = '-50px';
+            confetti.style.fontSize = (Math.random() * 20 + 15) + 'px';
+            confetti.style.pointerEvents = 'none';
+            confetti.style.zIndex = '10002';
+            confetti.style.animation = `confettiFall ${Math.random() * 2 + 2}s ease-out forwards`;
+            confetti.style.animationDelay = (i * 0.05) + 's';
+
+            document.body.appendChild(confetti);
+            setTimeout(() => confetti.remove(), 5000);
+        }
+    }
+
+    // Animazioni CSS dinamiche
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes particleFall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes confettiFall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Chiudi modal cliccando fuori
+    document.addEventListener('click', function(e) {
+        const modal = document.getElementById('purchaseConfirmModal');
+        if (e.target === modal) {
+            closeConfirmModal();
+        }
+    });
+
+    // Chiudi modal con ESC
+    document.addEventListener('keydown', function(e) {
+        const modal = document.getElementById('purchaseConfirmModal');
+        if (e.key === 'Escape' && modal.style.display === 'flex') {
+            closeConfirmModal();
+        }
+    });
+    </script>
 </div>
