@@ -308,7 +308,26 @@ include 'include/functions/header.php';
                         </div>
                         <div class="card-body">
                             <?php
-                            $top_donors = get_top_donors(3);
+                            // Leggi top donatori da file TXT (consenso esplicito)
+                            $top_donors = [];
+                            $donor_file = __DIR__ . '/data/top_donatori.txt';
+                            if(file_exists($donor_file)) {
+                                $lines = file($donor_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                                foreach($lines as $line) {
+                                    $line = trim($line);
+                                    if(empty($line) || $line[0] == '#') continue; // Salta commenti
+
+                                    $parts = explode('|', $line);
+                                    if(count($parts) == 3) {
+                                        $top_donors[] = [
+                                            'buyer' => $parts[0],
+                                            'total_spent' => intval($parts[1]),
+                                            'total_purchases' => intval($parts[2])
+                                        ];
+                                    }
+                                }
+                            }
+
                             if(empty($top_donors)) {
                                 echo '<div class="widget-empty-state">
                                         <i class="fas fa-users"></i>
@@ -318,6 +337,7 @@ include 'include/functions/header.php';
                                 echo '<div class="top-donors-list">';
                                 $rank = 1;
                                 foreach($top_donors as $donor) {
+                                    if($rank > 3) break; // Mostra solo top 3
                                     $medal = $rank == 1 ? '👑' : ($rank == 2 ? '🥈' : '🥉');
                                     $crown_class = $rank == 1 ? 'top-donor-gold' : ($rank == 2 ? 'top-donor-silver' : 'top-donor-bronze');
                                     echo '<div class="top-donor '.$crown_class.'">
@@ -345,11 +365,13 @@ include 'include/functions/header.php';
                     </div>
                     <?php } ?>
 
-                    <!-- Shop Statistics -->
+                    <!-- Shop Statistics - SOLO ADMIN -->
+                    <?php if(is_loggedin() && web_admin_level()>=9) { ?>
                     <div class="sidebar-card stats-card">
                         <div class="card-header">
                             <i class="fas fa-chart-bar"></i>
                             <h3>Statistiche Shop</h3>
+                            <span style="background: var(--one-scarlet); padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: auto;">ADMIN</span>
                         </div>
                         <div class="card-body">
                             <?php
@@ -387,6 +409,7 @@ include 'include/functions/header.php';
                             ?>
                         </div>
                     </div>
+                    <?php } ?>
                 </aside>
                 <?php } ?>
 

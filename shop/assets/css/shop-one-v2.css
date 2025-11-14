@@ -1315,7 +1315,8 @@ img {
 }
 
 .item-card:hover .item-image img {
-    transform: scale(1.15);
+    /* Zoom rimosso - mantiene dimensione originale */
+    transform: scale(1);
     filter: drop-shadow(0 0 30px rgba(220, 20, 60, 0.6));
 }
 

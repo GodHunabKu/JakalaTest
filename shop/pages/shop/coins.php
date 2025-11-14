@@ -105,7 +105,7 @@
             <div class="pricing-section">
                 <h3><i class="fas fa-tags"></i> Listino Prezzi MD Coins</h3>
                 <div class="pricing-grid">
-                    <div class="price-package">
+                    <div class="price-package package-bronze">
                         <div class="package-badge">STARTER</div>
                         <div class="package-coins">
                             <img src="<?php print $shop_url; ?>images/monet.png" alt="MD">
@@ -117,7 +117,7 @@
                         </div>
                     </div>
 
-                    <div class="price-package">
+                    <div class="price-package package-silver">
                         <div class="package-badge">BASE</div>
                         <div class="package-coins">
                             <img src="<?php print $shop_url; ?>images/monet.png" alt="MD">
@@ -129,7 +129,7 @@
                         </div>
                     </div>
 
-                    <div class="price-package">
+                    <div class="price-package package-purple">
                         <div class="package-badge">PREMIUM</div>
                         <div class="package-coins">
                             <img src="<?php print $shop_url; ?>images/monet.png" alt="MD">
@@ -141,7 +141,7 @@
                         </div>
                     </div>
 
-                    <div class="price-package popular">
+                    <div class="price-package package-gold popular">
                         <div class="package-badge">GOLD +5%</div>
                         <div class="package-coins">
                             <img src="<?php print $shop_url; ?>images/monet.png" alt="MD">
@@ -155,7 +155,7 @@
                         </div>
                     </div>
 
-                    <div class="price-package popular">
+                    <div class="price-package package-platinum popular">
                         <div class="package-badge">PLATINUM +10%</div>
                         <div class="package-coins">
                             <img src="<?php print $shop_url; ?>images/monet.png" alt="MD">
@@ -169,7 +169,7 @@
                         </div>
                     </div>
 
-                    <div class="price-package popular">
+                    <div class="price-package package-diamond popular">
                         <div class="package-badge">DIAMOND +20%</div>
                         <div class="package-coins">
                             <img src="<?php print $shop_url; ?>images/monet.png" alt="MD">
@@ -778,6 +778,96 @@
     animation: shine 3s linear infinite;
 }
 
+/* COLORI SPECIFICI PER OGNI PACCHETTO */
+.package-bronze {
+    border-color: rgba(205, 127, 50, 0.5) !important;
+    background: linear-gradient(135deg, rgba(205, 127, 50, 0.08) 0%, rgba(139, 69, 19, 0.08) 100%) !important;
+    box-shadow: 0 8px 32px rgba(205, 127, 50, 0.15) !important;
+}
+.package-bronze .package-badge {
+    background: linear-gradient(135deg, #CD7F32 0%, #8B4513 50%, #CD7F32 100%) !important;
+    background-size: 200% auto;
+}
+.package-bronze:hover {
+    border-color: rgba(205, 127, 50, 0.8) !important;
+    box-shadow: 0 12px 48px rgba(205, 127, 50, 0.3) !important;
+}
+
+.package-silver {
+    border-color: rgba(192, 192, 192, 0.5) !important;
+    background: linear-gradient(135deg, rgba(192, 192, 192, 0.08) 0%, rgba(128, 128, 128, 0.08) 100%) !important;
+    box-shadow: 0 8px 32px rgba(192, 192, 192, 0.15) !important;
+}
+.package-silver .package-badge {
+    background: linear-gradient(135deg, #C0C0C0 0%, #808080 50%, #C0C0C0 100%) !important;
+    background-size: 200% auto;
+}
+.package-silver:hover {
+    border-color: rgba(192, 192, 192, 0.8) !important;
+    box-shadow: 0 12px 48px rgba(192, 192, 192, 0.3) !important;
+}
+
+.package-purple {
+    border-color: rgba(138, 43, 226, 0.5) !important;
+    background: linear-gradient(135deg, rgba(138, 43, 226, 0.08) 0%, rgba(75, 0, 130, 0.08) 100%) !important;
+    box-shadow: 0 8px 32px rgba(138, 43, 226, 0.15) !important;
+}
+.package-purple .package-badge {
+    background: linear-gradient(135deg, #8A2BE2 0%, #4B0082 50%, #8A2BE2 100%) !important;
+    background-size: 200% auto;
+}
+.package-purple:hover {
+    border-color: rgba(138, 43, 226, 0.8) !important;
+    box-shadow: 0 12px 48px rgba(138, 43, 226, 0.3) !important;
+}
+
+.package-gold {
+    border-color: rgba(255, 215, 0, 0.6) !important;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.12) 0%, rgba(218, 165, 32, 0.12) 100%) !important;
+    box-shadow: 0 8px 32px rgba(255, 215, 0, 0.25) !important;
+}
+.package-gold .package-badge {
+    background: linear-gradient(135deg, #FFD700 0%, #DAA520 50%, #FFD700 100%) !important;
+    background-size: 200% auto;
+}
+.package-gold:hover {
+    border-color: rgba(255, 215, 0, 0.9) !important;
+    box-shadow: 0 12px 48px rgba(255, 215, 0, 0.4) !important;
+    transform: translateY(-8px) scale(1.03);
+}
+
+.package-platinum {
+    border-color: rgba(229, 228, 226, 0.6) !important;
+    background: linear-gradient(135deg, rgba(229, 228, 226, 0.12) 0%, rgba(173, 216, 230, 0.12) 100%) !important;
+    box-shadow: 0 8px 32px rgba(229, 228, 226, 0.25) !important;
+}
+.package-platinum .package-badge {
+    background: linear-gradient(135deg, #E5E4E2 0%, #ADD8E6 50%, #E5E4E2 100%) !important;
+    background-size: 200% auto;
+    color: #1a1a1a !important;
+}
+.package-platinum:hover {
+    border-color: rgba(229, 228, 226, 0.9) !important;
+    box-shadow: 0 12px 48px rgba(229, 228, 226, 0.4) !important;
+    transform: translateY(-8px) scale(1.03);
+}
+
+.package-diamond {
+    border-color: rgba(185, 242, 255, 0.6) !important;
+    background: linear-gradient(135deg, rgba(185, 242, 255, 0.12) 0%, rgba(0, 191, 255, 0.12) 100%) !important;
+    box-shadow: 0 8px 32px rgba(185, 242, 255, 0.25) !important;
+}
+.package-diamond .package-badge {
+    background: linear-gradient(135deg, #B9F2FF 0%, #00BFFF 50%, #B9F2FF 100%) !important;
+    background-size: 200% auto;
+    color: #1a1a1a !important;
+}
+.package-diamond:hover {
+    border-color: rgba(185, 242, 255, 0.9) !important;
+    box-shadow: 0 12px 48px rgba(185, 242, 255, 0.4) !important;
+    transform: translateY(-8px) scale(1.03);
+}
+
 /* Hover enhancements */
 .price-package:hover {
     animation: float 3s ease-in-out infinite, pulse 0.5s ease-out;
@@ -928,10 +1018,7 @@ document.addEventListener('DOMContentLoaded', function() {
         element.style.position = 'relative';
         element.appendChild(msg);
 
-        setTimeout(() => {
-            msg.style.animation = 'slideInUp 0.3s ease-out reverse';
-            setTimeout(() => msg.remove(), 300);
-        }, 2000);
+        // I messaggi non spariscono più - rimangono sempre visibili
     }
 
     // Auto-scroll smooth verso i pacchetti quando si clicca sul pulsante

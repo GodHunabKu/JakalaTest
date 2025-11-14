@@ -53,15 +53,17 @@
         } else {
             foreach($list as $row) {
         ?>
-        <a href="<?php print $shop_url.'item/'.$row['id'].'/'; ?>" class="item-card <?php if(!is_loggedin()) print 'item-card-locked'; ?>">
-            <div class="item-card-inner">
-                <?php if(is_loggedin() && web_admin_level()>=9) { ?>
-                <!-- Admin Edit Button -->
-                <a href="<?php print $shop_url.'edit/item/'.$row['id'].'/'; ?>" class="item-edit-btn" onclick="event.stopPropagation(); event.preventDefault(); window.location.href=this.href;">
-                    <i class="fas fa-edit"></i>
-                    <span>Modifica</span>
-                </a>
-                <?php } ?>
+        <div style="position: relative;">
+            <?php if(is_loggedin() && web_admin_level()>=9) { ?>
+            <!-- Admin Edit Button - FUORI dal link principale per evitare bug -->
+            <a href="<?php print $shop_url.'edit/item/'.$row['id'].'/'; ?>" class="item-edit-btn" style="position: absolute; top: 10px; right: 10px; z-index: 10;">
+                <i class="fas fa-edit"></i>
+                <span>Modifica</span>
+            </a>
+            <?php } ?>
+
+            <a href="<?php print $shop_url.'item/'.$row['id'].'/'; ?>" class="item-card <?php if(!is_loggedin()) print 'item-card-locked'; ?>">
+                <div class="item-card-inner">
 
                 <!-- Item Image -->
                 <div class="item-image-wrapper">
@@ -129,6 +131,7 @@
                 </div>
             </div>
         </a>
+        </div>
         <?php } } ?>
     </div>
 </div>

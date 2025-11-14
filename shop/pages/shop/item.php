@@ -544,6 +544,13 @@ $proto_details = get_item_details_from_proto($item[0]['vnum']);
         confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Acquisto in corso...</span>';
         confirmBtn.disabled = true;
 
+        // IMPORTANTE: Aggiungi campo hidden 'buy' perché il button submit non viene inviato con .submit()
+        const hiddenBuy = document.createElement('input');
+        hiddenBuy.type = 'hidden';
+        hiddenBuy.name = 'buy';
+        hiddenBuy.value = '1';
+        buyForm.appendChild(hiddenBuy);
+
         // Submit del form reale dopo 500ms
         setTimeout(() => {
             buyForm.submit();
