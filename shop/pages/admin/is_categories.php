@@ -12,12 +12,15 @@
     $remove = isset($_GET['remove']) ? $_GET['remove'] : null;
     if($remove)
         is_delete_category($remove);
-    
-    if(isset($_POST['edit']))
+
+    if(isset($_POST['edit'])) {
+        csrf_check();
         is_edit_category($_POST['id'], $_POST['name'.$_POST['id']], $_POST['img'.$_POST['id']]);
-        
+    }
+
     if(isset($_POST['add']))
     {
+        csrf_check();
         is_add_category($_POST['name'], $_POST['img']);
         echo '<div class="alert-message alert-success">
                 <i class="fas fa-check-circle"></i>
@@ -62,6 +65,7 @@
                     ?>
                     <tr>
                         <form action="" method="post" style="display: contents;">
+                            <?php echo csrf_field(); ?>
                             <input type="hidden" name="id" value="<?php print $row['id']; ?>">
                             <td>
                                 <div class="category-image-preview">
@@ -102,6 +106,7 @@
     <!-- Tab Content: Add -->
     <div id="add" class="tab-content">
         <form action="" method="post" class="admin-form-centered">
+            <?php echo csrf_field(); ?>
             <div class="form-section">
                 <div class="section-header">
                     <i class="fas fa-plus-circle"></i>

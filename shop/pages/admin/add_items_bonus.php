@@ -19,6 +19,9 @@
     $bonus_value = is_get_bonuses_values_used();
     if(isset($_POST['add']))
     {
+        // CSRF Protection
+        csrf_check();
+
         $bonuses1 = $bonuses2 = array();
         $bonuses3 = array(0, $_POST['count']);
         $bonuses_count = 0;
@@ -83,6 +86,7 @@
 
     <!-- Main Form -->
     <form action="" method="post" class="admin-form-modern">
+        <?php echo csrf_field(); ?>
         <div class="form-grid-2col">
             <!-- LEFT COLUMN: Basic Info -->
             <div class="form-section">

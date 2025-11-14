@@ -18,6 +18,9 @@ $updated = false;
 $error = false;
 
 if (isset($_POST['update'])) {
+    // CSRF Protection
+    csrf_check();
+
     try {
         // Prepara i dati
         $vnum = intval($_POST['vnum']);
@@ -150,6 +153,7 @@ if ($item['discount_expire'] > 0) {
 
     <!-- Edit Form -->
     <form action="" method="post" class="admin-form">
+        <?php echo csrf_field(); ?>
         <div class="form-card">
             <div class="form-card-header">
                 <i class="fas fa-info-circle"></i>

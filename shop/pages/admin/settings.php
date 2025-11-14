@@ -1,6 +1,8 @@
 <?php
-if(isset($_POST['time']) && isset($_POST['time2']) && isset($_POST['absorption']))
+if(isset($_POST['time']) && isset($_POST['time2']) && isset($_POST['absorption'])) {
+    csrf_check();
     update_settings($_POST['time'], $_POST['time2'], $_POST['absorption'], $_POST['name']);
+}
 
 $time = get_settings_time(1);
 $time2 = get_settings_time(2);
@@ -19,6 +21,7 @@ $item_name_db = get_settings_time(4);
     </div>
 
     <form action="" method="post" class="admin-form-centered">
+        <?php echo csrf_field(); ?>
         <div class="form-section">
             <div class="section-header">
                 <i class="fas fa-sliders-h"></i>

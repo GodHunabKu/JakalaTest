@@ -40,6 +40,9 @@
 
     if(isset($_POST['add']))
     {
+        // CSRF Protection
+        csrf_check();
+
         $time_settings = get_settings_time(1);
         $time2_settings = get_settings_time(2);
         $absorption_settings = get_settings_time(3);
@@ -199,6 +202,7 @@
 
     <!-- Main Form -->
     <form action="" method="post" class="admin-form-modern">
+        <?php echo csrf_field(); ?>
         <div class="form-grid-single">
             <div class="form-section">
                 <div class="section-header">

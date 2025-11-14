@@ -40,9 +40,9 @@ include 'include/functions/header.php';
                 <div class="top-left">
                     <span class="welcome-text">
                         <?php if(is_loggedin()) { ?>
-                            <i class="fas fa-crown"></i> Welcome back, <strong><?php print safe_output(get_account_name()); ?></strong>
+                            <i class="fas fa-crown"></i> Bentornato, <strong><?php print safe_output(get_account_name()); ?></strong>
                         <?php } else { ?>
-                            <i class="fas fa-store"></i> Welcome to ONE Premium Shop
+                            <i class="fas fa-store"></i> Benvenuto su ONE Premium Shop
                         <?php } ?>
                     </span>
                 </div>
@@ -89,12 +89,12 @@ include 'include/functions/header.php';
                     </a>
                     <a href="<?php print $shop_url; ?>items" class="nav-item <?php if($current_page=='items') print 'active'; ?>">
                         <i class="fas fa-shopping-bag"></i>
-                        <span>All Items</span>
+                        <span>Tutti gli Oggetti</span>
                     </a>
                     <?php if(is_loggedin() && is_paypal_list()) { ?>
                     <a href="<?php print $shop_url; ?>buy/coins" class="nav-item nav-special">
-                        <i class="fas fa-coins"></i>
-                        <span>Buy Coins</span>
+                        <i class="fas fa-hand-holding-usd"></i>
+                        <span>Donazioni</span>
                         <div class="nav-glow"></div>
                     </a>
                     <?php } ?>
@@ -127,11 +127,11 @@ include 'include/functions/header.php';
                             <?php if(web_admin_level()>=9) { ?>
                             <a href="<?php print $shop_url; ?>settings" class="dropdown-item">
                                 <i class="fas fa-cogs"></i>
-                                <span>Admin Settings</span>
+                                <span>Impostazioni Admin</span>
                             </a>
                             <a href="<?php print $shop_url; ?>admin/paypal" class="dropdown-item">
-                                <i class="fab fa-paypal"></i>
-                                <span>PayPal Manager</span>
+                                <i class="fas fa-hand-holding-usd"></i>
+                                <span>Gestione Donazioni</span>
                             </a>
                             <div class="dropdown-divider"></div>
                             <?php } ?>
@@ -164,12 +164,12 @@ include 'include/functions/header.php';
                 </a>
                 <a href="<?php print $shop_url; ?>items">
                     <i class="fas fa-shopping-bag"></i>
-                    <span>All Items</span>
+                    <span>Tutti gli Oggetti</span>
                 </a>
                 <?php if(is_loggedin() && is_paypal_list()) { ?>
                 <a href="<?php print $shop_url; ?>buy/coins">
-                    <i class="fas fa-coins"></i>
-                    <span>Buy Coins</span>
+                    <i class="fas fa-hand-holding-usd"></i>
+                    <span>Donazioni</span>
                 </a>
                 <?php } ?>
                 <?php if(!is_loggedin()) { ?>
@@ -199,7 +199,7 @@ include 'include/functions/header.php';
                     <div class="sidebar-card coins-card">
                         <div class="card-header">
                             <i class="fas fa-wallet"></i>
-                            <h3>My Wallet</h3>
+                            <h3>Il Mio Portafoglio</h3>
                         </div>
                         <div class="card-body">
                             <?php if(is_paypal_list()) { ?>
@@ -217,8 +217,8 @@ include 'include/functions/header.php';
                             <?php if(is_paypal_list()) { ?>
                             </a>
                             <a href="<?php print $shop_url; ?>buy/coins" class="btn-buy-coins">
-                                <i class="fas fa-plus-circle"></i>
-                                <span>Add Coins</span>
+                                <i class="fas fa-hand-holding-usd"></i>
+                                <span>Dona Ora</span>
                             </a>
                             <?php } ?>
                         </div>
@@ -230,7 +230,7 @@ include 'include/functions/header.php';
                     <div class="sidebar-card">
                         <div class="card-header">
                             <i class="fas fa-info-circle"></i>
-                            <h3>Item Details</h3>
+                            <h3>Dettagli Oggetto</h3>
                         </div>
                         <div class="card-body">
                             <?php include 'include/sidebar/info_object.php'; ?>
@@ -243,17 +243,17 @@ include 'include/functions/header.php';
                     <div class="sidebar-card admin-card">
                         <div class="card-header">
                             <i class="fas fa-shield-alt"></i>
-                            <h3>Admin Panel</h3>
+                            <h3>Pannello Admin</h3>
                         </div>
                         <div class="card-body">
                             <a href="<?php print $shop_url; ?>settings" class="admin-link">
                                 <i class="fas fa-cogs"></i>
-                                <span>Shop Settings</span>
+                                <span>Impostazioni Shop</span>
                                 <i class="fas fa-chevron-right"></i>
                             </a>
                             <a href="<?php print $shop_url; ?>admin/paypal" class="admin-link">
-                                <i class="fab fa-paypal"></i>
-                                <span>PayPal Manager</span>
+                                <i class="fas fa-hand-holding-usd"></i>
+                                <span>Gestione Donazioni</span>
                                 <i class="fas fa-chevron-right"></i>
                             </a>
                         </div>
@@ -265,7 +265,7 @@ include 'include/functions/header.php';
                     <div class="sidebar-card">
                         <div class="card-header">
                             <i class="fas fa-history"></i>
-                            <h3>Recent Purchases</h3>
+                            <h3>Acquisti Recenti</h3>
                         </div>
                         <div class="card-body">
                             <?php include 'include/sidebar/last_bought.php'; ?>
@@ -329,8 +329,8 @@ include 'include/functions/header.php';
                         <div class="quick-login-card">
                             <div class="login-header">
                                 <i class="fas fa-lock"></i>
-                                <h3>Quick Access</h3>
-                                <p>Login to access your account and shop</p>
+                                <h3>Accesso Rapido</h3>
+                                <p>Effettua il login per accedere al tuo account e allo shop</p>
                             </div>
                             <form action="<?php print $shop_url; ?>login" method="post" class="quick-login-form">
                                 <?php echo csrf_field(); ?>
@@ -338,14 +338,14 @@ include 'include/functions/header.php';
                                     <div class="form-group">
                                         <label>
                                             <i class="fas fa-user"></i>
-                                            Username
+                                            Nome Utente
                                         </label>
                                         <input
                                             type="text"
                                             name="username"
                                             pattern="[a-zA-Z0-9_]{5,64}"
                                             maxlength="64"
-                                            placeholder="Enter your username"
+                                            placeholder="Inserisci il tuo username"
                                             required
                                             autocomplete="off"
                                         >
@@ -355,19 +355,19 @@ include 'include/functions/header.php';
                                             <i class="fas fa-lock"></i>
                                             Password
                                         </label>
-                                        <input 
-                                            type="password" 
-                                            name="password" 
-                                            pattern=".{5,16}" 
-                                            maxlength="16" 
-                                            placeholder="Enter your password" 
+                                        <input
+                                            type="password"
+                                            name="password"
+                                            pattern=".{5,16}"
+                                            maxlength="16"
+                                            placeholder="Inserisci la tua password"
                                             required
                                         >
                                     </div>
                                 </div>
                                 <button type="submit" class="btn-submit-login">
                                     <i class="fas fa-sign-in-alt"></i>
-                                    <span>Login Now</span>
+                                    <span>Accedi Ora</span>
                                     <div class="btn-glow"></div>
                                 </button>
                             </form>
@@ -393,9 +393,9 @@ include 'include/functions/header.php';
                 </div>
                 <div class="footer-right">
                     <div class="footer-links">
-                        <a href="#">Terms of Service</a>
+                        <a href="#">Termini di Servizio</a>
                         <a href="#">Privacy Policy</a>
-                        <a href="#">Support</a>
+                        <a href="#">Supporto</a>
                     </div>
                 </div>
             </div>

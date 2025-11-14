@@ -60,7 +60,7 @@ html {
 
 body.shop-one-body {
     font-family: var(--font-primary);
-    font-size: 15px;
+    font-size: 14px;
     line-height: 1.6;
     color: var(--text-primary);
     background: var(--bg-primary);
@@ -91,7 +91,7 @@ img {
 .container-fluid {
     max-width: 1600px;
     margin: 0 auto;
-    padding: 0 30px;
+    padding: 0 20px;
 }
 
 /* =================================
@@ -294,7 +294,7 @@ img {
 
 .main-title {
     font-family: var(--font-heading);
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 900;
     color: var(--text-primary);
     line-height: 1;
@@ -564,7 +564,7 @@ img {
 .main-layout {
     display: grid;
     grid-template-columns: 320px 1fr;
-    gap: 40px;
+    gap: 30px;
     align-items: start;
 }
 
@@ -715,7 +715,7 @@ img {
 
 .wallet-value {
     font-family: var(--font-heading);
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 900;
     color: var(--one-gold);
     line-height: 1;
@@ -1157,7 +1157,7 @@ img {
 }
 
 .widget-empty-state i {
-    font-size: 48px;
+    font-size: 36px;
     margin-bottom: 15px;
     opacity: 0.3;
 }
@@ -1185,13 +1185,13 @@ img {
 }
 
 .page-title i {
-    font-size: 36px;
+    font-size: 28px;
     color: var(--one-scarlet);
 }
 
 .page-title h1 {
     font-family: var(--font-heading);
-    font-size: 36px;
+    font-size: 28px;
     font-weight: 900;
     color: var(--text-primary);
     margin: 0;
@@ -1514,7 +1514,7 @@ img {
     width: 90%;
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: 30px;
     animation: loginFadeIn 1s ease-out;
 }
 
@@ -1594,11 +1594,11 @@ img {
 
 .login-title-large {
     font-family: var(--font-heading);
-    font-size: 64px;
+    font-size: 48px;
     font-weight: 900;
     color: var(--text-primary);
     margin: 0;
-    letter-spacing: 8px;
+    letter-spacing: 6px;
     text-transform: uppercase;
     text-shadow: 0 0 30px rgba(220, 20, 60, 0.5);
     background: linear-gradient(135deg, #FFFFFF 0%, #DC143C 50%, #FFFFFF 100%);
@@ -1649,7 +1649,7 @@ img {
     backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
-    padding: 50px 45px;
+    padding: 35px 30px;
     box-shadow:
         0 20px 60px rgba(0, 0, 0, 0.5),
         0 0 0 1px rgba(255, 255, 255, 0.05) inset,
@@ -1852,7 +1852,7 @@ img {
 .login-features {
     display: flex;
     justify-content: center;
-    gap: 40px;
+    gap: 30px;
     flex-wrap: wrap;
 }
 
@@ -1875,7 +1875,7 @@ img {
 }
 
 .feature-item i {
-    font-size: 28px;
+    font-size: 22px;
     color: var(--one-scarlet);
     animation: featureFloat 3s ease-in-out infinite;
 }
@@ -2131,11 +2131,11 @@ body:has(.fullscreen-login-wrapper) .shop-footer {
 }
 
 .category-image {
-    height: 300px;
+    height: 280px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 40px;
+    padding: 30px;
     background: linear-gradient(135deg, rgba(220, 20, 60, 0.1) 0%, rgba(139, 0, 0, 0.1) 100%);
     position: relative;
     overflow: hidden;
@@ -2234,7 +2234,7 @@ body:has(.fullscreen-login-wrapper) .shop-footer {
 .item-main-details {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 40px;
+    gap: 30px;
     margin-bottom: 30px;
 }
 
@@ -2243,7 +2243,7 @@ body:has(.fullscreen-login-wrapper) .shop-footer {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
-    padding: 40px;
+    padding: 30px;
     text-align: center;
     box-shadow: var(--shadow-md);
     display: flex;
@@ -2251,7 +2251,7 @@ body:has(.fullscreen-login-wrapper) .shop-footer {
     gap: 20px;
     align-items: center;
     justify-content: center;
-    min-height: 500px;
+    min-height: 450px;
     position: relative;
     overflow: hidden;
 }
@@ -2298,7 +2298,7 @@ body:has(.fullscreen-login-wrapper) .shop-footer {
 
 .item-image-box h3 {
     font-family: var(--font-heading);
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 900;
     color: var(--text-primary);
     margin: 20px 0 0 0;
@@ -2453,7 +2453,7 @@ body:has(.fullscreen-login-wrapper) .shop-footer {
 
 .price-amount {
     font-family: var(--font-heading);
-    font-size: 48px;
+    font-size: 36px;
     font-weight: 900;
     color: var(--one-gold);
     line-height: 1;
@@ -2544,7 +2544,7 @@ body:has(.fullscreen-login-wrapper) .shop-footer {
 }
 
 .btn-purchase-main i {
-    font-size: 22px;
+    font-size: 18px;
 }
 
 /* Admin Actions Bar */
@@ -2739,7 +2739,7 @@ textarea:focus {
 }
 
 .empty-state i {
-    font-size: 72px;
+    font-size: 52px;
     color: var(--text-muted);
     margin-bottom: 25px;
     opacity: 0.5;
@@ -2747,7 +2747,7 @@ textarea:focus {
 
 .empty-state h3 {
     font-family: var(--font-heading);
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 900;
     color: var(--text-primary);
     margin: 0 0 15px 0;
@@ -2869,14 +2869,14 @@ textarea:focus {
 }
 
 .login-header i {
-    font-size: 48px;
+    font-size: 36px;
     color: var(--one-scarlet);
     margin-bottom: 15px;
 }
 
 .login-header h3 {
     font-family: var(--font-heading);
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 900;
     color: var(--text-primary);
     margin: 0 0 10px 0;

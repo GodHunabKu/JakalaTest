@@ -29,11 +29,11 @@
     <!-- Login Notice for Guests -->
     <div class="guest-notice">
         <i class="fas fa-lock"></i>
-        <h3>Login to see prices and purchase</h3>
-        <p>Create an account or login to view item prices and make purchases</p>
+        <h3>Effettua il login per vedere i prezzi e acquistare</h3>
+        <p>Crea un account o effettua il login per visualizzare i prezzi degli oggetti e fare acquisti</p>
         <a href="<?php print $shop_url; ?>login" class="btn-notice-login">
             <i class="fas fa-sign-in-alt"></i>
-            <span>Login Now</span>
+            <span>Accedi Ora</span>
         </a>
     </div>
     <?php } ?>
@@ -47,8 +47,8 @@
         if(!count($list)) {
             echo '<div class="empty-state">
                     <i class="fas fa-inbox"></i>
-                    <h3>No items found</h3>
-                    <p>This category is currently empty.</p>
+                    <h3>Nessun oggetto trovato</h3>
+                    <p>Questa categoria è attualmente vuota.</p>
                   </div>';
         } else {
             foreach($list as $row) {
@@ -59,7 +59,7 @@
                 <!-- Admin Edit Button -->
                 <a href="<?php print $shop_url.'edit/item/'.$row['id'].'/'; ?>" class="item-edit-btn" onclick="event.stopPropagation(); event.preventDefault(); window.location.href=this.href;">
                     <i class="fas fa-edit"></i>
-                    <span>Edit</span>
+                    <span>Modifica</span>
                 </a>
                 <?php } ?>
 
@@ -69,7 +69,7 @@
                     <!-- Lock Overlay for Guests -->
                     <div class="item-lock-overlay">
                         <i class="fas fa-lock"></i>
-                        <span>Login to view</span>
+                        <span>Login per visualizzare</span>
                     </div>
                     <?php } ?>
                     
@@ -112,18 +112,18 @@
                     <!-- Price visible only when logged in -->
                     <div class="item-price">
                         <img src="<?php print $shop_url; ?>images/<?php print ($row['pay_type']==1) ? 'md' : 'jd'; ?>.png" alt="Coins">
-                        <span><?php print number_format($row['price'], 0, '', ','); ?></span>
+                        <span><?php print number_format($row['coins'], 0, '', ','); ?></span>
                     </div>
                     <?php } else { ?>
                     <!-- Login prompt for guests -->
                     <div class="item-login-required">
                         <i class="fas fa-lock"></i>
-                        <span>Login to view price</span>
+                        <span>Login per vedere il prezzo</span>
                     </div>
                     <?php } ?>
-                    
+
                     <div class="item-action">
-                        <span><?php print is_loggedin() ? 'View Details' : 'Login to purchase'; ?></span>
+                        <span><?php print is_loggedin() ? 'Vedi Dettagli' : 'Login per acquistare'; ?></span>
                         <i class="fas fa-arrow-right"></i>
                     </div>
                 </div>
