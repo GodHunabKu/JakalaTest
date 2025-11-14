@@ -15,7 +15,8 @@
 
 	include 'include/functions/get_item_image.php';
 	include 'include/functions/basic.php';
-	
+	include 'include/functions/auto_migrate.php';
+
 	if($offline)
 		die("The Connection to the database of game is not available.");
 		
@@ -26,6 +27,10 @@
 
 	if($current_page=='items' || $current_page=='add_items' || $current_page=='add_items_bonus')
 		$get_category = isset($_GET['category']) ? validate_id($_GET['category'], 1, 999) : 1;
+
+	// Auto-migrazione per pagine admin che usano custom_image/sort_order
+	if($current_page=='add_items' || $current_page=='add_items_bonus' || $current_page=='edit_item')
+		ensure_database_schema();
 
 	if($current_page=='edit_item')
 	{
