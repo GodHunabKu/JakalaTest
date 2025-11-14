@@ -36,8 +36,8 @@
         <ul class="stats-list">
             <?php if($item[0]['count'] > 1) { ?>
                 <li>
-                    <span class="stat-label"><i class="fas fa-layer-group"></i> Quantità</span>
-                    <span class="stat-value"><?php print $item[0]['count']; ?> unità</span>
+                    <span class="stat-label"><i class="fas fa-layer-group"></i> Quantitï¿½</span>
+                    <span class="stat-value"><?php print $item[0]['count']; ?> unitï¿½</span>
                 </li>
             <?php } ?>
 
@@ -65,7 +65,7 @@
                 </li>
             <?php } ?>
 
-            <!-- Le seguenti funzioni probabilmente stampano già del codice HTML.
+            <!-- Le seguenti funzioni probabilmente stampano giï¿½ del codice HTML.
                  Potrebbe essere necessario adattare il loro output per integrarsi
                  perfettamente con lo stile della lista (es. farle stampare <li>). -->
             <?php 
@@ -84,11 +84,11 @@
     <div class="item-action-footer">
         <?php if(is_loggedin()) { ?>
             <div class="item-final-price">
-                <img src="<?php print $shop_url; ?>images/<?php print ($item[0]['pay_type']==1) ? 'md3' : 'jd'; ?>.png" alt="Currency">
+                <img src="<?php print $shop_url; ?>images/md.png" alt="MD Coins">
                 <div class="price-details">
                     <span class="current-price">
-                        <?php print number_format($total); ?> 
-                        <small><?php print ($item[0]['pay_type']==1) ? 'MD' : 'JD'; ?></small>
+                        <?php print number_format($total); ?>
+                        <small>MD</small>
                     </span>
                     <?php if($item[0]['discount'] > 0) { ?>
                         <span class="original-price"><?php print number_format($price1); ?></span>

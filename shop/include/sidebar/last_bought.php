@@ -38,7 +38,7 @@
                                     ?>
                                 </span>
                                 <div class="item-price">
-                                    <img src="<?php print $shop_url; ?>images/<?php print ($last['pay_type'] == 1) ? 'md3' : 'jd'; ?>.png" alt="Currency">
+                                    <img src="<?php print $shop_url; ?>images/md.png" alt="MD Coins">
                                     <span><?php print number_format($last['coins']); ?></span>
                                 </div>
                             </div>

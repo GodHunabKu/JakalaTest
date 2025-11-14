@@ -19,10 +19,8 @@ include 'include/functions/header.php';
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     
-    <!-- Shop ONE CSS -->
-    <link rel="stylesheet" type="text/css" href="<?php print $shop_url; ?>assets/css/shop-one-ultimate10.css" />
-    <link rel="stylesheet" type="text/css" href="<?php print $shop_url; ?>assets/css/shop-one-fix-v5.css" />
-    <link rel="stylesheet" type="text/css" href="<?php print $shop_url; ?>assets/css/shop-one-fix-v6.css" />
+    <!-- Shop ONE CSS - Unificato e Ottimizzato -->
+    <link rel="stylesheet" type="text/css" href="<?php print $shop_url; ?>assets/css/shop-one.css" />
     
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="<?php print $shop_url; ?>assets/img/logosito.png">
@@ -220,15 +218,6 @@ include 'include/functions/header.php';
                                         <span class="wallet-value"><?php print number_format(is_coins(), 0, '', ','); ?></span>
                                     </div>
                                 </div>
-                                <div class="wallet-item wallet-jd">
-                                    <div class="wallet-icon">
-                                        <img src="<?php print $shop_url; ?>images/jd.png" alt="JD">
-                                    </div>
-                                    <div class="wallet-info">
-                                        <span class="wallet-label">JD Premium</span>
-                                        <span class="wallet-value"><?php print number_format(is_coins(1), 0, '', ','); ?></span>
-                                    </div>
-                                </div>
                             <?php if(is_paypal_list()) { ?>
                             </a>
                             <a href="<?php print $shop_url; ?>buy/coins" class="btn-buy-coins">
@@ -414,34 +403,8 @@ include 'include/functions/header.php';
         </div>
     </footer>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
-
-<script>
-$(document).ready(function(){
-    $('[data-toggle="tooltip"]').tooltip();
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    const mobileToggle = document.getElementById('mobileMenuToggle');
-    const mobileMenu = document.getElementById('mobileMenu');
-    
-    if (mobileToggle && mobileMenu) {
-        mobileToggle.addEventListener('click', function() {
-            mobileMenu.classList.toggle('active');
-            this.classList.toggle('active');
-        });
-        
-        document.addEventListener('click', function(e) {
-            if (!mobileMenu.contains(e.target) && !mobileToggle.contains(e.target)) {
-                mobileMenu.classList.remove('active');
-                mobileToggle.classList.remove('active');
-            }
-        });
-    }
-});
-</script>
+<!-- Shop ONE JavaScript - Unificato e Ottimizzato -->
+<script src="<?php print $shop_url; ?>assets/js/shop-one.js"></script>
 <?php if(file_exists('include/functions/js.php')) include 'include/functions/js.php'; ?>
 </body>
 </html>

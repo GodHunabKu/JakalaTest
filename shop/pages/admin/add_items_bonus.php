@@ -106,10 +106,10 @@
                         Price & Currency *
                     </label>
                     <div class="input-group">
-                        <select class="form-select" name="method_pay" style="max-width: 120px;">
-                            <option value="1">?? MD</option>
-                            <option value="2">?? JD</option>
+                        <select class="form-select" name="method_pay" style="max-width: 120px;" readonly disabled>
+                            <option value="1" selected>💰 MD</option>
                         </select>
+                        <input type="hidden" name="method_pay" value="1">
                         <input type="number" class="form-input" name="coins" value="10" required placeholder="500">
                     </div>
                 </div>

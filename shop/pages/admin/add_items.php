@@ -195,10 +195,10 @@
                             <i class="fas fa-money-bill-wave"></i>
                             Currency *
                         </label>
-                        <select class="form-select" name="method_pay">
-                            <option value="1">?? MD Coins</option>
-                            <option value="2">?? JD Premium</option>
+                        <select class="form-select" name="method_pay" readonly disabled>
+                            <option value="1" selected>💰 MD Coins</option>
                         </select>
+                        <input type="hidden" name="method_pay" value="1">
                     </div>
                 </div>
 
