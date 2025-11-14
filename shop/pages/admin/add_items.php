@@ -1,3 +1,11 @@
+<?php
+// Controllo permessi admin
+if(!is_loggedin() || web_admin_level() < 9) {
+    redirect($shop_url);
+    exit;
+}
+?>
+
 <div class="admin-content-wrapper">
     <!-- Page Header -->
     <div class="admin-page-header">
@@ -202,44 +210,44 @@
              }
              $added = true;
         }
-    }
-    
-    if($added) {
-        // Update custom fields if they exist in database
-        if ($has_custom_image || $has_sort_order) {
-            $last_id = $database->getSqliteBonuslastInsertId();
 
-            if(!$last_id) {
-                throw new Exception('Failed to get last insert ID');
-            }
+        // Update custom fields if added successfully
+        if($added) {
+            // Update custom fields if they exist in database
+            if ($has_custom_image || $has_sort_order) {
+                $last_id = $database->getSqliteBonuslastInsertId();
 
-            $update_fields = [];
-            $update_values = [];
+                if(!$last_id) {
+                    throw new Exception('Failed to get last insert ID');
+                }
 
-            if ($has_custom_image) {
-                $update_fields[] = 'custom_image = ?';
-                $update_values[] = $custom_image;
-            }
+                $update_fields = [];
+                $update_values = [];
 
-            if ($has_sort_order) {
-                $update_fields[] = 'sort_order = ?';
-                $update_values[] = $sort_order;
-            }
+                if ($has_custom_image) {
+                    $update_fields[] = 'custom_image = ?';
+                    $update_values[] = $custom_image;
+                }
 
-            if (!empty($update_fields)) {
-                $update_values[] = $last_id;
-                $update_sql = "UPDATE item_shop_items SET " . implode(', ', $update_fields) . " WHERE id = ?";
-                $update_stmt = $database->runQuerySqlite($update_sql);
-                $update_result = $update_stmt->execute($update_values);
+                if ($has_sort_order) {
+                    $update_fields[] = 'sort_order = ?';
+                    $update_values[] = $sort_order;
+                }
 
-                if(!$update_result) {
-                    throw new Exception('Failed to update custom fields (custom_image/sort_order)');
+                if (!empty($update_fields)) {
+                    $update_values[] = $last_id;
+                    $update_sql = "UPDATE item_shop_items SET " . implode(', ', $update_fields) . " WHERE id = ?";
+                    $update_stmt = $database->runQuerySqlite($update_sql);
+                    $update_result = $update_stmt->execute($update_values);
+
+                    if(!$update_result) {
+                        throw new Exception('Failed to update custom fields (custom_image/sort_order)');
+                    }
                 }
             }
-        }
 
-        print '<div class="alert alert-success" style="margin-bottom: 20px;"><i class="fas fa-check-circle"></i> '.$lang_shop['item_added'].'</div>';
-    }
+            print '<div class="alert alert-success" style="margin-bottom: 20px;"><i class="fas fa-check-circle"></i> '.$lang_shop['item_added'].'</div>';
+        }
 
     } catch (Exception $e) {
         $error_message = $e->getMessage();
