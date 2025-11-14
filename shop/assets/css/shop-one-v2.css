@@ -4444,5 +4444,514 @@ textarea:focus {
 }
 
 /* =================================
+   ITEM DETAIL PAGE - PROFESSIONAL LAYOUT
+   ================================= */
+
+/* Alert Messages */
+.alert-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px 24px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    border: 1px solid;
+    animation: slideInDown 0.4s ease-out;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alert-message i {
+    font-size: 24px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.alert-message strong {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 4px;
+    font-family: var(--font-heading);
+}
+
+.alert-message p {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, rgba(46, 213, 115, 0.15) 0%, rgba(46, 213, 115, 0.05) 100%);
+    border-color: rgba(46, 213, 115, 0.4);
+    color: #1e874b;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, rgba(235, 77, 75, 0.15) 0%, rgba(235, 77, 75, 0.05) 100%);
+    border-color: rgba(235, 77, 75, 0.4);
+    color: #c0392b;
+}
+
+/* Item Detail Grid */
+.item-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.item-detail-left,
+.item-detail-right {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Detail Cards */
+.detail-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+}
+
+.detail-card .card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.03);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.detail-card .card-header i {
+    font-size: 20px;
+    color: var(--one-scarlet);
+}
+
+.detail-card .card-header h3 {
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.detail-card .card-body {
+    padding: 24px;
+}
+
+/* Item Showcase Card */
+.item-showcase-card {
+    padding: 40px;
+    text-align: center;
+}
+
+.item-showcase-image {
+    width: 300px;
+    height: 300px;
+    margin: 0 auto 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle, rgba(220, 20, 60, 0.1) 0%, transparent 70%);
+    border-radius: 20px;
+    position: relative;
+}
+
+.item-showcase-image::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(135deg, var(--one-scarlet), var(--one-gold), var(--one-scarlet));
+    border-radius: 20px;
+    opacity: 0.3;
+    filter: blur(20px);
+    z-index: -1;
+}
+
+.item-showcase-image img {
+    max-width: 280px;
+    max-height: 280px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 30px rgba(220, 20, 60, 0.6));
+}
+
+.item-showcase-title {
+    font-family: var(--font-heading);
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--text-primary);
+    margin: 0 0 24px 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* Item Badges Showcase */
+.item-showcase-badges {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.showcase-badge {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.showcase-badge:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(4px);
+}
+
+.showcase-badge i {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.badge-content {
+    flex: 1;
+    text-align: left;
+}
+
+.badge-label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.7;
+    margin-bottom: 4px;
+}
+
+.badge-value {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.badge-timer {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+/* Badge Colors */
+.badge-discount {
+    border-color: rgba(46, 213, 115, 0.4);
+    background: linear-gradient(135deg, rgba(46, 213, 115, 0.1) 0%, rgba(46, 213, 115, 0.03) 100%);
+}
+
+.badge-discount i {
+    color: #2ed573;
+}
+
+.badge-timer {
+    border-color: rgba(255, 107, 107, 0.4);
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 107, 107, 0.03) 100%);
+}
+
+.badge-timer i {
+    color: #ff6b6b;
+}
+
+.badge-bonus {
+    border-color: rgba(255, 159, 67, 0.4);
+    background: linear-gradient(135deg, rgba(255, 159, 67, 0.1) 0%, rgba(255, 159, 67, 0.03) 100%);
+}
+
+.badge-bonus i {
+    color: #ff9f43;
+}
+
+.badge-quantity {
+    border-color: rgba(99, 110, 250, 0.4);
+    background: linear-gradient(135deg, rgba(99, 110, 250, 0.1) 0%, rgba(99, 110, 250, 0.03) 100%);
+}
+
+.badge-quantity i {
+    color: #636efa;
+}
+
+/* Description Card */
+.item-description-text {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Purchase Card */
+.item-purchase-card {
+    position: sticky;
+    top: 24px;
+}
+
+.purchase-price-section {
+    padding: 24px;
+    background: linear-gradient(135deg, rgba(220, 20, 60, 0.1) 0%, rgba(139, 0, 0, 0.1) 100%);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.price-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.price-display {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.price-display img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+}
+
+.price-values {
+    flex: 1;
+}
+
+.price-original {
+    display: block;
+    font-size: 16px;
+    color: var(--text-secondary);
+    text-decoration: line-through;
+    opacity: 0.6;
+    margin-bottom: 4px;
+}
+
+.price-current {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--one-gold);
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.price-currency {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+/* Purchase Button */
+.btn-purchase-primary {
+    width: 100%;
+    padding: 18px 24px;
+    margin: 24px;
+    margin-bottom: 0;
+    background: linear-gradient(135deg, var(--one-scarlet) 0%, rgba(139, 0, 0, 0.9) 100%);
+    border: none;
+    border-radius: 12px;
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    box-shadow: 0 8px 24px rgba(220, 20, 60, 0.4);
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-purchase-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(220, 20, 60, 0.6);
+}
+
+.btn-purchase-primary:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn-purchase-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.btn-purchase-primary i {
+    font-size: 18px;
+}
+
+/* Wallet Info */
+.purchase-wallet-info {
+    padding: 20px 24px;
+    background: rgba(255, 255, 255, 0.02);
+    border-top: 1px solid var(--glass-border);
+}
+
+.wallet-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.wallet-row:not(:last-child) {
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.wallet-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.wallet-value {
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--one-gold);
+}
+
+/* Login Notice */
+.login-notice {
+    padding: 20px 24px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.02);
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.login-notice i {
+    font-size: 18px;
+    color: var(--one-scarlet);
+}
+
+.login-notice p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+/* Stats Card */
+.item-stats-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stat-label i {
+    font-size: 14px;
+    color: var(--one-scarlet);
+}
+
+.stat-value {
+    font-family: var(--font-heading);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.stat-admin {
+    background: rgba(220, 20, 60, 0.1);
+    padding: 14px 16px;
+    margin: 14px -24px -24px;
+    border-bottom: none;
+    border-top: 2px solid var(--one-scarlet);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .item-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .item-purchase-card {
+        position: static;
+    }
+
+    .item-detail-right {
+        order: -1;
+    }
+}
+
+@media (max-width: 768px) {
+    .item-showcase-card {
+        padding: 24px;
+    }
+
+    .item-showcase-image {
+        width: 200px;
+        height: 200px;
+    }
+
+    .item-showcase-image img {
+        max-width: 180px;
+        max-height: 180px;
+    }
+
+    .item-showcase-title {
+        font-size: 22px;
+    }
+
+    .price-current {
+        font-size: 24px;
+    }
+}
+
+/* =================================
    END OF SHOP ONE CSS
    ================================= */
