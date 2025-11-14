@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (purchaseForm) {
         purchaseForm.addEventListener('submit', function(e) {
-            const buyButton = this.querySelector('button[name="buy"]');
+            const buyButton = this.querySelector('button[type="submit"]');
 
             // Se il pulsante è disabilitato, blocca l'invio
             if (buyButton && buyButton.disabled) {
@@ -108,25 +108,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 return false;
             }
 
-            // Disabilita il pulsante durante l'invio per evitare doppi click
+            // Mostra feedback visivo SENZA disabilitare il pulsante
+            // (il campo hidden 'buy' gestisce l'invio)
             if (buyButton) {
-                buyButton.disabled = true;
-                const originalText = buyButton.innerHTML;
                 buyButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>ELABORAZIONE...</span>';
-                buyButton.style.opacity = '0.6';
-                buyButton.style.cursor = 'not-allowed';
-
-                // Re-abilita dopo 5 secondi se la pagina non viene ricaricata
-                setTimeout(function() {
-                    buyButton.disabled = false;
-                    buyButton.innerHTML = originalText;
-                    buyButton.style.opacity = '1';
-                    buyButton.style.cursor = 'pointer';
-                }, 5000);
+                buyButton.style.opacity = '0.8';
             }
 
-            // Mostra notifica processing
-            showNotification('Elaborazione acquisto in corso...', 'info');
+            // Lascia che il form si invii normalmente
+            return true;
         });
 
         // Reset stile quando si seleziona un bonus

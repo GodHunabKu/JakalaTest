@@ -192,7 +192,8 @@ $proto_details = get_item_details_from_proto($item[0]['vnum']);
             <?php if(is_loggedin()): ?>
                 <form action="" method="post" id="buy_item_form">
                     <input type="hidden" name="buy_key" value="<?php echo $_SESSION['buy_key']; ?>">
-                    <button type="submit" name="buy" class="btn-purchase-main" <?php if(is_coins($item[0]['pay_type']-1) < $total) echo 'disabled'; ?>>
+                    <input type="hidden" name="buy" value="1">
+                    <button type="submit" class="btn-purchase-main" <?php if(is_coins($item[0]['pay_type']-1) < $total) echo 'disabled'; ?>>
                         <i class="fas fa-shopping-cart"></i>
                         <span><?php echo (is_coins($item[0]['pay_type']-1) < $total) ? 'FONDI INSUFFICIENTI' : 'ACQUISTA ORA'; ?></span>
                     </button>
