@@ -3708,6 +3708,386 @@ textarea:focus {
     }
 }
 
+/* =========================================================
+   COINS PAGE (coins.php)
+   Grid packages per acquisto coins
+   ========================================================= */
+
+.coins-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+    padding: 20px 0;
+}
+
+.coin-package {
+    background: var(--glass-bg);
+    border: 2px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 35px 30px;
+    text-align: center;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.coin-package::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--accent-gradient);
+    transform: scaleX(0);
+    transition: transform 0.4s;
+}
+
+.coin-package:hover {
+    transform: translateY(-10px);
+    border-color: var(--one-scarlet);
+    box-shadow: 0 20px 60px rgba(220, 20, 60, 0.4);
+}
+
+.coin-package:hover::before {
+    transform: scaleX(1);
+}
+
+.coin-package-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.package-coins {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.coins-amount {
+    font-family: var(--font-heading);
+    font-size: 42px;
+    font-weight: 900;
+    color: var(--one-gold);
+    line-height: 1;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+}
+
+.coins-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+@media (max-width: 768px) {
+    .coins-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================
+   GUEST NOTICE (items.php)
+   Avviso per utenti non loggati
+   ========================================================= */
+
+.guest-notice {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 40px;
+    background: linear-gradient(135deg, rgba(220, 20, 60, 0.1) 0%, rgba(139, 0, 0, 0.05) 100%);
+    border: 2px solid var(--one-scarlet);
+    border-radius: 20px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.guest-notice i {
+    font-size: 48px;
+    color: var(--one-scarlet);
+    animation: lockPulse 2s ease-in-out infinite;
+}
+
+@keyframes lockPulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.1); opacity: 1; }
+}
+
+.guest-notice p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin: 0;
+    max-width: 500px;
+}
+
+/* =========================================================
+   LOGOUT PAGE (logout.php)
+   Fullscreen logout confirmation con animazioni
+   ========================================================= */
+
+.fullscreen-logout-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    z-index: 9999;
+}
+
+.logout-background-animated {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0D0D0D 0%, #1A1A1A 50%, #0D0D0D 100%);
+    z-index: 1;
+}
+
+.logout-confirmation-container {
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 35px;
+    animation: logoutFadeIn 0.8s ease-out;
+}
+
+@keyframes logoutFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.logout-icon-wrapper {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logout-icon-circle {
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-gradient);
+    border-radius: 50%;
+    box-shadow: 0 20px 60px rgba(220, 20, 60, 0.5);
+    animation: logoutIconBounce 1.5s ease-in-out infinite;
+    position: relative;
+    z-index: 2;
+}
+
+@keyframes logoutIconBounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.logout-icon-circle i {
+    font-size: 60px;
+    color: white;
+}
+
+.logout-icon-glow {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(220, 20, 60, 0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: glowPulse 2s ease-in-out infinite;
+    z-index: 1;
+}
+
+@keyframes glowPulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.3); opacity: 0.8; }
+}
+
+.logout-message {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.logout-title {
+    font-family: var(--font-heading);
+    font-size: 42px;
+    font-weight: 900;
+    color: var(--text-primary);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 0 30px rgba(220, 20, 60, 0.5);
+}
+
+.logout-subtitle {
+    font-size: 18px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin: 0;
+}
+
+.logout-divider {
+    width: 120px;
+    height: 3px;
+    background: var(--accent-gradient);
+    margin: 10px auto;
+    border-radius: 2px;
+    box-shadow: 0 0 20px rgba(220, 20, 60, 0.6);
+}
+
+.logout-description {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.logout-progress-wrapper {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.logout-progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.logout-progress-fill {
+    height: 100%;
+    background: var(--accent-gradient);
+    border-radius: 10px;
+    animation: progressFill 3s linear forwards;
+    box-shadow: 0 0 20px rgba(220, 20, 60, 0.8);
+}
+
+@keyframes progressFill {
+    from { width: 0%; }
+    to { width: 100%; }
+}
+
+.logout-progress-text {
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.logout-progress-text i {
+    color: var(--one-scarlet);
+}
+
+.logout-actions {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .logout-confirmation-container {
+        gap: 25px;
+    }
+
+    .logout-icon-wrapper {
+        width: 120px;
+        height: 120px;
+    }
+
+    .logout-icon-circle {
+        width: 100px;
+        height: 100px;
+    }
+
+    .logout-icon-circle i {
+        font-size: 50px;
+    }
+
+    .logout-icon-glow {
+        width: 120px;
+        height: 120px;
+    }
+
+    .logout-title {
+        font-size: 32px;
+    }
+
+    .logout-subtitle {
+        font-size: 16px;
+    }
+
+    .logout-divider {
+        width: 100px;
+    }
+
+    .logout-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-logout-home,
+    .btn-logout-login {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .logout-title {
+        font-size: 28px;
+        letter-spacing: 2px;
+    }
+
+    .logout-icon-wrapper {
+        width: 100px;
+        height: 100px;
+    }
+
+    .logout-icon-circle {
+        width: 80px;
+        height: 80px;
+    }
+
+    .logout-icon-circle i {
+        font-size: 40px;
+    }
+
+    .logout-icon-glow {
+        width: 100px;
+        height: 100px;
+    }
+}
+
 /* =================================
    ANIMATIONS & UTILITIES
    ================================= */
