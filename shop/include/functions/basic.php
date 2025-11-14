@@ -36,33 +36,66 @@
 
 		global $database, $lang_shop, $shop_url;
 
-			
+		// Input validation
+		if (!validate_username($uname)) {
+			secure_log("Login attempt with invalid username format", "WARNING");
+			return false;
+		}
 
-		$stmt = $database->runQueryAccount("SELECT id, login, password, status FROM account WHERE login=:uname AND password=:upass LIMIT 1");
+		if (!validate_password($upass)) {
+			secure_log("Login attempt with invalid password format", "WARNING");
+			return false;
+		}
 
-		$stmt->execute(array(':uname'=>$uname, ':upass'=>strtoupper("*".sha1(sha1($upass, true)))));
+		// Rate limiting - 5 attempts per 5 minutes
+		$rate_key = 'login_' . $_SERVER['REMOTE_ADDR'];
+		if (!check_rate_limit($rate_key, 5, 300)) {
+			secure_log("Rate limit exceeded for login from " . safe_output($uname), "WARNING");
+			print '<div class="alert alert-dismissible alert-warning">
+					<button type="button" class="close" data-dismiss="alert">Ã—</button>
+					Too many login attempts. Please try again in 5 minutes.
+				</div>';
+			return false;
+		}
 
-		
+		// Query for user (using legacy hash for compatibility)
+		$stmt = $database->runQueryAccount("SELECT id, login, password, status FROM account WHERE login=:uname LIMIT 1");
+		$stmt->execute(array(':uname'=>$uname));
 
 		$userRow=$stmt->fetch(PDO::FETCH_ASSOC);
 
 		if($stmt->rowCount() > 0)
 
 		{
+			// Verify password using legacy method
+			$password_hash = strtoupper("*".sha1(sha1($upass, true)));
+
+			if(!hash_equals($userRow['password'], $password_hash)) {
+				secure_log("Failed login attempt for user: " . safe_output($uname), "WARNING");
+				return false;
+			}
 
 			if($userRow['status']=='OK')
 
 			{
+				// Clear rate limit on successful login
+				clear_rate_limit($rate_key);
 
 				$_SESSION['id'] = $userRow['id'];
+				$_SESSION['fingerprint'] = get_session_fingerprint();
 
-				$_SESSION['fingerprint'] = md5($_SERVER['HTTP_USER_AGENT'] . 'x' . $_SERVER['REMOTE_ADDR']);
+				// Regenerate session ID to prevent fixation
+				regenerate_session();
+
+				secure_log("Successful login for user: " . safe_output($uname), "INFO");
 
 				redirect($shop_url);
 
 				return true;
 
 			} else {
+
+				secure_log("Login attempt for blocked account: " . safe_output($uname), "WARNING");
 
 				print '<div class="alert alert-dismissible alert-warning">
 
@@ -81,7 +114,7 @@
 		else
 
 		{
-
+			secure_log("Login attempt for non-existent user: " . safe_output($uname), "WARNING");
 			return false;
 
 		}
@@ -108,7 +141,7 @@
 
 		if(is_loggedin())
 
-			if ($_SESSION['fingerprint'] != md5($_SERVER['HTTP_USER_AGENT'] . 'x' . $_SERVER['REMOTE_ADDR']))
+			if (!validate_session_fingerprint())
 
 				session_destroy();
 
@@ -2218,7 +2251,7 @@
     
     // Mappa bonus completa e corretta
     $bonus_map = [
-        1=>"Max. HP +[n]", 2=>"Max. MP +[n]", 3=>"Vitalità +[n]", 4=>"Intelligenza +[n]", 5=>"Forza +[n]", 6=>"Destrezza +[n]", 7=>"Velocità Attacco +[n]%", 8=>"Velocità Movimento +[n]%", 9=>"Velocità Magia +[n]%", 10=>"Rigenerazione HP +[n]%", 11=>"Rigenerazione MP +[n]%", 12=>"Forte c. Mezziuomini +[n]%", 13=>"Forte c. Animali +[n]%", 14=>"Forte c. Orchi +[n]%", 15=>"Forte c. Esoterici +[n]%", 16=>"Forte c. Zombie +[n]%", 17=>"Forte c. Diavoli +[n]%", 19=>"Difesa Spada [n]%", 20=>"Difesa Pugnale [n]%", 21=>"Difesa Freccia [n]%", 22=>"Difesa Campana [n]%", 23=>"Difesa Ventaglio [n]%", 24=>"Resistenza Magia +[n]%", 25=>"Resistenza Fuoco +[n]%", 27=>"Resistenza Magia +[n]%", 28=>"Resistenza Veleno +[n]%", 29=>"Poss. di bloccare un att. corporeo [n]%", 30=>"Poss. di schivare frecce [n]%", 37=>"Bonus EXP +[n]%", 38=>"Poss. di far cadere il doppio di Yang [n]%", 39=>"Poss. di far cadere il doppio di oggetti [n]%", 41=>"Poss. su colpi critici +[n]%", 42=>"Poss. su trafiggenti +[n]%", 45=>"Poss. di Stun [n]%", 47=>"Poss. di rallentare [n]%", 53=>"Resistenza Danni Abilità [n]%", 54=>"Resistenza Danni Medi [n]%", 71=>"Danni Medi [n]%", 72=>"Danni Abilità [n]%"
+        1=>"Max. HP +[n]", 2=>"Max. MP +[n]", 3=>"Vitalitï¿½ +[n]", 4=>"Intelligenza +[n]", 5=>"Forza +[n]", 6=>"Destrezza +[n]", 7=>"Velocitï¿½ Attacco +[n]%", 8=>"Velocitï¿½ Movimento +[n]%", 9=>"Velocitï¿½ Magia +[n]%", 10=>"Rigenerazione HP +[n]%", 11=>"Rigenerazione MP +[n]%", 12=>"Forte c. Mezziuomini +[n]%", 13=>"Forte c. Animali +[n]%", 14=>"Forte c. Orchi +[n]%", 15=>"Forte c. Esoterici +[n]%", 16=>"Forte c. Zombie +[n]%", 17=>"Forte c. Diavoli +[n]%", 19=>"Difesa Spada [n]%", 20=>"Difesa Pugnale [n]%", 21=>"Difesa Freccia [n]%", 22=>"Difesa Campana [n]%", 23=>"Difesa Ventaglio [n]%", 24=>"Resistenza Magia +[n]%", 25=>"Resistenza Fuoco +[n]%", 27=>"Resistenza Magia +[n]%", 28=>"Resistenza Veleno +[n]%", 29=>"Poss. di bloccare un att. corporeo [n]%", 30=>"Poss. di schivare frecce [n]%", 37=>"Bonus EXP +[n]%", 38=>"Poss. di far cadere il doppio di Yang [n]%", 39=>"Poss. di far cadere il doppio di oggetti [n]%", 41=>"Poss. su colpi critici +[n]%", 42=>"Poss. su trafiggenti +[n]%", 45=>"Poss. di Stun [n]%", 47=>"Poss. di rallentare [n]%", 53=>"Resistenza Danni Abilitï¿½ [n]%", 54=>"Resistenza Danni Medi [n]%", 71=>"Danni Medi [n]%", 72=>"Danni Abilitï¿½ [n]%"
     ];
 
     try {

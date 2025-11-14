@@ -7,11 +7,12 @@
 		$shop_url.='/';
 	
 	include 'include/functions/language.php';
-	
+	include 'include/functions/security.php'; // Security functions
+
 	$offline = 0;
 	require_once("include/classes/user.php");
 	$database = new USER($host, $user, $password);
-	
+
 	include 'include/functions/get_item_image.php';
 	include 'include/functions/basic.php';
 	
@@ -19,15 +20,16 @@
 		die("The Connection to the database of game is not available.");
 		
 	$item_name_db = get_settings_time(4);
-	
-	$current_page = isset($_GET['p']) ? $_GET['p'] : null;
-	
+
+	// Validate page parameter with whitelist
+	$current_page = isset($_GET['p']) ? validate_page($_GET['p']) : 'home';
+
 	if($current_page=='items' || $current_page=='add_items' || $current_page=='add_items_bonus')
-		$get_category = isset($_GET['category']) ? $_GET['category'] : 1;
-	
+		$get_category = isset($_GET['category']) ? validate_id($_GET['category'], 1, 999) : 1;
+
 	if($current_page=='item' || $current_page=='buy')
 	{
-		$get_item = isset($_GET['id']) ? $_GET['id'] : 1;
+		$get_item = isset($_GET['id']) ? validate_id($_GET['id'], 1, 999999) : 1;
 		
 		$item = array();
 		$item = is_item_select($get_item);
@@ -68,8 +70,8 @@
 	
 	if($current_page=='items' && is_loggedin() && web_admin_level()>=9) // minim_web_admin_level = 9
 	{
-		$remove = isset($_GET['remove']) ? $_GET['remove'] : 0;
-		$remove_category = isset($_GET['category']) ? $_GET['category'] : 0;
+		$remove = isset($_GET['remove']) ? validate_id($_GET['remove'], 0, 999999) : 0;
+		$remove_category = isset($_GET['category']) ? validate_id($_GET['category'], 0, 999) : 0;
 		if($remove)
 		{
 			is_delete_item($remove);
@@ -95,7 +97,9 @@
 		
 		if(isset($_POST["id"]))
 		{
-			if(is_check_paypal($_POST["id"]))
+			// Validate PayPal ID
+			$paypal_id = validate_id($_POST["id"], 1, 999);
+			if($paypal_id && is_check_paypal($paypal_id))
 			{
 				$return_url = $shop_url."buy/coins/success";
 				$cancel_url = $shop_url."buy/coins/cancelled";
@@ -104,9 +108,9 @@
 				$querystring = '';
 				$querystring .= "?business=".urlencode($paypal_email)."&";
 				
-				$item_name = is_get_coins($_POST["id"]). ' MD';
+				$item_name = is_get_coins($paypal_id). ' MD';
 				$querystring .= "item_name=".urlencode($item_name)."&";
-				$querystring .= "amount=".urlencode(is_get_price($_POST["id"]))."&";
+				$querystring .= "amount=".urlencode(is_get_price($paypal_id))."&";
 				
 				$querystring .= "cmd=".urlencode(stripslashes("_xclick"))."&";
 				$querystring .= "no_note=".urlencode(stripslashes("1"))."&";
@@ -117,7 +121,7 @@
 				$querystring .= "return=".urlencode(stripslashes($return_url))."&";
 				$querystring .= "cancel_return=".urlencode(stripslashes($cancel_url))."&";
 				$querystring .= "notify_url=".urlencode($notify_url)."&";
-				$querystring .= "item_number=".urlencode($_POST["id"])."&";
+				$querystring .= "item_number=".urlencode($paypal_id)."&";
 				$querystring .= "custom=".urlencode($_SESSION['id']);
 				
 				//redirect('https://www.sandbox.paypal.com/cgi-bin/webscr'.$querystring);

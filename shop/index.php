@@ -41,7 +41,7 @@ include 'include/functions/header.php';
                 <div class="top-left">
                     <span class="welcome-text">
                         <?php if(is_loggedin()) { ?>
-                            <i class="fas fa-crown"></i> Welcome back, <strong><?php print get_account_name(); ?></strong>
+                            <i class="fas fa-crown"></i> Welcome back, <strong><?php print safe_output(get_account_name()); ?></strong>
                         <?php } else { ?>
                             <i class="fas fa-store"></i> Welcome to ONE Premium Shop
                         <?php } ?>
@@ -125,7 +125,7 @@ include 'include/functions/header.php';
                     <div class="user-menu">
                         <button class="user-btn">
                             <i class="fas fa-user-circle"></i>
-                            <span class="user-name"><?php print get_account_name(); ?></span>
+                            <span class="user-name"><?php print safe_output(get_account_name()); ?></span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="user-dropdown">
@@ -344,19 +344,20 @@ include 'include/functions/header.php';
                                 <p>Login to access your account and shop</p>
                             </div>
                             <form action="<?php print $shop_url; ?>login" method="post" class="quick-login-form">
+                                <?php echo csrf_field(); ?>
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label>
                                             <i class="fas fa-user"></i>
                                             Username
                                         </label>
-                                        <input 
-                                            type="text" 
-                                            name="username" 
-                                            pattern=".{5,64}" 
-                                            maxlength="64" 
-                                            placeholder="Enter your username" 
-                                            required 
+                                        <input
+                                            type="text"
+                                            name="username"
+                                            pattern="[a-zA-Z0-9_]{5,64}"
+                                            maxlength="64"
+                                            placeholder="Enter your username"
+                                            required
                                             autocomplete="off"
                                         >
                                     </div>

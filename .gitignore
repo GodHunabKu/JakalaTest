@@ -1,0 +1,58 @@
+# ONE SHOP - Git Ignore File
+
+# Environment files
+shop/.env
+.env
+*.env
+!.env.example
+
+# Logs
+*.log
+error_log
+paypal_debug.log
+paypal_errors.log
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# User uploads (if any)
+uploads/
+temp/
+
+# Vendor (if using Composer)
+vendor/
+
+# Node modules (if using npm)
+node_modules/
+
+# Compiled assets
+*.min.css
+*.min.js
+
+# Config backups
+config.php.bak
+config.*.php

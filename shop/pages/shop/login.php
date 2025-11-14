@@ -23,7 +23,13 @@
         <div class="fullscreen-login-card">
             <?php
             if(isset($_POST['username'], $_POST['password'])) {
-                if(login($_POST['username'], $_POST['password'], 1)) {
+                // CSRF Protection
+                if(CSRF_PROTECTION && !csrf_verify()) {
+                    echo '<div class="alert-message alert-error">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Security token validation failed. Please try again.</span>
+                          </div>';
+                } else if(login($_POST['username'], $_POST['password'], 1)) {
                     echo '<div class="alert-message alert-success">
                             <i class="fas fa-check-circle"></i>
                             <span>'.$lang_shop['login_success'].'</span>
@@ -39,19 +45,20 @@
             ?>
 
             <form action="" method="post" class="fullscreen-login-form">
+                <?php echo csrf_field(); ?>
                 <div class="form-group-fullscreen">
                     <label>
                         <i class="fas fa-user"></i>
                         <?php print $lang_shop['name_login']; ?>
                     </label>
-                    <input 
-                        type="text" 
-                        name="username" 
-                        id="username" 
-                        pattern=".{5,64}" 
-                        maxlength="64" 
-                        placeholder="<?php print $lang_shop['name_login']; ?>" 
-                        required 
+                    <input
+                        type="text"
+                        name="username"
+                        id="username"
+                        pattern="[a-zA-Z0-9_]{5,64}"
+                        maxlength="64"
+                        placeholder="<?php print $lang_shop['name_login']; ?>"
+                        required
                         autocomplete="off"
                         class="input-fullscreen"
                     >
