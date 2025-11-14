@@ -63,9 +63,10 @@ Options -Indexes
     php_flag engine off
 </Directory>
 
-# URL Rewriting (if needed)
+# URL Rewriting
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    RewriteBase /shop/
 
     # Force HTTPS (uncomment if you have SSL)
     # RewriteCond %{HTTPS} off
@@ -76,6 +77,39 @@ Options -Indexes
     RewriteCond %{SCRIPT_FILENAME} -d [OR]
     RewriteCond %{SCRIPT_FILENAME} -f
     RewriteRule "(^|/)\." - [F]
+
+    # Skip rewrite for existing files and directories
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Main routing rules
+    # Format: /page -> index.php?p=page
+    # Format: /page/param -> index.php?p=page (param handled separately)
+
+    # Items page with category: /items or /category/1
+    RewriteRule ^items/?$ index.php?p=items&category=1 [L,QSA]
+    RewriteRule ^category/([0-9]+)/?$ index.php?p=items&category=$1 [L,QSA]
+
+    # Item detail page: /item/123
+    RewriteRule ^item/([0-9]+)/?$ index.php?p=item&id=$1 [L,QSA]
+
+    # Buy/coins pages
+    RewriteRule ^buy/coins/?(.*)$ index.php?p=coins [L,QSA]
+    RewriteRule ^buy/item/([0-9]+)/?$ index.php?p=buy&id=$1 [L,QSA]
+
+    # Admin pages
+    RewriteRule ^settings/?$ index.php?p=settings [L,QSA]
+    RewriteRule ^admin/paypal/?$ index.php?p=paypal [L,QSA]
+    RewriteRule ^categories/?$ index.php?p=categories [L,QSA]
+    RewriteRule ^add/item/([0-9]+)/?$ index.php?p=add_items&category=$1 [L,QSA]
+    RewriteRule ^add/bonus/item/([0-9]+)/?$ index.php?p=add_items_bonus&category=$1 [L,QSA]
+
+    # Auth pages
+    RewriteRule ^login/?$ index.php?p=login [L,QSA]
+    RewriteRule ^logout/?$ index.php?p=logout [L,QSA]
+
+    # Home page (default)
+    RewriteRule ^$ index.php?p=home [L,QSA]
 </IfModule>
 
 # Limit file upload size (adjust as needed)
