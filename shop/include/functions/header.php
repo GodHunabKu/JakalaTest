@@ -27,6 +27,19 @@
 	if($current_page=='items' || $current_page=='add_items' || $current_page=='add_items_bonus')
 		$get_category = isset($_GET['category']) ? validate_id($_GET['category'], 1, 999) : 1;
 
+	if($current_page=='edit_item')
+	{
+		$get_edit = isset($_GET['id']) ? validate_id($_GET['id'], 1, 999999) : 0;
+
+		// Verifica che sia admin
+		if(!is_loggedin() || web_admin_level() < 9)
+			redirect($shop_url);
+
+		// Verifica che l'item esista
+		if($get_edit > 0 && !is_check_item($get_edit))
+			redirect($shop_url);
+	}
+
 	if($current_page=='item' || $current_page=='buy')
 	{
 		$get_item = isset($_GET['id']) ? validate_id($_GET['id'], 1, 999999) : 1;

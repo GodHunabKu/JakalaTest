@@ -303,6 +303,9 @@ include 'include/functions/header.php';
                         case 'add_items_bonus':
                             include 'pages/admin/add_items_bonus.php';
                             break;
+                        case 'edit_item':
+                            include 'pages/admin/edit_item.php';
+                            break;
                         case 'settings':
                             include 'pages/admin/settings.php';
                             break;

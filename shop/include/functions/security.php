@@ -66,7 +66,7 @@ function csrf_check() {
 function validate_page($page) {
     $allowed_pages = [
         'home', 'items', 'item', 'login', 'logout',
-        'categories', 'add_items', 'add_items_bonus',
+        'categories', 'add_items', 'add_items_bonus', 'edit_item',
         'settings', 'paypal', 'coins', 'pay'
     ];
 

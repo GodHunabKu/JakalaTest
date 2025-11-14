@@ -103,6 +103,8 @@ Options -Indexes
     RewriteRule ^categories/?$ index.php?p=categories [L,QSA]
     RewriteRule ^add/item/([0-9]+)/?$ index.php?p=add_items&category=$1 [L,QSA]
     RewriteRule ^add/bonus/item/([0-9]+)/?$ index.php?p=add_items_bonus&category=$1 [L,QSA]
+    RewriteRule ^edit/item/([0-9]+)/?$ index.php?p=edit_item&id=$1 [L,QSA]
+    RewriteRule ^remove/item/([0-9]+)/([0-9]+)/?$ index.php?p=items&category=$2&remove=$1 [L,QSA]
 
     # Auth pages
     RewriteRule ^login/?$ index.php?p=login [L,QSA]
