@@ -1,0 +1,8 @@
+# File Top Donatori
+# Formato: username|MD_spesi|numero_acquisti
+# Modifica questo file per aggiornare i top donatori mostrati nello shop
+# I giocatori devono dare il consenso prima di essere inseriti qui
+
+God|150000|45
+PlayerEsempio|89500|32
+Donatore123|67200|28
