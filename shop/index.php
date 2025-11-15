@@ -25,14 +25,14 @@ include 'include/functions/header.php';
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-    <!-- Shop ONE CSS V2 - Unificato e Ottimizzato con Statistiche -->
-    <link rel="stylesheet" type="text/css" href="<?php print $shop_url; ?>assets/css/shop-one-v222.css?v=2.1" />
-    <link rel="stylesheet" href="<?php print $shop_url; ?>assets/css/item-page-improvements3.css?v=1.0">
+    <!-- Shop ONE CSS V3 - Unificato e Ottimizzato -->
+    <link rel="stylesheet" type="text/css" href="<?php print $shop_url; ?>assets/css/shop-one-v3.css" />
+    <link rel="stylesheet" href="<?php print $shop_url; ?>assets/css/item-page-v3.css">
     <!-- Enhancements CSS - Performance, Accessibility, Responsive -->
-    <link rel="stylesheet" href="<?php print $shop_url; ?>assets/css/enhancements.css?v=1.0">
+    <link rel="stylesheet" href="<?php print $shop_url; ?>assets/css/enhancements-v3.css">
     <!-- Admin Panel CSS - Caricato solo per admin -->
     <?php if(is_loggedin() && web_admin_level()>=9) { ?>
-    <link rel="stylesheet" href="<?php print $shop_url; ?>assets/css/admin-panel.css?v=1.0">
+    <link rel="stylesheet" href="<?php print $shop_url; ?>assets/css/admin-panel-v3.css">
     <?php } ?>
 
     
@@ -557,10 +557,10 @@ include 'include/functions/header.php';
         </div>
     </footer>
 
-<!-- Shop ONE JavaScript V2 - Unificato e Ottimizzato -->
-<script src="<?php print $shop_url; ?>assets/js/shop-one-v222.js?v=2.0"></script>
+<!-- Shop ONE JavaScript V3 - Ottimizzato e Pulito -->
+<script src="<?php print $shop_url; ?>assets/js/shop-one-v3.js"></script>
 <!-- Enhanced JavaScript - Performance & Accessibility -->
-<script src="<?php print $shop_url; ?>assets/js/shop-enhanced.js?v=1.0" defer></script>
+<script src="<?php print $shop_url; ?>assets/js/shop-enhanced-v3.js" defer></script>
 <?php if(file_exists('include/functions/js.php')) include 'include/functions/js.php'; ?>
 </body>
 </html>

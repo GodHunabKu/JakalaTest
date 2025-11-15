@@ -284,10 +284,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const isHigh = document.body.classList.toggle('high-contrast');
         localStorage.setItem('highContrast', isHigh);
     };
-
-    console.log('%c✨ ONE SHOP - Enhanced Edition Loaded!', 'color: #DC143C; font-size: 16px; font-weight: bold;');
-    console.log('%c🚀 Performance: Lazy Loading Active', 'color: #2ed573; font-size: 12px;');
-    console.log('%c♿ Accessibility: ARIA & Keyboard Navigation Active', 'color: #636efa; font-size: 12px;');
 });
 
 // =================================
