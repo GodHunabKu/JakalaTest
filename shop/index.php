@@ -11,17 +11,29 @@ include 'include/functions/header.php';
     
     <title><?php print $lang_shop['site_title'].' - '.$server_name; ?></title>
     
-    <!-- Fonts -->
+    <!-- Fonts - Ottimizzato per Performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Font Display Strategy per Performance */
+        @font-face {
+            font-display: swap;
+        }
+    </style>
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
     <!-- Shop ONE CSS V2 - Unificato e Ottimizzato con Statistiche -->
-    <link rel="stylesheet" type="text/css" href="<?php print $shop_url; ?>assets/css/shop-one-v222.css?v=2.0" />
-<link rel="stylesheet" href="<?php print $shop_url; ?>assets/css/item-page-improvements3.css?v=1.0">
+    <link rel="stylesheet" type="text/css" href="<?php print $shop_url; ?>assets/css/shop-one-v222.css?v=2.1" />
+    <link rel="stylesheet" href="<?php print $shop_url; ?>assets/css/item-page-improvements3.css?v=1.0">
+    <!-- Enhancements CSS - Performance, Accessibility, Responsive -->
+    <link rel="stylesheet" href="<?php print $shop_url; ?>assets/css/enhancements.css?v=1.0">
+    <!-- Admin Panel CSS - Caricato solo per admin -->
+    <?php if(is_loggedin() && web_admin_level()>=9) { ?>
+    <link rel="stylesheet" href="<?php print $shop_url; ?>assets/css/admin-panel.css?v=1.0">
+    <?php } ?>
 
     
     <!-- Favicon -->
@@ -29,6 +41,9 @@ include 'include/functions/header.php';
 </head>
 
 <body class="shop-one-body">
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link" tabindex="1">Salta al contenuto principale</a>
+
     <!-- Animated Background -->
     <div class="animated-bg">
         <div class="bg-gradient"></div>
@@ -175,7 +190,7 @@ include 'include/functions/header.php';
     </div>
 
     <!-- Main Content -->
-    <main class="shop-main">
+    <main class="shop-main" id="main-content">
         <div class="container-fluid">
             <div class="main-layout">
                 <!-- Sidebar -->
@@ -544,6 +559,8 @@ include 'include/functions/header.php';
 
 <!-- Shop ONE JavaScript V2 - Unificato e Ottimizzato -->
 <script src="<?php print $shop_url; ?>assets/js/shop-one-v222.js?v=2.0"></script>
+<!-- Enhanced JavaScript - Performance & Accessibility -->
+<script src="<?php print $shop_url; ?>assets/js/shop-enhanced.js?v=1.0" defer></script>
 <?php if(file_exists('include/functions/js.php')) include 'include/functions/js.php'; ?>
 </body>
 </html>
