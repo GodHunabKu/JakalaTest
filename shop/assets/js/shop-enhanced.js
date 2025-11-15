@@ -170,127 +170,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // =================================
-    // PURCHASE FORM VALIDATION
+    // PURCHASE FORM - Gestito da shop-one-v222.js
     // =================================
-    const purchaseForm = document.getElementById('buy_item_form');
-
-    if (purchaseForm) {
-        purchaseForm.addEventListener('submit', function(e) {
-            const buyButton = this.querySelector('button[type="submit"]');
-
-            if (buyButton && buyButton.disabled) {
-                e.preventDefault();
-                showNotification('Fondi insufficienti!', 'error');
-                return false;
-            }
-
-            const bonusSelects = this.querySelectorAll('select[name^="bonus_"]');
-            let hasUnselectedBonus = false;
-
-            bonusSelects.forEach(function(select) {
-                if (!select.value || select.value === '' || select.value === '0') {
-                    hasUnselectedBonus = true;
-                    select.style.borderColor = '#dc3545';
-                    select.style.boxShadow = '0 0 0 3px rgba(220, 53, 69, 0.25)';
-                    select.setAttribute('aria-invalid', 'true');
-                }
-            });
-
-            if (hasUnselectedBonus) {
-                e.preventDefault();
-                showNotification('Seleziona tutti i bonus richiesti!', 'error');
-
-                const firstUnselected = Array.from(bonusSelects).find(s => !s.value || s.value === '' || s.value === '0');
-                if (firstUnselected) {
-                    firstUnselected.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    firstUnselected.focus();
-                }
-                return false;
-            }
-
-            const itemName = document.querySelector('.item-image-box h3, .item-name, h3');
-            const itemNameText = itemName ? itemName.textContent.trim() : 'questo oggetto';
-
-            if (!confirm('Confermi l\'acquisto di:\n\n' + itemNameText + '\n\nL\'acquisto verrà elaborato immediatamente.')) {
-                e.preventDefault();
-                return false;
-            }
-
-            if (buyButton) {
-                buyButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>ELABORAZIONE...</span>';
-                buyButton.style.opacity = '0.8';
-                buyButton.setAttribute('aria-busy', 'true');
-            }
-
-            return true;
-        });
-
-        // Reset aria-invalid on change
-        const bonusSelects = purchaseForm.querySelectorAll('select[name^="bonus_"]');
-        bonusSelects.forEach(function(select) {
-            select.addEventListener('change', function() {
-                if (this.value && this.value !== '' && this.value !== '0') {
-                    this.style.borderColor = '';
-                    this.style.boxShadow = '';
-                    this.removeAttribute('aria-invalid');
-                }
-            });
-        });
-    }
+    // NOTA: Il form di acquisto è già gestito in shop-one-v222.js
+    // con validazione completa, conferma acquisto e feedback visivo.
+    // NON duplicare i listener per evitare conflitti!
 
     // =================================
-    // NOTIFICATION SYSTEM (Migliorato)
+    // NOTIFICATION SYSTEM - Gestito da shop-one-v222.js
     // =================================
-    function showNotification(message, type) {
-        const existingNotif = document.querySelector('.shop-notification');
-        if (existingNotif) {
-            existingNotif.remove();
-        }
-
-        const notification = document.createElement('div');
-        notification.className = 'shop-notification shop-notification-' + type;
-        notification.setAttribute('role', 'alert');
-        notification.setAttribute('aria-live', 'assertive');
-
-        const iconMap = {
-            'success': 'check-circle',
-            'error': 'exclamation-circle',
-            'warning': 'exclamation-triangle',
-            'info': 'info-circle'
-        };
-
-        notification.innerHTML = '<i class="fas fa-' + (iconMap[type] || 'info-circle') + '"></i><span>' + message + '</span>';
-
-        document.body.appendChild(notification);
-
-        setTimeout(function() {
-            notification.classList.add('show');
-        }, 10);
-
-        setTimeout(function() {
-            notification.classList.remove('show');
-            setTimeout(function() {
-                notification.remove();
-            }, 300);
-        }, 4000);
-    }
-
-    // Esponi globalmente
-    window.showNotification = showNotification;
+    // NOTA: La funzione showNotification è già definita in shop-one-v222.js
+    // e viene usata per le notifiche del form di acquisto.
+    // Non ridefinirla per evitare conflitti!
 
     // =================================
-    // AUTO-DISMISS ALERTS
+    // AUTO-DISMISS ALERTS - Gestito da shop-one-v222.js
     // =================================
-    const alerts = document.querySelectorAll('.alert-success, .alert-error, .alert-warning, .alert-info, .alert-message, .alert-danger');
-    alerts.forEach(function(alert) {
-        setTimeout(function() {
-            alert.style.opacity = '0';
-            alert.style.transform = 'translateY(-20px)';
-            setTimeout(function() {
-                alert.remove();
-            }, 300);
-        }, 5000);
-    });
+    // NOTA: Gli alert vengono già auto-dismessi in shop-one-v222.js
+    // dopo 5 secondi. Non duplicare il codice!
 
     // =================================
     // SMOOTH SCROLL

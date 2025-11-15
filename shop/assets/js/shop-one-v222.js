@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
         purchaseForm.addEventListener('submit', function(e) {
             const buyButton = this.querySelector('button[type="submit"]');
 
-            // Se il pulsante è disabilitato, blocca l'invio
+            // Se il pulsante ï¿½ disabilitato, blocca l'invio
             if (buyButton && buyButton.disabled) {
                 e.preventDefault();
                 showNotification('Fondi insufficienti!', 'error');
@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const itemName = document.querySelector('.item-image-box h3, .item-name, h3');
             const itemNameText = itemName ? itemName.textContent.trim() : 'questo oggetto';
 
-            if (!confirm('Confermi l\'acquisto di:\n\n' + itemNameText + '\n\nL\'acquisto verrà elaborato immediatamente.')) {
+            if (!confirm('Confermi l\'acquisto di:\n\n' + itemNameText + '\n\nL\'acquisto verrï¿½ elaborato immediatamente.')) {
                 e.preventDefault();
                 return false;
             }
@@ -160,6 +160,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         }, 4000);
     }
+
+    // Esponi globalmente per uso esterno
+    window.showNotification = showNotification;
 
     // =================================
     // AUTO-DISMISS ALERTS
