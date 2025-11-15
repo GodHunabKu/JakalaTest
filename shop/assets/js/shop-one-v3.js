@@ -225,6 +225,4 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-
-    console.log('%c?? ONE SHOP - Ultimate Edition Loaded!', 'color: #DC143C; font-size: 16px; font-weight: bold;');
 });

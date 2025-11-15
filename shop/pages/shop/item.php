@@ -109,7 +109,7 @@ if(isset($_SESSION['purchase_error'])) {
             </div>
             <div class="item-action-box">
                 <?php if(is_loggedin()) { ?>
-                <form action="" method="post" style="margin: 0;">
+                <form id="buy_item_form" action="" method="post" style="margin: 0;">
                     <?php echo csrf_field(); ?>
                     <input type="hidden" name="buy_key" value="<?php print $_SESSION['buy_key']; ?>">
                     <button type="submit" name="buy" class="btn-buy-compact" <?php if(is_coins($item[0]['pay_type']-1) < $total) print 'disabled'; ?>>
@@ -138,7 +138,7 @@ if(isset($_SESSION['purchase_error'])) {
                 <?php
                 $lvl = get_item_lvl($item[0]['vnum']);
                 if($lvl) echo '<li><i class="fas fa-star"></i> Livello: <span>Lv. '.$lvl.'</span></li>';
-                if($item[0]['count'] > 1) echo '<li><i class="fas fa-layer-group"></i> Quantità: <span>'.$item[0]['count'].'x</span></li>';
+                if($item[0]['count'] > 1) echo '<li><i class="fas fa-layer-group"></i> Quantitï¿½: <span>'.$item[0]['count'].'x</span></li>';
                 if($item[0]['item_unique'] == 1 || $item[0]['item_unique'] == 2) {
                     echo '<li><i class="fas fa-hourglass-half"></i> Durata: <span>';
                     is_get_item_time($get_item);
