@@ -54,9 +54,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // =================================
     // COUNTDOWN TIMER (Ottimizzato)
     // =================================
+    let countdownAnimationId = null;
+
     function updateCountdowns() {
         const timers = document.querySelectorAll('.countdown-timer[data-countdown]');
-        if (timers.length === 0) return;
+        if (timers.length === 0) {
+            // Nessun timer presente, ferma il loop
+            if (countdownAnimationId) {
+                cancelAnimationFrame(countdownAnimationId);
+                countdownAnimationId = null;
+            }
+            return false;
+        }
+
+        let hasActiveTimer = false;
 
         timers.forEach(function(timer) {
             const targetDate = new Date(timer.getAttribute('data-countdown')).getTime();
@@ -67,31 +78,42 @@ document.addEventListener('DOMContentLoaded', function() {
                 timer.textContent = 'SCADUTO';
                 timer.style.color = '#999';
                 timer.setAttribute('aria-label', 'Timer scaduto');
-                return;
-            }
-
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            let timeString = '';
-            let ariaLabel = '';
-
-            if (days > 0) {
-                timeString = days + 'g ' + hours + 'h';
-                ariaLabel = days + ' giorni e ' + hours + ' ore rimanenti';
-            } else if (hours > 0) {
-                timeString = hours + 'h ' + minutes + 'm';
-                ariaLabel = hours + ' ore e ' + minutes + ' minuti rimanenti';
+                // Rimuovi attributo data-countdown dai timer scaduti
+                timer.removeAttribute('data-countdown');
             } else {
-                timeString = minutes + 'm ' + seconds + 's';
-                ariaLabel = minutes + ' minuti e ' + seconds + ' secondi rimanenti';
-            }
+                hasActiveTimer = true;
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-            timer.textContent = timeString;
-            timer.setAttribute('aria-label', ariaLabel);
+                let timeString = '';
+                let ariaLabel = '';
+
+                if (days > 0) {
+                    timeString = days + 'g ' + hours + 'h';
+                    ariaLabel = days + ' giorni e ' + hours + ' ore rimanenti';
+                } else if (hours > 0) {
+                    timeString = hours + 'h ' + minutes + 'm';
+                    ariaLabel = hours + ' ore e ' + minutes + ' minuti rimanenti';
+                } else {
+                    timeString = minutes + 'm ' + seconds + 's';
+                    ariaLabel = minutes + ' minuti e ' + seconds + ' secondi rimanenti';
+                }
+
+                timer.textContent = timeString;
+                timer.setAttribute('aria-label', ariaLabel);
+            }
         });
+
+        // Se non ci sono più timer attivi, ferma il loop
+        if (!hasActiveTimer && countdownAnimationId) {
+            cancelAnimationFrame(countdownAnimationId);
+            countdownAnimationId = null;
+            return false;
+        }
+
+        return hasActiveTimer;
     }
 
     if (document.querySelector('.countdown-timer[data-countdown]')) {
@@ -100,12 +122,16 @@ document.addEventListener('DOMContentLoaded', function() {
         let lastUpdate = 0;
         function animateCountdown(timestamp) {
             if (timestamp - lastUpdate >= 1000) {
-                updateCountdowns();
+                const hasActive = updateCountdowns();
                 lastUpdate = timestamp;
+                // Se non ci sono timer attivi, ferma il loop
+                if (!hasActive) {
+                    return;
+                }
             }
-            requestAnimationFrame(animateCountdown);
+            countdownAnimationId = requestAnimationFrame(animateCountdown);
         }
-        requestAnimationFrame(animateCountdown);
+        countdownAnimationId = requestAnimationFrame(animateCountdown);
     }
 
     // =================================
@@ -149,7 +175,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Conferma acquisto
-            const itemName = document.querySelector('.item-image-box h3, .item-name, h3');
+            // Cerca il nome dell'item in ordine di specificità
+            const itemName = document.querySelector('.item-title-box h1, .item-header-row h1, h1.item-name, .item-name');
             const itemNameText = itemName ? itemName.textContent.trim() : 'questo oggetto';
 
             if (!confirm('Confermi l\'acquisto di:\n\n' + itemNameText + '\n\nL\'acquisto verrà elaborato immediatamente.')) {
@@ -382,16 +409,30 @@ document.addEventListener('DOMContentLoaded', function() {
 // =================================
 // PERFORMANCE: Prefetch on Hover
 // =================================
-document.addEventListener('mouseover', function(e) {
-    const link = e.target.closest('a[href]');
-    if (link && link.hostname === window.location.hostname && !link.dataset.prefetched) {
-        const prefetchLink = document.createElement('link');
-        prefetchLink.rel = 'prefetch';
-        prefetchLink.href = link.href;
-        document.head.appendChild(prefetchLink);
-        link.dataset.prefetched = 'true';
-    }
-}, true);
+(function() {
+    const maxPrefetchLinks = 20; // Limite massimo di link prefetch nel DOM
+    const prefetchLinks = [];
+
+    document.addEventListener('mouseover', function(e) {
+        const link = e.target.closest('a[href]');
+        if (link && link.hostname === window.location.hostname && !link.dataset.prefetched) {
+            const prefetchLink = document.createElement('link');
+            prefetchLink.rel = 'prefetch';
+            prefetchLink.href = link.href;
+            document.head.appendChild(prefetchLink);
+            link.dataset.prefetched = 'true';
+
+            // Aggiungi alla lista e rimuovi il più vecchio se supera il limite
+            prefetchLinks.push(prefetchLink);
+            if (prefetchLinks.length > maxPrefetchLinks) {
+                const oldestLink = prefetchLinks.shift();
+                if (oldestLink && oldestLink.parentNode) {
+                    oldestLink.parentNode.removeChild(oldestLink);
+                }
+            }
+        }
+    }, true);
+})();
 
 // =================================
 // SERVICE WORKER (opzionale, per PWA)
