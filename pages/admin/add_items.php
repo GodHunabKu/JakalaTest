@@ -104,18 +104,33 @@ if(!is_loggedin() || web_admin_level() < 9) {
         }
 
         $expire = 0;
-        if($_POST['promotion_months']>0 || $_POST['promotion_days']>0 || $_POST['promotion_hours']>0 || $_POST['promotion_minutes']>0)
-            $expire = strtotime("now +".intval($_POST['promotion_months'])." month +".intval($_POST['promotion_days'])." day +".intval($_POST['promotion_hours'])." hours +".intval($_POST['promotion_minutes'])." minute - 1 hour UTC");
-        
-        if(!empty($_POST['time_months']) || !empty($_POST['time_days']) || !empty($_POST['time_hours']) || !empty($_POST['time_minutes']))
+        $promotion_months = isset($_POST['promotion_months']) ? intval($_POST['promotion_months']) : 0;
+        $promotion_days = isset($_POST['promotion_days']) ? intval($_POST['promotion_days']) : 0;
+        $promotion_hours = isset($_POST['promotion_hours']) ? intval($_POST['promotion_hours']) : 0;
+        $promotion_minutes = isset($_POST['promotion_minutes']) ? intval($_POST['promotion_minutes']) : 0;
+
+        if($promotion_months > 0 || $promotion_days > 0 || $promotion_hours > 0 || $promotion_minutes > 0)
+            $expire = strtotime("now +{$promotion_months} month +{$promotion_days} day +{$promotion_hours} hours +{$promotion_minutes} minute - 1 hour UTC");
+
+        $time_months = isset($_POST['time_months']) ? intval($_POST['time_months']) : 0;
+        $time_days = isset($_POST['time_days']) ? intval($_POST['time_days']) : 0;
+        $time_hours = isset($_POST['time_hours']) ? intval($_POST['time_hours']) : 0;
+        $time_minutes = isset($_POST['time_minutes']) ? intval($_POST['time_minutes']) : 0;
+
+        if($time_months > 0 || $time_days > 0 || $time_hours > 0 || $time_minutes > 0)
         {
-            $time = intval($_POST['time_minutes']) + (intval($_POST['time_hours'])*60) + (intval($_POST['time_days'])*24*60) + (intval($_POST['time_months'])*30*24*60);
+            $time = $time_minutes + ($time_hours*60) + ($time_days*24*60) + ($time_months*30*24*60);
             $item_unique = 1;
         }
-        
-        if(!empty($_POST['time2_months']) || !empty($_POST['time2_days']) || !empty($_POST['time2_hours']) || !empty($_POST['time2_minutes']))
+
+        $time2_months = isset($_POST['time2_months']) ? intval($_POST['time2_months']) : 0;
+        $time2_days = isset($_POST['time2_days']) ? intval($_POST['time2_days']) : 0;
+        $time2_hours = isset($_POST['time2_hours']) ? intval($_POST['time2_hours']) : 0;
+        $time2_minutes = isset($_POST['time2_minutes']) ? intval($_POST['time2_minutes']) : 0;
+
+        if($time2_months > 0 || $time2_days > 0 || $time2_hours > 0 || $time2_minutes > 0)
         {
-            $time2 = intval($_POST['time2_minutes']) + (intval($_POST['time2_hours'])*60) + (intval($_POST['time2_days'])*24*60) + (intval($_POST['time2_months'])*30*24*60);
+            $time2 = $time2_minutes + ($time2_hours*60) + ($time2_days*24*60) + ($time2_months*30*24*60);
             $item_unique = 2;
         }
             

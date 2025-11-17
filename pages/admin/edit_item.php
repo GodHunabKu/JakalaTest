@@ -33,22 +33,24 @@ if (isset($_POST['update'])) {
 
         // Calcola expire per promotion
         $expire = 0;
-        if ($_POST['promotion_months']>0 || $_POST['promotion_days']>0 ||
-            $_POST['promotion_hours']>0 || $_POST['promotion_minutes']>0) {
-            $expire = strtotime("now +" . intval($_POST['promotion_months']) . " month +" .
-                               intval($_POST['promotion_days']) . " day +" .
-                               intval($_POST['promotion_hours']) . " hours +" .
-                               intval($_POST['promotion_minutes']) . " minute - 1 hour UTC");
+        $promotion_months = isset($_POST['promotion_months']) ? intval($_POST['promotion_months']) : 0;
+        $promotion_days = isset($_POST['promotion_days']) ? intval($_POST['promotion_days']) : 0;
+        $promotion_hours = isset($_POST['promotion_hours']) ? intval($_POST['promotion_hours']) : 0;
+        $promotion_minutes = isset($_POST['promotion_minutes']) ? intval($_POST['promotion_minutes']) : 0;
+
+        if ($promotion_months > 0 || $promotion_days > 0 || $promotion_hours > 0 || $promotion_minutes > 0) {
+            $expire = strtotime("now +{$promotion_months} month +{$promotion_days} day +{$promotion_hours} hours +{$promotion_minutes} minute - 1 hour UTC");
         }
 
         // Calcola discount_expire
         $discount_expire = 0;
-        if ($discount > 0 && ($_POST['discount_months']>0 || $_POST['discount_days']>0 ||
-            $_POST['discount_hours']>0 || $_POST['discount_minutes']>0)) {
-            $discount_expire = strtotime("now +" . intval($_POST['discount_months']) . " month +" .
-                                        intval($_POST['discount_days']) . " day +" .
-                                        intval($_POST['discount_hours']) . " hours +" .
-                                        intval($_POST['discount_minutes']) . " minute - 1 hour UTC");
+        $discount_months = isset($_POST['discount_months']) ? intval($_POST['discount_months']) : 0;
+        $discount_days = isset($_POST['discount_days']) ? intval($_POST['discount_days']) : 0;
+        $discount_hours = isset($_POST['discount_hours']) ? intval($_POST['discount_hours']) : 0;
+        $discount_minutes = isset($_POST['discount_minutes']) ? intval($_POST['discount_minutes']) : 0;
+
+        if ($discount > 0 && ($discount_months > 0 || $discount_days > 0 || $discount_hours > 0 || $discount_minutes > 0)) {
+            $discount_expire = strtotime("now +{$discount_months} month +{$discount_days} day +{$discount_hours} hours +{$discount_minutes} minute - 1 hour UTC");
         }
 
         // Update query - gestisce sia con che senza custom_image/sort_order
