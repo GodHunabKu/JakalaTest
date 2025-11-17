@@ -81,11 +81,7 @@ if (!$paypal_email) {
 define('CSRF_PROTECTION', env('ENABLE_CSRF_PROTECTION', true));
 define('SESSION_LIFETIME', env('SESSION_LIFETIME', 3600));
 
-// Set secure session parameters
-ini_set('session.cookie_httponly', 1);
-ini_set('session.use_only_cookies', 1);
-ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 1 : 0);
-ini_set('session.cookie_samesite', 'Lax');
+// Note: Session ini_set() calls moved to header.php (before session_start())
 
 // Error reporting - NEVER show errors in production
 if (env('APP_ENV') === 'development') {

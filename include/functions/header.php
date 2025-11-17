@@ -1,4 +1,10 @@
 <?php
+	// Set secure session parameters BEFORE session_start()
+	ini_set('session.cookie_httponly', 1);
+	ini_set('session.use_only_cookies', 1);
+	ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 1 : 0);
+	ini_set('session.cookie_samesite', 'Lax');
+
 	session_start();
 	header('Cache-control: private');
 	include 'config.php';
@@ -112,7 +118,8 @@
 		}
 	}
 	
-	if(($current_page=='items' || $current_page=='add_items' || $current_page=='add_items_bonus') && !is_check_category($get_category))
+	// Permetti category=0 per "Tutti gli Oggetti", valida solo se > 0
+	if(($current_page=='items' || $current_page=='add_items' || $current_page=='add_items_bonus') && $get_category > 0 && !is_check_category($get_category))
 		redirect($shop_url);
 
 	if(($current_page=='item' || $current_page=='buy') && !is_check_item($get_item))
