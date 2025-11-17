@@ -33,8 +33,8 @@ if (isset($_POST['update'])) {
 
         // Calcola expire per promotion
         $expire = 0;
-        if (!empty($_POST['promotion_months']) || !empty($_POST['promotion_days']) ||
-            !empty($_POST['promotion_hours']) || !empty($_POST['promotion_minutes'])) {
+        if ($_POST['promotion_months']>0 || $_POST['promotion_days']>0 ||
+            $_POST['promotion_hours']>0 || $_POST['promotion_minutes']>0) {
             $expire = strtotime("now +" . intval($_POST['promotion_months']) . " month +" .
                                intval($_POST['promotion_days']) . " day +" .
                                intval($_POST['promotion_hours']) . " hours +" .
@@ -43,8 +43,8 @@ if (isset($_POST['update'])) {
 
         // Calcola discount_expire
         $discount_expire = 0;
-        if ($discount > 0 && (!empty($_POST['discount_months']) || !empty($_POST['discount_days']) ||
-            !empty($_POST['discount_hours']) || !empty($_POST['discount_minutes']))) {
+        if ($discount > 0 && ($_POST['discount_months']>0 || $_POST['discount_days']>0 ||
+            $_POST['discount_hours']>0 || $_POST['discount_minutes']>0)) {
             $discount_expire = strtotime("now +" . intval($_POST['discount_months']) . " month +" .
                                         intval($_POST['discount_days']) . " day +" .
                                         intval($_POST['discount_hours']) . " hours +" .
