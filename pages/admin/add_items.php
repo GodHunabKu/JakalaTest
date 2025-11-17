@@ -104,7 +104,7 @@ if(!is_loggedin() || web_admin_level() < 9) {
         }
 
         $expire = 0;
-        if(!empty($_POST['promotion_months']) || !empty($_POST['promotion_days']) || !empty($_POST['promotion_hours']) || !empty($_POST['promotion_minutes']))
+        if($_POST['promotion_months']>0 || $_POST['promotion_days']>0 || $_POST['promotion_hours']>0 || $_POST['promotion_minutes']>0)
             $expire = strtotime("now +".intval($_POST['promotion_months'])." month +".intval($_POST['promotion_days'])." day +".intval($_POST['promotion_hours'])." hours +".intval($_POST['promotion_minutes'])." minute - 1 hour UTC");
         
         if(!empty($_POST['time_months']) || !empty($_POST['time_days']) || !empty($_POST['time_hours']) || !empty($_POST['time_minutes']))
