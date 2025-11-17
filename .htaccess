@@ -1,0 +1,68 @@
+# Enable URL Rewriting
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+
+# Redirect to HTTPS (if needed)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Don't rewrite existing files or directories
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Route: /items -> index.php?p=items (senza category)
+RewriteRule ^items/?$ index.php?p=items [L,QSA]
+
+# Route: /category/ID/ -> index.php?p=items&category=ID
+RewriteRule ^category/([0-9]+)/?$ index.php?p=items&category=$1 [L,QSA]
+
+# Route: /item/ID/ -> index.php?p=item&id=ID
+RewriteRule ^item/([0-9]+)/?$ index.php?p=item&id=$1 [L,QSA]
+
+# Route: /edit/item/ID/ -> index.php?p=edit_item&id=ID
+RewriteRule ^edit/item/([0-9]+)/?$ index.php?p=edit_item&id=$1 [L,QSA]
+
+# Route: /remove/item/ID/CATEGORY/ -> index.php?p=items&remove=ID&category=CATEGORY
+RewriteRule ^remove/item/([0-9]+)/([0-9]+)/?$ index.php?p=items&remove=$1&category=$2 [L,QSA]
+
+# Route: /add/item/CATEGORY/ -> index.php?p=add_items&category=CATEGORY
+RewriteRule ^add/item/([0-9]+)/?$ index.php?p=add_items&category=$1 [L,QSA]
+
+# Route: /add/bonus/item/CATEGORY/ -> index.php?p=add_items_bonus&category=CATEGORY
+RewriteRule ^add/bonus/item/([0-9]+)/?$ index.php?p=add_items_bonus&category=$1 [L,QSA]
+
+# Route: /login -> index.php?p=login
+RewriteRule ^login/?$ index.php?p=login [L,QSA]
+
+# Route: /logout -> index.php?p=logout
+RewriteRule ^logout/?$ index.php?p=logout [L,QSA]
+
+# Route: /categories -> index.php?p=categories
+RewriteRule ^categories/?$ index.php?p=categories [L,QSA]
+
+# Route: /settings -> index.php?p=settings
+RewriteRule ^settings/?$ index.php?p=settings [L,QSA]
+
+# Route: /buy/coins -> index.php?p=coins
+RewriteRule ^buy/coins/?$ index.php?p=coins [L,QSA]
+
+# Route: /admin/paypal -> index.php?p=paypal
+RewriteRule ^admin/paypal/?$ index.php?p=paypal [L,QSA]
+
+</IfModule>
+
+# Security Headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Disable directory listing
+Options -Indexes
+
+# Protect sensitive files
+<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|inc|bak|sql)$">
+    Require all denied
+</FilesMatch>

@@ -25,8 +25,16 @@
 	// Validate page parameter with whitelist
 	$current_page = isset($_GET['p']) ? validate_page($_GET['p']) : 'home';
 
-	if($current_page=='items' || $current_page=='add_items' || $current_page=='add_items_bonus')
-		$get_category = isset($_GET['category']) ? validate_id($_GET['category'], 1, 999) : 0; // 0 = tutti gli oggetti
+	if($current_page=='items' || $current_page=='add_items' || $current_page=='add_items_bonus') {
+		// Se non c'è parametro category, mostra tutti gli oggetti (0)
+		// Se c'è parametro category, validalo (min 1, max 999)
+		if(isset($_GET['category'])) {
+			$validated = validate_id($_GET['category'], 1, 999);
+			$get_category = ($validated !== false) ? $validated : 0;
+		} else {
+			$get_category = 0; // 0 = tutti gli oggetti
+		}
+	}
 
 	// Auto-migrazione per pagine admin che usano custom_image/sort_order
 	if($current_page=='add_items' || $current_page=='add_items_bonus' || $current_page=='edit_item')
