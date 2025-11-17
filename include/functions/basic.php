@@ -2318,19 +2318,18 @@
 function get_top_selling_items($limit = 5) {
     global $database;
 
+    // Tabella item_shop_log non disponibile - usa bought_count invece
     try {
         $sth = $database->runQuerySqlite("
             SELECT
-                isi.id,
-                isi.vnum,
-                isi.coins,
-                isi.pay_type,
-                COUNT(l.id) as total_sales
-            FROM item_shop_items isi
-            LEFT JOIN item_shop_log l ON isi.id = l.item_id
-            GROUP BY isi.id
-            HAVING total_sales > 0
-            ORDER BY total_sales DESC, isi.coins DESC
+                id,
+                vnum,
+                coins,
+                pay_type,
+                bought_count as total_sales
+            FROM item_shop_items
+            WHERE bought_count > 0
+            ORDER BY bought_count DESC, coins DESC
             LIMIT ?
         ");
         $sth->bindParam(1, $limit, PDO::PARAM_INT);
@@ -2343,27 +2342,13 @@ function get_top_selling_items($limit = 5) {
 
 /**
  * Ottiene i top 3 donatori (utenti con più coins spesi)
+ * NOTA: I donatori sono gestiti dal file data/top_donatori.txt
+ * Questa funzione è mantenuta per compatibilità ma ritorna array vuoto
  */
 function get_top_donors($limit = 3) {
-    global $database;
-
-    try {
-        $sth = $database->runQuerySqlite("
-            SELECT
-                l.buyer,
-                SUM(l.coins) as total_spent,
-                COUNT(l.id) as total_purchases
-            FROM item_shop_log l
-            GROUP BY l.buyer
-            ORDER BY total_spent DESC
-            LIMIT ?
-        ");
-        $sth->bindParam(1, $limit, PDO::PARAM_INT);
-        $sth->execute();
-        return $sth->fetchAll(PDO::FETCH_ASSOC);
-    } catch (Exception $e) {
-        return [];
-    }
+    // Tabella item_shop_log non disponibile
+    // I top donatori sono gestiti dal file data/top_donatori.txt nella sidebar
+    return [];
 }
 
 /**
@@ -2392,14 +2377,14 @@ function get_shop_statistics() {
         $result = $sth->fetch(PDO::FETCH_ASSOC);
         $stats['total_categories'] = $result['count'];
 
-        // Totale vendite
-        $sth = $database->runQuerySqlite("SELECT COUNT(*) as count FROM item_shop_log");
+        // Totale vendite (somma di bought_count da item_shop_items)
+        $sth = $database->runQuerySqlite("SELECT SUM(bought_count) as count FROM item_shop_items");
         $sth->execute();
         $result = $sth->fetch(PDO::FETCH_ASSOC);
-        $stats['total_sales'] = $result['count'];
+        $stats['total_sales'] = $result['count'] ? $result['count'] : 0;
 
-        // Totale utenti che hanno acquistato
-        $sth = $database->runQuerySqlite("SELECT COUNT(DISTINCT buyer) as count FROM item_shop_log");
+        // Totale utenti che hanno acquistato (usa tabella log invece di item_shop_log)
+        $sth = $database->runQuerySqlite("SELECT COUNT(DISTINCT account) as count FROM log");
         $sth->execute();
         $result = $sth->fetch(PDO::FETCH_ASSOC);
         $stats['total_users'] = $result['count'];
