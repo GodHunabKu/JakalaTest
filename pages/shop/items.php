@@ -1,4 +1,4 @@
-<?php if(is_loggedin() && web_admin_level()>=9) { ?>
+<?php if(is_loggedin() && web_admin_level()>=9 && $get_category > 0) { ?>
 <div class="admin-actions-bar">
     <a href="<?php print $shop_url.'add/item/'.$get_category.'/'; ?>" class="btn-admin btn-admin-info">
         <i class="fas fa-plus-circle"></i>
@@ -10,18 +10,26 @@
     </a>
 </div>
 <?php } ?>
+<?php if(is_loggedin() && web_admin_level()>=9 && $get_category == 0) { ?>
+<div class="admin-actions-bar">
+    <div class="alert-message alert-info">
+        <i class="fas fa-info-circle"></i>
+        <span>Seleziona una categoria specifica per aggiungere nuovi oggetti</span>
+    </div>
+</div>
+<?php } ?>
 
 <div class="shop-content-wrapper">
     <!-- Page Header -->
     <div class="page-header">
         <div class="page-title">
             <i class="fas fa-shopping-bag"></i>
-            <h1><?php print is_get_category_name($get_category); ?></h1>
+            <h1><?php print ($get_category == 0) ? 'Tutti gli Oggetti' : is_get_category_name($get_category); ?></h1>
         </div>
         <div class="page-breadcrumb">
             <a href="<?php print $shop_url; ?>">Home</a>
             <i class="fas fa-chevron-right"></i>
-            <span><?php print is_get_category_name($get_category); ?></span>
+            <span><?php print ($get_category == 0) ? 'Tutti gli Oggetti' : is_get_category_name($get_category); ?></span>
         </div>
     </div>
 
@@ -42,13 +50,14 @@
     <div class="items-grid">
         <?php
         $list = array();
-        $list = is_items_list($get_category);
-        
+        // Se $get_category == 0, mostra tutti gli oggetti, altrimenti filtra per categoria
+        $list = ($get_category == 0) ? is_all_items_list() : is_items_list($get_category);
+
         if(!count($list)) {
             echo '<div class="empty-state">
                     <i class="fas fa-inbox"></i>
                     <h3>Nessun oggetto trovato</h3>
-                    <p>Questa categoria è attualmente vuota.</p>
+                    <p>'.($get_category == 0 ? 'Non ci sono oggetti nello shop.' : 'Questa categoria è attualmente vuota.').'</p>
                   </div>';
         } else {
             foreach($list as $row) {

@@ -83,7 +83,7 @@ if(isset($_SESSION['purchase_error'])) {
                 <img src="<?php print $shop_url; ?>images/items/<?php print get_item_image($item[0]['vnum'], $item[0]['id']); ?>.png" alt="<?php print $item_name; ?>">
             </div>
             <div class="item-title-box">
-                <h1><?php print $item_name; ?></h1>
+                <h1 class="item-name"><?php print $item_name; ?></h1>
                 <div class="item-badges-inline">
                     <?php if($item[0]['discount'] > 0) { ?>
                     <span class="badge-inline badge-green"><i class="fas fa-tag"></i> -<?php print $item[0]['discount']; ?>%</span>

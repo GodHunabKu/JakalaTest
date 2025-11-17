@@ -1,4 +1,10 @@
 <?php
+	// Set secure session parameters BEFORE session_start()
+	ini_set('session.cookie_httponly', 1);
+	ini_set('session.use_only_cookies', 1);
+	ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 1 : 0);
+	ini_set('session.cookie_samesite', 'Lax');
+
 	session_start();
 	header('Cache-control: private');
 	include 'config.php';
@@ -25,8 +31,16 @@
 	// Validate page parameter with whitelist
 	$current_page = isset($_GET['p']) ? validate_page($_GET['p']) : 'home';
 
-	if($current_page=='items' || $current_page=='add_items' || $current_page=='add_items_bonus')
-		$get_category = isset($_GET['category']) ? validate_id($_GET['category'], 1, 999) : 1;
+	if($current_page=='items' || $current_page=='add_items' || $current_page=='add_items_bonus') {
+		// Se non c'è parametro category, mostra tutti gli oggetti (0)
+		// Se c'è parametro category, validalo (min 1, max 999)
+		if(isset($_GET['category'])) {
+			$validated = validate_id($_GET['category'], 1, 999);
+			$get_category = ($validated !== false) ? $validated : 0;
+		} else {
+			$get_category = 0; // 0 = tutti gli oggetti
+		}
+	}
 
 	// Auto-migrazione per pagine admin che usano custom_image/sort_order
 	if($current_page=='add_items' || $current_page=='add_items_bonus' || $current_page=='edit_item')
@@ -104,7 +118,8 @@
 		}
 	}
 	
-	if(($current_page=='items' || $current_page=='add_items' || $current_page=='add_items_bonus') && !is_check_category($get_category))
+	// Permetti category=0 per "Tutti gli Oggetti", valida solo se > 0
+	if(($current_page=='items' || $current_page=='add_items' || $current_page=='add_items_bonus') && $get_category > 0 && !is_check_category($get_category))
 		redirect($shop_url);
 
 	if(($current_page=='item' || $current_page=='buy') && !is_check_item($get_item))
