@@ -936,6 +936,36 @@
 
 
 
+	function is_all_items_list()
+
+	{
+
+		global $database;
+
+
+
+		// Check if sort_order column exists
+		$has_sort_order = check_item_column("sort_order");
+
+		// Use sort_order if available, otherwise fallback to id
+		$order_by = $has_sort_order ? 'ORDER BY category ASC, sort_order ASC, id ASC' : 'ORDER BY category ASC, id ASC';
+
+		$sth = $database->runQuerySqlite('SELECT id, type, pay_type, coins, vnum, expire, discount, category
+
+			FROM item_shop_items ' . $order_by);
+
+		$sth->execute();
+
+		$result = $sth->fetchAll();
+
+
+
+		return $result;
+
+	}
+
+
+
 	function is_edit_category($id, $name, $img)
 
 	{
