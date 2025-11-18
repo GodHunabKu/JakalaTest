@@ -109,8 +109,9 @@ if(!is_loggedin() || web_admin_level() < 9) {
         $promotion_hours = isset($_POST['promotion_hours']) ? intval($_POST['promotion_hours']) : 0;
         $promotion_minutes = isset($_POST['promotion_minutes']) ? intval($_POST['promotion_minutes']) : 0;
 
+        // ✅ FIX: Rimosso "- 1 hour UTC" che causava timestamp negativi per promotion brevi
         if($promotion_months > 0 || $promotion_days > 0 || $promotion_hours > 0 || $promotion_minutes > 0)
-            $expire = strtotime("now +{$promotion_months} month +{$promotion_days} day +{$promotion_hours} hours +{$promotion_minutes} minute - 1 hour UTC");
+            $expire = strtotime("+{$promotion_months} month +{$promotion_days} day +{$promotion_hours} hours +{$promotion_minutes} minute");
 
         $time_months = isset($_POST['time_months']) ? intval($_POST['time_months']) : 0;
         $time_days = isset($_POST['time_days']) ? intval($_POST['time_days']) : 0;

@@ -22,68 +22,57 @@ if (isset($_POST['update'])) {
     csrf_check();
 
     try {
-        // Prepara i dati
+        // Prepara i dati base
         $vnum = intval($_POST['vnum']);
-        $description = $_POST['description'];
+        $description = trim($_POST['description']);
         $coins = intval($_POST['coins']);
-        $count = intval($_POST['count']) > 0 ? intval($_POST['count']) : 1;
-        $discount = isset($_POST['discount']) ? intval($_POST['discount']) : 0;
+        $count = max(1, intval($_POST['count']));
+        $discount = max(0, min(100, intval($_POST['discount'] ?? 0)));
         $custom_image = !empty($_POST['custom_image']) ? trim($_POST['custom_image']) : null;
-        $sort_order = isset($_POST['sort_order']) ? intval($_POST['sort_order']) : $item['id'];
+        $sort_order = intval($_POST['sort_order'] ?? $item['id']);
 
-        // Calcola expire per promotion
-        $expire = 0;
-        $promotion_months = isset($_POST['promotion_months']) ? intval($_POST['promotion_months']) : 0;
-        $promotion_days = isset($_POST['promotion_days']) ? intval($_POST['promotion_days']) : 0;
-        $promotion_hours = isset($_POST['promotion_hours']) ? intval($_POST['promotion_hours']) : 0;
-        $promotion_minutes = isset($_POST['promotion_minutes']) ? intval($_POST['promotion_minutes']) : 0;
+        // ✅ FIX CRITICO: Preserva expire corrente invece di resettarlo a 0
+        $expire = $item['expire'];
+        $promotion_months = intval($_POST['promotion_months'] ?? 0);
+        $promotion_days = intval($_POST['promotion_days'] ?? 0);
+        $promotion_hours = intval($_POST['promotion_hours'] ?? 0);
+        $promotion_minutes = intval($_POST['promotion_minutes'] ?? 0);
 
+        // Solo se specifichi nuovi valori, ricalcola expire
         if ($promotion_months > 0 || $promotion_days > 0 || $promotion_hours > 0 || $promotion_minutes > 0) {
-            $expire = strtotime("now +{$promotion_months} month +{$promotion_days} day +{$promotion_hours} hours +{$promotion_minutes} minute - 1 hour UTC");
+            // ✅ FIX: Rimosso "- 1 hour UTC" che causava timestamp negativi
+            $expire = strtotime("+{$promotion_months} month +{$promotion_days} day +{$promotion_hours} hours +{$promotion_minutes} minute");
         }
 
-        // Calcola discount_expire
-        $discount_expire = 0;
-        $discount_months = isset($_POST['discount_months']) ? intval($_POST['discount_months']) : 0;
-        $discount_days = isset($_POST['discount_days']) ? intval($_POST['discount_days']) : 0;
-        $discount_hours = isset($_POST['discount_hours']) ? intval($_POST['discount_hours']) : 0;
-        $discount_minutes = isset($_POST['discount_minutes']) ? intval($_POST['discount_minutes']) : 0;
+        // ✅ FIX CRITICO: Preserva discount_expire corrente
+        $discount_expire = $item['discount_expire'] ?? 0;
+        $discount_months = intval($_POST['discount_months'] ?? 0);
+        $discount_days = intval($_POST['discount_days'] ?? 0);
+        $discount_hours = intval($_POST['discount_hours'] ?? 0);
+        $discount_minutes = intval($_POST['discount_minutes'] ?? 0);
 
+        // Solo se specifichi nuovi valori, ricalcola discount_expire
         if ($discount > 0 && ($discount_months > 0 || $discount_days > 0 || $discount_hours > 0 || $discount_minutes > 0)) {
-            $discount_expire = strtotime("now +{$discount_months} month +{$discount_days} day +{$discount_hours} hours +{$discount_minutes} minute - 1 hour UTC");
+            $discount_expire = strtotime("+{$discount_months} month +{$discount_days} day +{$discount_hours} hours +{$discount_minutes} minute");
+        } elseif ($discount == 0) {
+            $discount_expire = 0; // Reset discount_expire se discount è 0
         }
 
-        // Update query - gestisce sia con che senza custom_image/sort_order
-        $update_fields = [
-            'vnum = ?',
-            'description = ?',
-            'coins = ?',
-            'count = ?',
-            'discount = ?',
-            'expire = ?',
-            'discount_expire = ?'
-        ];
-
+        // Update query ottimizzato
+        $update_fields = ['vnum = ?', 'description = ?', 'coins = ?', 'count = ?', 'discount = ?', 'expire = ?', 'discount_expire = ?'];
         $update_values = [$vnum, $description, $coins, $count, $discount, $expire, $discount_expire];
 
-        // Controlla se le colonne custom_image e sort_order esistono
-        $columns_check = $database->runQuerySqlite("PRAGMA table_info(item_shop_items)");
-        $existing_columns = [];
-        foreach ($columns_check as $col) {
-            $existing_columns[] = $col['name'];
-        }
-
-        if (in_array('custom_image', $existing_columns)) {
+        // Aggiungi campi custom se esistono
+        if (check_item_column('custom_image')) {
             $update_fields[] = 'custom_image = ?';
             $update_values[] = $custom_image;
         }
-
-        if (in_array('sort_order', $existing_columns)) {
+        if (check_item_column('sort_order')) {
             $update_fields[] = 'sort_order = ?';
             $update_values[] = $sort_order;
         }
 
-        $update_values[] = $get_edit; // WHERE id = ?
+        $update_values[] = $get_edit;
 
         $sql = "UPDATE item_shop_items SET " . implode(', ', $update_fields) . " WHERE id = ?";
         $stmt = $database->runQuerySqlite($sql);
@@ -102,24 +91,10 @@ if (isset($_POST['update'])) {
     }
 }
 
-// Calcola i valori attuali per i campi tempo
-$promotion_total_minutes = 0;
-if ($item['expire'] > 0) {
-    $now = time();
-    $diff = $item['expire'] - $now;
-    if ($diff > 0) {
-        $promotion_total_minutes = floor($diff / 60);
-    }
-}
-
-$discount_total_minutes = 0;
-if ($item['discount_expire'] > 0) {
-    $now = time();
-    $diff = $item['discount_expire'] - $now;
-    if ($diff > 0) {
-        $discount_total_minutes = floor($diff / 60);
-    }
-}
+// Calcola tempo rimanente per i campi (ottimizzato)
+$now = time();
+$promotion_total_minutes = ($item['expire'] > $now) ? floor(($item['expire'] - $now) / 60) : 0;
+$discount_total_minutes = ($item['discount_expire'] > $now) ? floor(($item['discount_expire'] - $now) / 60) : 0;
 ?>
 
 <div class="admin-content-wrapper">

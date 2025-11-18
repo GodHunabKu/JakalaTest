@@ -87,8 +87,9 @@
 		if(is_loggedin() && web_admin_level()>=9 && isset($_POST['add_discount']))
 		{
 			$discount_expire = 0;
+			// ✅ FIX: Rimosso "- 1 hour UTC" che causava timestamp negativi
 			if($_POST['discount_months']>0 || $_POST['discount_days']>0 || $_POST['discount_hours']>0 || $_POST['discount_minutes']>0)
-				$discount_expire = strtotime("now +".intval($_POST['discount_months'])." month +".intval($_POST['discount_days'])." day +".intval($_POST['discount_hours'])." hours +".intval($_POST['discount_minutes'])." minute - 1 hour UTC");
+				$discount_expire = strtotime("+".intval($_POST['discount_months'])." month +".intval($_POST['discount_days'])." day +".intval($_POST['discount_hours'])." hours +".intval($_POST['discount_minutes'])." minute");
 			is_set_item_discount($get_item, intval($_POST['discount_value']), $discount_expire);
 			redirect($shop_url.'item/'.$get_item.'/');
 		}
