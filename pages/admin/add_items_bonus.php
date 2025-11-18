@@ -38,8 +38,9 @@
         if($bonuses_count>=$_POST['count'])
         {
             $expire = 0;
+            // ✅ FIX: Rimosso "- 1 hour UTC" che causava timestamp negativi
             if($_POST['promotion_months']>0 || $_POST['promotion_days']>0 || $_POST['promotion_hours']>0 || $_POST['promotion_minutes']>0)
-                $expire = strtotime("now +".intval($_POST['promotion_months'])." month +".intval($_POST['promotion_days'])." day +".intval($_POST['promotion_hours'])." hours +".intval($_POST['promotion_minutes'])." minute - 1 hour UTC");
+                $expire = strtotime("+".intval($_POST['promotion_months'])." month +".intval($_POST['promotion_days'])." day +".intval($_POST['promotion_hours'])." hours +".intval($_POST['promotion_minutes'])." minute");
             
             if($_POST['socket0']!="")
                 $socket0 = $_POST['socket0'];

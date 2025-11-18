@@ -1597,39 +1597,26 @@
 
 
 	function autoDeletePromotions()
-
 	{
-
 		global $database;
 
-		
+		// ✅ FIX: Rimosso "- 1 hour UTC" per coerenza con i nuovi timestamp
+		$expire = time();
 
-		$expire = strtotime("now - 1 hour UTC");
-
-
-
+		// Cancella item promotion scaduti
 		$sth = $database->runQuerySqlite("DELETE FROM item_shop_items WHERE expire != 0 AND expire < ?");
-
 		$sth->bindParam(1, $expire, PDO::PARAM_INT);
-
 		$sth->execute();
 
-		
-
+		// Cancella bonus selection scaduti
 		$sth = $database->runQuerySqlite("DELETE FROM item_shop_bonuses WHERE expire != 0 AND expire < ?");
-
 		$sth->bindParam(1, $expire, PDO::PARAM_INT);
-
 		$sth->execute();
 
-		
-
+		// Reset discount scaduti (✅ FIX: corretto PDO::PARAM_INT)
 		$sth = $database->runQuerySqlite("UPDATE item_shop_items SET discount = 0, discount_expire = 0 WHERE discount_expire != 0 AND discount_expire < ?");
-
-		$sth->bindParam(1, $expire, PDO::PARAM_STR);
-
+		$sth->bindParam(1, $expire, PDO::PARAM_INT);
 		$sth->execute();
-
 	}
 
 
