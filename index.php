@@ -28,9 +28,12 @@
     <link rel="stylesheet" type="text/css" href="<?php print $shop_url; ?>assets/css/shop-items-enhanced2.css?v=<?php echo time(); ?>" />
     <link rel="stylesheet" type="text/css" href="<?php print $shop_url; ?>assets/css/shop-features-2025.css?v=<?php echo time(); ?>" />
 
-    
+
     <!-- SCARLET WARLORD THEME (DEFINITIVE 10/10) -->
     <link rel="stylesheet" type="text/css" href="<?php print $shop_url; ?>assets/css/scarlet-theme.css?v=<?php echo time(); ?>" />
+
+    <!-- CSS ULTRA-OPTIMIZED GASATO 🔥 -->
+    <link rel="stylesheet" type="text/css" href="<?php print $shop_url; ?>assets/css/shop-ultra-optimized.css?v=<?php echo time(); ?>" />
 
     <!-- Font Awesome e Animazioni -->
     <link rel="stylesheet" type="text/css" href="<?php print $shop_url; ?>assets/css/font-awesome.min.css" />
@@ -136,7 +139,7 @@
 					<?php
 						switch ($current_page) {
 							case 'home':
-								include 'pages/shop/home.php';
+								include 'pages/shop/home_ultra_gasato.php'; // HOMEPAGE GASATISSIMA 🔥
 								break;
 							case 'items':
 								include 'pages/shop/items.php';
@@ -200,6 +203,7 @@
                             
                             <div class="cta-form-wrapper d-flex justify-content-center">
                                 <form action="<?php print $shop_url; ?>login" method="post" class="form-inline">
+                                    <?php echo csrf_token_field(); ?>
                                     <div class="input-group mb-2 mr-sm-2">
                                         <div class="input-group-addon" style="background: var(--scarlet-dark); border: none; color: #fff;"><i class="fa fa-user"></i></div>
                                         <input type="text" class="form-control" name="username" placeholder="<?php print $lang_shop['name_login']; ?>" required style="background: rgba(0,0,0,0.5); border: 1px solid #444; color: #fff;">
@@ -363,6 +367,9 @@
     <script src="<?php print $shop_url; ?>assets/js/scarlet-ui.js?v=<?php echo time(); ?>"></script>
     <script src="<?php print $shop_url; ?>assets/js/hero-animations.js?v=<?php echo time(); ?>"></script>
     <script src="<?php print $shop_url; ?>assets/js/item-cards-effects.js?v=<?php echo time(); ?>"></script>
+
+    <!-- JS ULTRA-GASATO 🔥 (Toast, Pop-up, Particles, Animations) -->
+    <script src="<?php print $shop_url; ?>assets/js/shop-ultra-gasato.js?v=<?php echo time(); ?>"></script>
 
 	<?php include 'include/functions/js.php'; ?>
 </html>

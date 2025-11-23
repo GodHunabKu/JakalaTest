@@ -95,10 +95,16 @@
 			
 		if(is_loggedin() && web_admin_level()>=9 && isset($_POST['add_discount']))
 		{
+			// CSRF Protection
+			csrf_validate_or_die();
+
 			$discount_expire = 0;
 			if($_POST['discount_months']>0 || $_POST['discount_days']>0 || $_POST['discount_hours']>0 || $_POST['discount_minutes']>0)
 				$discount_expire = strtotime("now +".intval($_POST['discount_months'])." month +".intval($_POST['discount_days'])." day +".intval($_POST['discount_hours'])." hours +".intval($_POST['discount_minutes'])." minute - 1 hour UTC");
 			is_set_item_discount($get_item, intval($_POST['discount_value']), $discount_expire);
+
+			admin_audit_log('set_discount', ['item_id' => $get_item, 'discount_value' => $_POST['discount_value'], 'expires' => $discount_expire]);
+
 			redirect($shop_url.'item/'.$get_item.'/');
 		}
 	
@@ -144,11 +150,16 @@
 		
 		if(isset($_POST["id"]))
 		{
+			// CSRF Protection for PayPal checkout
+			csrf_validate_or_die();
+
 			if(is_check_paypal($_POST["id"]))
 			{
 				$return_url = $shop_url."buy/coins/success";
 				$cancel_url = $shop_url."buy/coins/cancelled";
 				$notify_url = $shop_url."index.php?p=pay";
+
+				security_log('PAYPAL_CHECKOUT_INITIATED', ['paypal_id' => $_POST["id"], 'account_id' => $_SESSION['id']], 1);
 
 				$querystring = '';
 				$querystring .= "?business=".urlencode($paypal_email)."&";

@@ -27,6 +27,7 @@
 									$i++;
 						?>
 						<form action="" method="post" class="form-horizontal" id="paypal<?php print $i; ?>" class="hidden">
+							<?php echo csrf_token_field(); ?>
 							<input type="hidden" name="id" value="<?php print $row['id']; ?>">
 							<input type="submit" id="submit-form<?php print $row['id']; ?>" class="hidden" />
 						</form>

@@ -96,6 +96,7 @@
         
         <div class="collapse mt-3" id="discountPanel">
             <form action="" method="post" class="form-inline">
+                <?php echo csrf_token_field(); ?>
                 <div class="input-group mr-2 mb-2">
                     <div class="input-group-prepend"><span class="input-group-text">Valore %</span></div>
                     <input class="form-control" name="discount_value" type="number" min="1" max="100" value="25" required>
@@ -427,6 +428,7 @@
             </div>
             <div class="modal-body">
                 <form action="" method="post" id="edit_item_form">
+                    <?php echo csrf_token_field(); ?>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -511,6 +513,7 @@
             </div>
             <div class="modal-footer" style="border-top: 1px solid #333; padding: 15px;">
                 <form action="" method="post" id="buy_item" style="width: 100%; display: flex; gap: 15px;">
+                    <?php echo csrf_token_field(); ?>
                     <input type="hidden" name="buy_key" value="<?php echo $_SESSION['buy_key'] ?>">
                     
                     <button type="button" class="btn btn-secondary" data-dismiss="modal" style="flex: 1; padding: 10px;">
