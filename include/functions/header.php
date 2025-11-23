@@ -1,9 +1,31 @@
 <?php
+	// ========================================
+	// SECURITY ENHANCED HEADER
+	// ========================================
+
+	// Secure session configuration
+	ini_set('session.cookie_httponly', 1);
+	ini_set('session.use_only_cookies', 1);
+	ini_set('session.cookie_samesite', 'Strict');
+
+	// Enable secure cookies if HTTPS is enabled
+	if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+		ini_set('session.cookie_secure', 1);
+	}
+
 	session_start();
-	// FIX: Prevent caching of sensitive pages to avoid data leakage between users on shared PCs
+
+	// Security Headers
 	header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 	header('Cache-Control: post-check=0, pre-check=0', false);
 	header('Pragma: no-cache');
+	header('X-Content-Type-Options: nosniff');
+	header('X-Frame-Options: DENY');
+	header('X-XSS-Protection: 1; mode=block');
+	header('Referrer-Policy: strict-origin-when-cross-origin');
+
+	// Content Security Policy
+	header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none';");
 
 	include 'config.php';
 	
@@ -18,7 +40,25 @@
 	
 	include 'include/functions/get_item_image.php';
 	include 'include/functions/basic.php';
-	
+
+	// Load security functions
+	include 'include/functions/csrf.php';
+	include 'include/functions/rate_limit.php';
+	include 'include/functions/security_log.php';
+
+	// Generate CSRF token for this session
+	csrf_generate_token();
+
+	// Enhanced session fingerprint check
+	fingerprint();
+
+	// Session timeout (30 minutes of inactivity)
+	if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) > 1800) {
+		session_destroy();
+		redirect($shop_url.'login');
+	}
+	$_SESSION['last_activity'] = time();
+
 	if($offline)
 		die("The Connection to the database of game is not available.");
 		

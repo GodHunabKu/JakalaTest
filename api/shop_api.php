@@ -11,6 +11,9 @@ header('Cache-Control: no-cache, must-revalidate');
 require_once __DIR__ . '/../include/functions/config.php';
 require_once __DIR__ . '/../include/classes/user.php';
 require_once __DIR__ . '/../include/functions/basic.php';
+require_once __DIR__ . '/../include/functions/csrf.php';
+require_once __DIR__ . '/../include/functions/rate_limit.php';
+require_once __DIR__ . '/../include/functions/security_log.php';
 
 $database = new USER($host, $user, $password);
 
@@ -20,6 +23,24 @@ if(!is_loggedin()) {
     exit;
 }
 
+// CSRF Protection
+$csrf_token = isset($_POST['csrf_token']) ? $_POST['csrf_token'] : (isset($_GET['csrf_token']) ? $_GET['csrf_token'] : '');
+if (!csrf_validate_token($csrf_token)) {
+    security_log('CSRF_DETECTED_API', ['action' => $_POST['action'] ?? 'unknown'], 3);
+    http_response_code(403);
+    echo json_encode(['success' => false, 'error' => 'Invalid security token']);
+    exit;
+}
+
+// Rate Limiting per API (30 requests per minute)
+if (rate_limit_check('api_call', 30, 60)) {
+    security_log('API_RATE_LIMIT_EXCEEDED', [], 2);
+    http_response_code(429);
+    echo json_encode(['success' => false, 'error' => 'Too many requests. Please wait a moment.']);
+    exit;
+}
+rate_limit_record('api_call');
+
 $action = isset($_POST['action']) ? $_POST['action'] : '';
 
 switch($action) {
@@ -28,7 +49,7 @@ switch($action) {
     case 'send_gift':
         $item_id = isset($_POST['item_id']) ? intval($_POST['item_id']) : 0;
         $recipient_name = isset($_POST['recipient']) ? trim($_POST['recipient']) : '';
-        $gift_message = isset($_POST['message']) ? trim($_POST['message']) : '';
+        $gift_message = isset($_POST['message']) ? htmlspecialchars(trim($_POST['message']), ENT_QUOTES, 'UTF-8') : '';
 
         if($item_id > 0 && !empty($recipient_name)) {
             // Verifica che il destinatario esista
@@ -80,7 +101,13 @@ switch($action) {
 
                 $database->runQuerySqlite('COMMIT');
 
-                echo json_encode(['success' => true, 'message' => 'Regalo inviato a ' . $recipient_name]);
+                security_log('GIFT_SENT', [
+                    'item_id' => $item_id,
+                    'recipient' => $recipient_name,
+                    'price' => $price
+                ], 1);
+
+                echo json_encode(['success' => true, 'message' => 'Regalo inviato a ' . htmlspecialchars($recipient_name, ENT_QUOTES, 'UTF-8')]);
             } catch (Exception $e) {
                 $database->runQuerySqlite('ROLLBACK');
                 echo json_encode(['success' => false, 'error' => 'Errore durante l\'invio del regalo']);

@@ -4,19 +4,54 @@
     // ============================================
 
     if(isset($_POST['username'], $_POST['password'])) {
-        if(login($_POST['username'], $_POST['password'], 1)) {
-            print '<div class="alert alert-dismissible alert-success">
-                    <button type="button" class="close" data-dismiss="alert">×</button>
-                    '.$lang_shop['login_success'].'
-                </div>';
-            // Refresh automatico per aggiornare la sessione
-            print '<script>setTimeout(function(){ window.location.href = "'.$shop_url.'"; }, 1000);</script>';
-        }
-        else {
+        // CSRF Protection
+        if (!csrf_validate_token($_POST['csrf_token'] ?? '')) {
+            security_log('CSRF_DETECTED_LOGIN', ['username' => $_POST['username']], 3);
             print '<div class="alert alert-dismissible alert-danger">
                     <button type="button" class="close" data-dismiss="alert">×</button>
-                    '.$lang_shop['login_fail'].'
+                    <i class="fa fa-exclamation-triangle"></i> Invalid security token. Please refresh and try again.
                 </div>';
+        }
+        // Rate Limiting Check
+        elseif (rate_limit_check('login', 5, 900)) { // 5 attempts per 15 minutes
+            $remaining_attempts = rate_limit_get_remaining('login', 5);
+            security_log('LOGIN_RATE_LIMIT_EXCEEDED', ['username' => $_POST['username']], 3);
+            print '<div class="alert alert-dismissible alert-danger">
+                    <button type="button" class="close" data-dismiss="alert">×</button>
+                    <i class="fa fa-ban"></i> Too many login attempts. Please wait 15 minutes before trying again.
+                </div>';
+        }
+        else {
+            // Record the login attempt
+            rate_limit_record('login');
+
+            if(login($_POST['username'], $_POST['password'], 1)) {
+                // Reset rate limit on successful login
+                rate_limit_reset('login');
+
+                security_log('LOGIN_SUCCESS', ['username' => $_POST['username']], 1);
+
+                print '<div class="alert alert-dismissible alert-success">
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                        '.$lang_shop['login_success'].'
+                    </div>';
+                // Refresh automatico per aggiornare la sessione
+                print '<script>setTimeout(function(){ window.location.href = "'.$shop_url.'"; }, 1000);</script>';
+            }
+            else {
+                $remaining = rate_limit_get_remaining('login', 5);
+                security_log('LOGIN_FAILED', ['username' => $_POST['username'], 'remaining_attempts' => $remaining], 2);
+
+                print '<div class="alert alert-dismissible alert-danger">
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                        '.$lang_shop['login_fail'];
+
+                if ($remaining <= 2 && $remaining > 0) {
+                    print '<br><small><i class="fa fa-warning"></i> Remaining attempts: '.$remaining.'</small>';
+                }
+
+                print '</div>';
+            }
         }
     }
 ?>
@@ -32,19 +67,20 @@
         </div>
 
         <form id="login-form" action="" method="post" role="form">
+            <?php echo csrf_token_field(); ?>
             <div class="one-input-group">
                 <div class="input-icon"><i class="fa fa-user"></i></div>
-                <input name="username" id="username" tabindex="1" class="one-form-control" 
-                       pattern=".{5,64}" maxlength="64" 
-                       placeholder="<?php print $lang_shop['name_login']; ?>" 
+                <input name="username" id="username" tabindex="1" class="one-form-control"
+                       pattern=".{5,64}" maxlength="64"
+                       placeholder="<?php print $lang_shop['name_login']; ?>"
                        required="" type="text" autocomplete="off">
             </div>
 
             <div class="one-input-group">
                 <div class="input-icon"><i class="fa fa-lock"></i></div>
-                <input name="password" id="password" tabindex="2" class="one-form-control" 
-                       pattern=".{5,16}" maxlength="16" 
-                       placeholder="<?php print $lang_shop['password']; ?>" 
+                <input name="password" id="password" tabindex="2" class="one-form-control"
+                       pattern=".{5,16}" maxlength="16"
+                       placeholder="<?php print $lang_shop['password']; ?>"
                        required="" type="password">
             </div>
 

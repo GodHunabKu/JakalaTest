@@ -4,41 +4,48 @@
 function is_edit_category($id, $name, $img)
 {
     global $database;
-    
+
     $stmt = $database->runQuerySqlite("UPDATE item_shop_categories set name = ?, img = ? WHERE id=?");
     $stmt->bindParam(1, $name, PDO::PARAM_STR);
     $stmt->bindParam(2, $img, PDO::PARAM_INT);
     $stmt->bindParam(3, $id, PDO::PARAM_INT);
     $stmt->execute();
+
+    admin_audit_log('edit_category', ['category_id' => $id, 'name' => $name, 'img' => $img]);
 }
 
 function is_add_category($name, $img)
 {
     global $database;
-    
+
     $stmt = $database->runQuerySqlite("INSERT INTO item_shop_categories (name, img) VALUES (?, ?)");
     $stmt->bindParam(1, $name, PDO::PARAM_STR);
     $stmt->bindParam(2, $img, PDO::PARAM_INT);
     $stmt->execute();
+
+    $new_id = $database->getSqliteBonuslastInsertId();
+    admin_audit_log('add_category', ['category_id' => $new_id, 'name' => $name, 'img' => $img]);
 }
 
 function is_delete_category($id)
 {
     global $database;
-    
+
     $sth = $database->runQuerySqlite("DELETE FROM item_shop_categories WHERE id = ?");
     $sth->bindParam(1, $id, PDO::PARAM_INT);
     $sth->execute();
-    
+
     $sth = $database->runQuerySqlite("DELETE FROM item_shop_items WHERE category = ?");
     $sth->bindParam(1, $id, PDO::PARAM_INT);
     $sth->execute();
+
+    admin_audit_log('delete_category', ['category_id' => $id]);
 }
 
 function is_delete_item($id)
 {
     global $database;
-    
+
     $sth = $database->runQuerySqlite('DELETE
         FROM item_shop_items
         WHERE id = ?');
@@ -48,6 +55,8 @@ function is_delete_item($id)
     $sth = $database->runQuerySqlite("DELETE FROM item_shop_bonuses WHERE id = ?");
     $sth->bindParam(1, $id, PDO::PARAM_INT);
     $sth->execute();
+
+    admin_audit_log('delete_item', ['item_id' => $id]);
 }
 
 function get_all_paypal()

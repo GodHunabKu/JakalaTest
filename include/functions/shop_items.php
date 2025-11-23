@@ -97,16 +97,20 @@ function get_item_name($id)
 {
     global $database;
     global $language_code;
-    
-    $sth = $database->runQuerySqlite('SELECT '.$language_code.'
+
+    // Whitelist per language_code (previene SQL injection)
+    $allowed_languages = ['en', 'it', 'de', 'fr', 'es', 'ro', 'pt', 'tr'];
+    $safe_language_code = in_array($language_code, $allowed_languages) ? $language_code : 'en';
+
+    $sth = $database->runQuerySqlite('SELECT '.$safe_language_code.'
         FROM items_names
         WHERE id = ? LIMIT 1');
     $sth->bindParam(1, $id, PDO::PARAM_INT);
     $sth->execute();
     $result = $sth->fetchAll();
-    
-    if(isset($result[0][$language_code]))
-        return $result[0][$language_code];
+
+    if(isset($result[0][$safe_language_code]))
+        return $result[0][$safe_language_code];
     else return 'No name';
 }
 
@@ -114,30 +118,38 @@ function return_item_name($id)
 {
     global $database;
     global $language_code;
-    
-    $sth = $database->runQuerySqlite('SELECT '.$language_code.'
+
+    // Whitelist per language_code (previene SQL injection)
+    $allowed_languages = ['en', 'it', 'de', 'fr', 'es', 'ro', 'pt', 'tr'];
+    $safe_language_code = in_array($language_code, $allowed_languages) ? $language_code : 'en';
+
+    $sth = $database->runQuerySqlite('SELECT '.$safe_language_code.'
         FROM items_names
         WHERE id = ? LIMIT 1');
     $sth->bindParam(1, $id, PDO::PARAM_INT);
     $sth->execute();
     $result = $sth->fetchAll();
-    
-    return $result[0][$language_code];
+
+    return $result[0][$safe_language_code];
 }
 
 function get_bonus_name($id, $value)
 {
     global $database;
     global $language_code;
-    
-    $sth = $database->runQuerySqlite('SELECT '.$language_code.'
+
+    // Whitelist per language_code (previene SQL injection)
+    $allowed_languages = ['en', 'it', 'de', 'fr', 'es', 'ro', 'pt', 'tr'];
+    $safe_language_code = in_array($language_code, $allowed_languages) ? $language_code : 'en';
+
+    $sth = $database->runQuerySqlite('SELECT '.$safe_language_code.'
         FROM items_bonuses
         WHERE id = ? LIMIT 1');
     $sth->bindParam(1, $id, PDO::PARAM_INT);
     $sth->execute();
     $result = $sth->fetchAll();
-    
-    return str_replace("[n]", '<font color="red"><b>'.$value.'</b></font>', $result[0][$language_code]);
+
+    return str_replace("[n]", '<font color="red"><b>'.intval($value).'</b></font>', $result[0][$safe_language_code]);
 }
 
 function get_item_type($id)
@@ -423,17 +435,18 @@ function is_search_items_global($search_term, $page = 1, $per_page = 12)
         // Cerca per nome usando JOIN con items_names
         // Nota: items_names è in SQLite, item_shop_items è in SQLite. Perfetto.
         $search_like = '%' . $search_term . '%';
-        
-        // Costruiamo la query dinamica in base alla lingua
-        $lang_col = preg_replace('/[^a-z]/', '', $language_code); // Sanitize
-        
+
+        // Whitelist per language_code (previene SQL injection)
+        $allowed_languages = ['en', 'it', 'de', 'fr', 'es', 'ro', 'pt', 'tr'];
+        $lang_col = in_array($language_code, $allowed_languages) ? $language_code : 'en';
+
         $sql = "SELECT i.id, i.type, i.pay_type, i.coins, i.vnum, i.expire, i.discount, i.category
                 FROM item_shop_items i
                 LEFT JOIN items_names n ON i.vnum = n.id
                 WHERE n.$lang_col LIKE ?
                 ORDER BY i.id DESC
                 LIMIT ? OFFSET ?";
-                
+
         $sth = $database->runQuerySqlite($sql);
         $sth->bindParam(1, $search_like, PDO::PARAM_STR);
         $sth->bindParam(2, $per_page, PDO::PARAM_INT);
@@ -458,13 +471,16 @@ function is_search_items_count($search_term)
         return $result['total'];
     } else {
         $search_like = '%' . $search_term . '%';
-        $lang_col = preg_replace('/[^a-z]/', '', $language_code);
-        
+
+        // Whitelist per language_code (previene SQL injection)
+        $allowed_languages = ['en', 'it', 'de', 'fr', 'es', 'ro', 'pt', 'tr'];
+        $lang_col = in_array($language_code, $allowed_languages) ? $language_code : 'en';
+
         $sql = "SELECT COUNT(*) as total
                 FROM item_shop_items i
                 LEFT JOIN items_names n ON i.vnum = n.id
                 WHERE n.$lang_col LIKE ?";
-                
+
         $sth = $database->runQuerySqlite($sql);
         $sth->bindParam(1, $search_like, PDO::PARAM_STR);
         $sth->execute();
