@@ -1,0 +1,2 @@
+{"id":"17636868953131","login":"onetest3","vnum":"519","count":"1","item_name":"Spada Drago Osc [ET]","given_time":"2025-11-21 01:01:35","taken_time":null,"why":"Acquisto Shop"}
+{"id":"17636879135648","login":"onetest3","vnum":"3009","count":"1","item_name":"Spadone del Cavaliere","given_time":"2025-11-21 01:18:33","taken_time":null,"why":"Acquisto Shop"}
