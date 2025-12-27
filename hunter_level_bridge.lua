@@ -1679,10 +1679,13 @@ quest hunter_level_bridge begin
             pc.setqf("hq_defense_mob_total", 0)
             pc.setqf("hq_defense_mob_killed", 0)
 
+            -- Usa il popup EMERGENCY QUEST esistente invece di creare nuova UI
+            local defense_title = "DIFESA " .. fname
+            cmdchat("HunterEmergency " .. hunter_level_bridge.clean_str(defense_title) .. "|60|0|0")
+
             -- Invia messaggio inizio difesa
             local msg = hunter_level_bridge.get_text("defense_start") or "DIFENDI LA FRATTURA! Rimani vicino per 60 secondi!"
             hunter_level_bridge.hunter_speak_color(msg, fcolor)
-            cmdchat("HunterFractureDefenseStart " .. fname .. "|60|" .. fcolor)
 
             -- Avvia timer difesa
             cleartimer("hq_defense_timer")
@@ -1735,23 +1738,31 @@ quest hunter_level_bridge begin
                 local total_spawned = 0
 
                 for i = 1, c do
-                    local vnum = tonumber(d[i].mob_vnum)
-                    local count = tonumber(d[i].mob_count)
+                    local vnum = tonumber(d[i].mob_vnum) or 0
+                    local count = tonumber(d[i].mob_count) or 1
                     local radius = tonumber(d[i].spawn_radius) or 7
 
-                    for j = 1, count do
-                        local angle = (360 / count) * j
-                        local rad = math.rad(angle)
-                        local sx = fx + math.floor(math.cos(rad) * radius)
-                        local sy = fy + math.floor(math.sin(rad) * radius)
-                        mob.spawn(vnum, sx, sy, 1)
-                        total_spawned = total_spawned + 1
+                    -- Debug spawn
+                    syschat("[DEBUG] Ondata " .. wave_num .. ": spawno " .. count .. " mob (VNUM: " .. vnum .. ")")
+
+                    if count > 0 and vnum > 0 then
+                        for j = 1, count do
+                            local angle = (360 / count) * j
+                            local rad = math.rad(angle)
+                            local sx = fx + math.floor(math.cos(rad) * radius)
+                            local sy = fy + math.floor(math.sin(rad) * radius)
+                            mob.spawn(vnum, sx, sy, 1)
+                            total_spawned = total_spawned + 1
+                        end
                     end
                 end
 
                 -- Aggiorna contatore totale mob
                 local current_total = pc.getqf("hq_defense_mob_total") or 0
                 pc.setqf("hq_defense_mob_total", current_total + total_spawned)
+
+                -- Debug totali
+                syschat("[DEBUG] Totale mob spawnati: " .. total_spawned .. " | Totale difesa: " .. (current_total + total_spawned))
 
                 local msg = hunter_level_bridge.get_text("defense_wave_spawn", {WAVE = wave_num}) or ("ONDATA " .. wave_num .. "! DIFENDITI!")
                 local fcolor = pc.getqf("hq_defense_color") or "RED"
@@ -1785,7 +1796,6 @@ quest hunter_level_bridge begin
             -- Messaggio successo
             local msg = hunter_level_bridge.get_text("defense_success") or "DIFESA COMPLETATA! La frattura si apre..."
             hunter_level_bridge.hunter_speak_color(msg, fcolor)
-            cmdchat("HunterFractureDefenseComplete 1|" .. fname)
 
             -- Spawna il premio finale
             hunter_level_bridge.spawn_gate_mob_and_alert(frank, fcolor)
@@ -1800,7 +1810,6 @@ quest hunter_level_bridge begin
 
             local msg = hunter_level_bridge.get_text("defense_failed") or ("DIFESA FALLITA: " .. reason)
             hunter_level_bridge.hunter_speak_color(msg, "RED")
-            cmdchat("HunterFractureDefenseComplete 0|" .. reason)
         end
 
         function spawn_gate_mob_and_alert(rank_label, fcolor)
@@ -1922,8 +1931,7 @@ quest hunter_level_bridge begin
             local duration = hunter_level_bridge.get_defense_config("defense_duration", 60)
             local remaining = duration - elapsed
 
-            -- Aggiorna UI con tempo rimanente
-            cmdchat("HunterFractureDefenseTimer " .. math.max(0, remaining))
+            -- Il timer è gestito dal popup HunterEmergency (nessun comando aggiuntivo)
 
             -- Check distanza ogni 2 secondi
             local last_check = pc.getqf("hq_defense_last_check") or 0
