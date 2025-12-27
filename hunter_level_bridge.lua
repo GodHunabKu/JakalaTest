@@ -32,6 +32,19 @@ quest hunter_level_bridge begin
             return result
         end
 
+        -- SECURITY: SQL Escape (protezione SQL Injection)
+        function sql_escape(str)
+            if str == nil then return "" end
+            -- Rimuove caratteri pericolosi: ', ", \, ;, --, #
+            str = string.gsub(tostring(str), "'", "")
+            str = string.gsub(str, '"', "")
+            str = string.gsub(str, "\\", "")
+            str = string.gsub(str, ";", "")
+            str = string.gsub(str, "--", "")
+            str = string.gsub(str, "#", "")
+            return str
+        end
+
         -- SECURITY: Valida rank per prevenire SQL injection
         function validate_rank(rank)
             local valid_ranks = {E=true, D=true, C=true, B=true, A=true, S=true, N=true}
@@ -39,6 +52,46 @@ quest hunter_level_bridge begin
                 return rank
             end
             return "E"  -- Default sicuro
+        end
+
+        -- ============================================================
+        -- PERFORMANCE: CACHE MOB ELITE (NO QUERY SU OGNI KILL!)
+        -- ============================================================
+
+        -- Cache globale dei mob elite (caricata una volta all'avvio)
+        function load_elite_cache()
+            if not _G.hunter_elite_cache then
+                _G.hunter_elite_cache = {}
+                _G.hunter_elite_data = {}  -- Dati completi mob
+                _G.hunter_cache_loaded = get_time()
+            end
+
+            -- Ricarica solo se passati più di 3600 secondi (1 ora) o se vuota
+            local now = get_time()
+            if _G.hunter_cache_loaded and (now - _G.hunter_cache_loaded < 3600) and next(_G.hunter_elite_cache) then
+                return  -- Cache ancora valida
+            end
+
+            -- Carica tutti i mob elite enabled dal DB
+            local c, d = mysql_direct_query("SELECT vnum, name, type_name, base_points, rank_color FROM srv1_hunabku.hunter_quest_spawns WHERE enabled=1")
+
+            if c > 0 then
+                _G.hunter_elite_cache = {}
+                _G.hunter_elite_data = {}
+
+                for i = 1, c do
+                    local vnum = tonumber(d[i].vnum)
+                    _G.hunter_elite_cache[vnum] = true  -- Per check veloce is_elite
+                    _G.hunter_elite_data[vnum] = {
+                        name = d[i].name,
+                        type_name = d[i].type_name,
+                        base_points = tonumber(d[i].base_points) or 100,
+                        rank_color = d[i].rank_color or "BLUE"
+                    }
+                end
+
+                _G.hunter_cache_loaded = now
+            end
         end
 
         -- Helper function per formattare l'ora
@@ -468,17 +521,26 @@ quest hunter_level_bridge begin
             return nil  -- Nessun evento attivo
         end
         
+        -- PERFORMANCE OPTIMIZED: Usa cache invece di query SQL!
         function is_elite_mob(vnum)
-            local c, d = mysql_direct_query("SELECT spawn_id FROM srv1_hunabku.hunter_quest_spawns WHERE vnum=" .. vnum .. " AND enabled=1 LIMIT 1")
-            return c > 0
-        end
-        
-        function get_mob_info(vnum)
-            local c, d = mysql_direct_query("SELECT name, type_name, base_points, rank_color FROM srv1_hunabku.hunter_quest_spawns WHERE vnum=" .. vnum .. " LIMIT 1")
-            if c > 0 and d[1] then
-                return { name = d[1].name, type_name = d[1].type_name, base_points = tonumber(d[1].base_points) or 100, rank_color = d[1].rank_color or "BLUE" }
+            -- Assicura che la cache sia caricata
+            if not _G.hunter_elite_cache or not next(_G.hunter_elite_cache) then
+                hunter_level_bridge.load_elite_cache()
             end
-            return nil
+
+            -- Check in RAM (VELOCE!)
+            return _G.hunter_elite_cache[vnum] == true
+        end
+
+        -- PERFORMANCE OPTIMIZED: Usa cache invece di query SQL!
+        function get_mob_info(vnum)
+            -- Assicura che la cache sia caricata
+            if not _G.hunter_elite_data or not next(_G.hunter_elite_data) then
+                hunter_level_bridge.load_elite_cache()
+            end
+
+            -- Ritorna dati dalla cache
+            return _G.hunter_elite_data[vnum]
         end
 
         -- ============================================================
@@ -648,7 +710,20 @@ quest hunter_level_bridge begin
         
         -- Salva il tempo di logout
         when logout begin
+            local pid = pc.get_player_id()
+
+            -- Salva tempo logout
             pc.setqf("hq_last_logout", get_time())
+
+            -- MEMORY LEAK FIX: Pulisci tabelle globali per questo player
+            if _G.hunter_temp_gate_data then
+                _G.hunter_temp_gate_data[pid] = nil
+            end
+            if hunter_defense_data then
+                hunter_defense_data[pid] = nil
+            end
+
+            -- TODO: Qui andrà il batch update ranking (commit successivo)
         end
         
         -- Timer per mostrare il benvenuto DOPO gli altri messaggi
@@ -2077,6 +2152,9 @@ quest hunter_level_bridge begin
 
         when letter begin
             send_letter("Hunter Terminal")
+
+            -- PERFORMANCE: Carica cache mob elite (una query all'avvio invece di N query ai kill)
+            hunter_level_bridge.load_elite_cache()
 
             -- CLEANUP: Se player riconnette durante difesa attiva, pulisci stato
             if pc.getqf("hq_defense_active") == 1 then
