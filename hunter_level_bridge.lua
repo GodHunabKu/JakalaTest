@@ -32,6 +32,15 @@ quest hunter_level_bridge begin
             return result
         end
 
+        -- SECURITY: Valida rank per prevenire SQL injection
+        function validate_rank(rank)
+            local valid_ranks = {E=true, D=true, C=true, B=true, A=true, S=true, N=true}
+            if rank and valid_ranks[rank] then
+                return rank
+            end
+            return "E"  -- Default sicuro
+        end
+
         -- Helper function per formattare l'ora
         function format_time(h, m)
             local hh = tostring(h)
@@ -1609,6 +1618,9 @@ quest hunter_level_bridge begin
             local fracture_vid = npc.get_vid()
             pc.setqf("hq_defense_fracture_vid", fracture_vid)
 
+            -- SECURITY: Valida rank prima di salvarlo
+            frank = hunter_level_bridge.validate_rank(frank)
+
             -- Salva posizione frattura
             local fx, fy = pc.get_local_x(), pc.get_local_y()
             pc.setqf("hq_defense_x", fx)
@@ -1659,32 +1671,42 @@ quest hunter_level_bridge begin
         end
 
         function spawn_defense_wave(wave_num, rank_grade)
-            local q = "SELECT mob_vnum, mob_count, spawn_radius FROM srv1_hunabku.hunter_fracture_defense_waves "
-            q = q .. "WHERE rank_grade='" .. rank_grade .. "' AND wave_number=" .. wave_num .. " AND enabled=1"
-            local c, d = mysql_direct_query(q)
+            -- ERROR HANDLING: Protezione da errori durante spawn
+            local ok, err = pcall(function()
+                -- SECURITY: Valida rank prima di query
+                rank_grade = hunter_level_bridge.validate_rank(rank_grade)
 
-            if c == 0 then return end
+                local q = "SELECT mob_vnum, mob_count, spawn_radius FROM srv1_hunabku.hunter_fracture_defense_waves "
+                q = q .. "WHERE rank_grade='" .. rank_grade .. "' AND wave_number=" .. wave_num .. " AND enabled=1"
+                local c, d = mysql_direct_query(q)
 
-            local fx = pc.getqf("hq_defense_x") or 0
-            local fy = pc.getqf("hq_defense_y") or 0
+                if c == 0 then return end
 
-            for i = 1, c do
-                local vnum = tonumber(d[i].mob_vnum)
-                local count = tonumber(d[i].mob_count)
-                local radius = tonumber(d[i].spawn_radius) or 7
+                local fx = pc.getqf("hq_defense_x") or 0
+                local fy = pc.getqf("hq_defense_y") or 0
 
-                for j = 1, count do
-                    local angle = (360 / count) * j
-                    local rad = math.rad(angle)
-                    local sx = fx + math.floor(math.cos(rad) * radius)
-                    local sy = fy + math.floor(math.sin(rad) * radius)
-                    mob.spawn(vnum, sx, sy, 1)
+                for i = 1, c do
+                    local vnum = tonumber(d[i].mob_vnum)
+                    local count = tonumber(d[i].mob_count)
+                    local radius = tonumber(d[i].spawn_radius) or 7
+
+                    for j = 1, count do
+                        local angle = (360 / count) * j
+                        local rad = math.rad(angle)
+                        local sx = fx + math.floor(math.cos(rad) * radius)
+                        local sy = fy + math.floor(math.sin(rad) * radius)
+                        mob.spawn(vnum, sx, sy, 1)
+                    end
                 end
-            end
 
-            local msg = hunter_level_bridge.get_text("defense_wave_spawn", {WAVE = wave_num}) or ("ONDATA " .. wave_num .. "! DIFENDITI!")
-            local fcolor = pc.getqf("hq_defense_color") or "RED"
-            hunter_level_bridge.hunter_speak_color(msg, fcolor)
+                local msg = hunter_level_bridge.get_text("defense_wave_spawn", {WAVE = wave_num}) or ("ONDATA " .. wave_num .. "! DIFENDITI!")
+                local fcolor = pc.getqf("hq_defense_color") or "RED"
+                hunter_level_bridge.hunter_speak_color(msg, fcolor)
+            end)
+
+            if not ok then
+                syschat("[ERROR] spawn_defense_wave: " .. tostring(err))
+            end
         end
 
         function complete_defense_success()
@@ -1891,6 +1913,7 @@ quest hunter_level_bridge begin
 
             -- Spawn ondate in base al tempo
             local frank = pc.getqf("hq_defense_rank") or "E"
+            frank = hunter_level_bridge.validate_rank(frank)  -- SECURITY: Valida rank
             local current_wave = pc.getqf("hq_defense_wave") or 0
 
             -- Leggi tutte le ondate per questo rank
@@ -1917,9 +1940,24 @@ quest hunter_level_bridge begin
         end
 
         when letter begin
-            send_letter("Hunter Terminal") 
+            send_letter("Hunter Terminal")
+
+            -- CLEANUP: Se player riconnette durante difesa attiva, pulisci stato
+            if pc.getqf("hq_defense_active") == 1 then
+                pc.setqf("hq_defense_active", 0)
+                pc.setqf("hq_defense_fracture_vid", 0)
+                pc.setqf("hq_defense_x", 0)
+                pc.setqf("hq_defense_y", 0)
+                cleartimer("hq_defense_timer")
+            end
+
+            -- CLEANUP: Speed kill timer
+            if pc.getqf("hq_speedkill_active") == 1 then
+                pc.setqf("hq_speedkill_active", 0)
+                cleartimer("hq_speedkill_timer")
+            end
         end
-        
+
         when button or info begin
             local pid = pc.get_player_id()
             local buy_id = tonumber(game.get_event_flag("hunter_buy_id_"..pid)) or 0
