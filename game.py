@@ -2404,6 +2404,14 @@ class GameWindow(ui.ScriptWindow):
 		serverCommandList["HunterEventStatus"]      = self.__HunterEventStatus
 		serverCommandList["HunterEventClose"]       = self.__HunterEventClose
 
+		# Fracture Defense & Speed Kill System
+		serverCommandList["HunterFractureDefenseStart"]    = self.__HunterFractureDefenseStart
+		serverCommandList["HunterFractureDefenseTimer"]    = self.__HunterFractureDefenseTimer
+		serverCommandList["HunterFractureDefenseComplete"] = self.__HunterFractureDefenseComplete
+		serverCommandList["HunterSpeedKillStart"]          = self.__HunterSpeedKillStart
+		serverCommandList["HunterSpeedKillTimer"]          = self.__HunterSpeedKillTimer
+		serverCommandList["HunterSpeedKillEnd"]            = self.__HunterSpeedKillEnd
+
 		# Daily Missions & Events System
 		serverCommandList["HunterMissionsCount"]     = self.__HunterMissionsCount
 		serverCommandList["HunterMissionData"]       = self.__HunterMissionData
@@ -3763,6 +3771,86 @@ class GameWindow(ui.ScriptWindow):
 				self.interface.HunterEventsOpen()
 		except:
 			pass
+
+	# ============================================================
+	# HUNTER SYSTEM - FRACTURE DEFENSE SYSTEM
+	# ============================================================
+
+	def __HunterFractureDefenseStart(self, args):
+		"""Inizia difesa frattura: fracture_name|duration|color"""
+		try:
+			parts = args.split("|")
+			if len(parts) >= 3:
+				fractureName = parts[0].replace("+", " ")
+				duration = int(parts[1])
+				color = parts[2]
+				if self.interface:
+					self.interface.HunterFractureDefenseStart(fractureName, duration, color)
+		except Exception as e:
+			import dbg
+			dbg.TraceError("HunterFractureDefenseStart error: " + str(e))
+
+	def __HunterFractureDefenseTimer(self, remaining):
+		"""Aggiorna timer difesa frattura"""
+		try:
+			remainingSeconds = int(remaining)
+			if self.interface:
+				self.interface.HunterFractureDefenseTimer(remainingSeconds)
+		except Exception as e:
+			import dbg
+			dbg.TraceError("HunterFractureDefenseTimer error: " + str(e))
+
+	def __HunterFractureDefenseComplete(self, args):
+		"""Completa difesa frattura: success|message"""
+		try:
+			parts = args.split("|")
+			if len(parts) >= 2:
+				success = int(parts[0])
+				message = parts[1].replace("+", " ")
+				if self.interface:
+					self.interface.HunterFractureDefenseComplete(success, message)
+		except Exception as e:
+			import dbg
+			dbg.TraceError("HunterFractureDefenseComplete error: " + str(e))
+
+	# ============================================================
+	# HUNTER SYSTEM - SPEED KILL SYSTEM
+	# ============================================================
+
+	def __HunterSpeedKillStart(self, args):
+		"""Inizia speed kill: mob_type|duration|color"""
+		try:
+			parts = args.split("|")
+			if len(parts) >= 3:
+				mobType = parts[0]  # BOSS or SUPER METIN
+				duration = int(parts[1])
+				color = parts[2]
+				if self.interface:
+					self.interface.HunterSpeedKillStart(mobType, duration, color)
+		except Exception as e:
+			import dbg
+			dbg.TraceError("HunterSpeedKillStart error: " + str(e))
+
+	def __HunterSpeedKillTimer(self, remaining):
+		"""Aggiorna timer speed kill"""
+		try:
+			remainingSeconds = int(remaining)
+			if self.interface:
+				self.interface.HunterSpeedKillTimer(remainingSeconds)
+		except Exception as e:
+			import dbg
+			dbg.TraceError("HunterSpeedKillTimer error: " + str(e))
+
+	def __HunterSpeedKillEnd(self, success):
+		"""Termina speed kill: 1=successo, 0=fallito"""
+		try:
+			isSuccess = int(success)
+			if self.interface:
+				self.interface.HunterSpeedKillEnd(isSuccess)
+		except Exception as e:
+			import dbg
+			dbg.TraceError("HunterSpeedKillEnd error: " + str(e))
+
 	# ============================================================
 	# HUNTER SYSTEM - GATE DUNGEON HANDLERS
 	# ============================================================

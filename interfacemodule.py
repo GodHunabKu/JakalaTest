@@ -3616,6 +3616,44 @@ class Interface(object):
 		if self.wndHunterLevel:
 			self.wndHunterLevel.OpenEventsPanel()
 
+	# ============================================================
+	# FRACTURE DEFENSE SYSTEM
+	# ============================================================
+
+	def HunterFractureDefenseStart(self, fractureName, duration, color):
+		"""Inizia difesa frattura"""
+		if self.wndHunterLevel:
+			self.wndHunterLevel.StartFractureDefense(fractureName, duration, color)
+
+	def HunterFractureDefenseTimer(self, remainingSeconds):
+		"""Aggiorna timer difesa frattura"""
+		if self.wndHunterLevel:
+			self.wndHunterLevel.UpdateFractureDefenseTimer(remainingSeconds)
+
+	def HunterFractureDefenseComplete(self, success, message):
+		"""Completa difesa frattura"""
+		if self.wndHunterLevel:
+			self.wndHunterLevel.CompleteFractureDefense(success, message)
+
+	# ============================================================
+	# SPEED KILL SYSTEM
+	# ============================================================
+
+	def HunterSpeedKillStart(self, mobType, duration, color):
+		"""Inizia speed kill challenge"""
+		if self.wndHunterLevel:
+			self.wndHunterLevel.StartSpeedKill(mobType, duration, color)
+
+	def HunterSpeedKillTimer(self, remainingSeconds):
+		"""Aggiorna timer speed kill"""
+		if self.wndHunterLevel:
+			self.wndHunterLevel.UpdateSpeedKillTimer(remainingSeconds)
+
+	def HunterSpeedKillEnd(self, isSuccess):
+		"""Termina speed kill"""
+		if self.wndHunterLevel:
+			self.wndHunterLevel.EndSpeedKill(isSuccess)
+
 # ==============================================================
 
 	def ToggleHunterLevelWindow(self):
