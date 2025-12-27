@@ -1,664 +1,2558 @@
+# ==================== HUNTER GATE & TRIAL UI OPEN ====================
+# (Moved OpenGateTrialWindow to correct indentation inside a class)
+
+# ...existing code...
 # -*- coding: utf-8 -*-
-# ============================================================
-# HUNTER SYSTEM - MAIN WINDOW
-# ============================================================
+# ============================================================================
+#  HUNTER TERMINAL - SOLO LEVELING EDITION v3.0
+#  Interfaccia completamente dinamica con colori basati sul Rank
+#  Bottoni custom stile Solo Leveling
+# ============================================================================
+
 import ui
-import wndMgr
+import net
 import app
-import localeInfo
-import chat
-import player
+import wndMgr
+import grp
+import uihunterlevel_whatif
+from weakref import proxy
 
-# Import sub-windows
-import uihunterlevel_gate_trial
-import uihunterlevel_gate_effects
-import uihunterlevel_awakening
+# ============================================================================
+#  CONFIGURAZIONE DIMENSIONI
+# ============================================================================
+WINDOW_WIDTH = 500
+WINDOW_HEIGHT = 520
+CONTENT_HEIGHT = 300
+HEADER_HEIGHT = 95
+TAB_HEIGHT = 28
+FOOTER_HEIGHT = 35
 
-# Global window manager reference
-g_windowManager = None
+# ============================================================================
+#  RANK THEMES - Ogni rank ha il suo schema colori completo
+# ============================================================================
+RANK_THEMES = {
+    "E": {
+        "name": "E-Rank",
+        "title": "Risvegliato",
+        "min": 0,
+        "max": 2000,
+        "bg_dark": 0xEE0D0D0D,
+        "bg_medium": 0xEE1A1A1A,
+        "bg_light": 0xEE2A2A2A,
+        "border": 0xFF555555,
+        "accent": 0xFF808080,
+        "text_title": 0xFF999999,
+        "text_value": 0xFFCCCCCC,
+        "text_muted": 0xFF666666,
+        "bar_fill": 0xFF808080,
+        "glow": 0x33808080,
+        "btn_normal": 0xFF333333,
+        "btn_hover": 0xFF444444,
+        "btn_down": 0xFF555555,
+    },
+    "D": {
+        "name": "D-Rank",
+        "title": "Apprendista",
+        "min": 2000,
+        "max": 10000,
+        "bg_dark": 0xEE0A1A0A,
+        "bg_medium": 0xEE0F2A0F,
+        "bg_light": 0xEE153A15,
+        "border": 0xFF00AA00,
+        "accent": 0xFF00FF00,
+        "text_title": 0xFF44FF44,
+        "text_value": 0xFFAAFFAA,
+        "text_muted": 0xFF337733,
+        "bar_fill": 0xFF00DD00,
+        "glow": 0x3300FF00,
+        "btn_normal": 0xFF0A2A0A,
+        "btn_hover": 0xFF0F3F0F,
+        "btn_down": 0xFF155515,
+    },
+    "C": {
+        "name": "C-Rank",
+        "title": "Cacciatore",
+        "min": 10000,
+        "max": 50000,
+        "bg_dark": 0xEE0A1A2A,
+        "bg_medium": 0xEE0F2A3A,
+        "bg_light": 0xEE153A4A,
+        "border": 0xFF00CCFF,
+        "accent": 0xFF00FFFF,
+        "text_title": 0xFF44DDFF,
+        "text_value": 0xFFAAEEFF,
+        "text_muted": 0xFF337799,
+        "bar_fill": 0xFF00CCFF,
+        "glow": 0x3300FFFF,
+        "btn_normal": 0xFF0A2A3A,
+        "btn_hover": 0xFF0F3A4A,
+        "btn_down": 0xFF154A5A,
+    },
+    "B": {
+        "name": "B-Rank",
+        "title": "Veterano",
+        "min": 50000,
+        "max": 150000,
+        "bg_dark": 0xEE0A0A2A,
+        "bg_medium": 0xEE0F0F3A,
+        "bg_light": 0xEE15154A,
+        "border": 0xFF0066FF,
+        "accent": 0xFF4488FF,
+        "text_title": 0xFF6699FF,
+        "text_value": 0xFFAABBFF,
+        "text_muted": 0xFF334477,
+        "bar_fill": 0xFF0066FF,
+        "glow": 0x330066FF,
+        "btn_normal": 0xFF0A0A3A,
+        "btn_hover": 0xFF0F0F4A,
+        "btn_down": 0xFF15155A,
+    },
+    "A": {
+        "name": "A-Rank",
+        "title": "Maestro",
+        "min": 150000,
+        "max": 500000,
+        "bg_dark": 0xEE1A0A2A,
+        "bg_medium": 0xEE2A0F3A,
+        "bg_light": 0xEE3A154A,
+        "border": 0xFFAA00FF,
+        "accent": 0xFFCC66FF,
+        "text_title": 0xFFDD88FF,
+        "text_value": 0xFFEEBBFF,
+        "text_muted": 0xFF773399,
+        "bar_fill": 0xFFAA00FF,
+        "glow": 0x33AA00FF,
+        "btn_normal": 0xFF2A0A3A,
+        "btn_hover": 0xFF3A0F4A,
+        "btn_down": 0xFF4A155A,
+    },
+    "S": {
+        "name": "S-Rank",
+        "title": "Leggenda",
+        "min": 500000,
+        "max": 1500000,
+        "bg_dark": 0xEE2A1A0A,
+        "bg_medium": 0xEE3A2A0F,
+        "bg_light": 0xEE4A3A15,
+        "border": 0xFFFF6600,
+        "accent": 0xFFFFAA00,
+        "text_title": 0xFFFFBB44,
+        "text_value": 0xFFFFDDAA,
+        "text_muted": 0xFF996633,
+        "bar_fill": 0xFFFF6600,
+        "glow": 0x33FF6600,
+        "btn_normal": 0xFF3A2A0A,
+        "btn_hover": 0xFF4A3A0F,
+        "btn_down": 0xFF5A4A15,
+    },
+    "N": {
+        "name": "NATIONAL",
+        "title": "Monarca Nazionale",
+        "min": 1500000,
+        "max": 5000000,
+        "bg_dark": 0xEE2A0A0A,
+        "bg_medium": 0xEE3A0F0F,
+        "bg_light": 0xEE4A1515,
+        "border": 0xFFFF0000,
+        "accent": 0xFFFF4444,
+        "text_title": 0xFFFF6666,
+        "text_value": 0xFFFFAAAA,
+        "text_muted": 0xFF993333,
+        "bar_fill": 0xFFFF0000,
+        "glow": 0x33FF0000,
+        "btn_normal": 0xFF3A0A0A,
+        "btn_hover": 0xFF4A0F0F,
+        "btn_down": 0xFF5A1515,
+    },
+}
 
-def SetWindowManager(wnd):
-    global g_windowManager
-    g_windowManager = wnd
+GOLD_COLOR = 0xFFFFD700
+SILVER_COLOR = 0xFFC0C0C0
+BRONZE_COLOR = 0xFFCD7F32
 
-def GetWindowManager():
-    global g_windowManager
-    return g_windowManager
+def GetRankKey(points):
+    if points >= 1500000:
+        return "N"
+    elif points >= 500000:
+        return "S"
+    elif points >= 150000:
+        return "A"
+    elif points >= 50000:
+        return "B"
+    elif points >= 10000:
+        return "C"
+    elif points >= 2000:
+        return "D"
+    return "E"
 
-# ============================================================
-# HUNTER LEVEL WINDOW - MAIN CLASS
-# ============================================================
+def GetRankProgress(points):
+    key = GetRankKey(points)
+    theme = RANK_THEMES[key]
+    if points >= theme["max"]:
+        return 100.0
+    progress = float(points - theme["min"]) / float(theme["max"] - theme["min"]) * 100
+    return min(100, max(0, progress))
 
-class HunterLevelWindow(ui.ScriptWindow):
-    """
-    Main Hunter Level Window
-    Manages all Hunter System UI components including:
-    - Gate/Trial windows
-    - Effects (rank up, awakening, etc.)
-    - Fracture Defense System
-    - Speed Kill Timer System
-    - Emergency quests
-    - System messages
-    """
+def FormatNumber(num):
+    s = str(int(num))
+    r = ""
+    while len(s) > 3:
+        r = "." + s[-3:] + r
+        s = s[:-3]
+    return s + r
 
+# ============================================================================
+#  SOLO LEVELING BUTTON - Bottone custom con bordi colorati
+# ============================================================================
+class SoloLevelingButton(ui.Window):
+    """Bottone stile Solo Leveling con bordi neon"""
+    
     def __init__(self):
-        ui.ScriptWindow.__init__(self)
+        ui.Window.__init__(self)
+        self.eventFunc = None
+        self.eventArgs = None
+        self.isOver = False
+        self.isDown = False
+        self.text = ""
+        
+        self.theme = RANK_THEMES["E"]
+        self.width = 75
+        self.height = 24
+        
+        self.bgBar = None
+        self.borderTop = None
+        self.borderBot = None
+        self.borderLeft = None
+        self.borderRight = None
+        self.textLine = None
+    
+    def Create(self, parent, x, y, width, height, text, theme):
+        self.SetParent(parent)
+        self.SetPosition(x, y)
+        self.SetSize(width, height)
+        self.width = width
+        self.height = height
+        self.text = text
+        self.theme = theme
+        
+        # Background
+        self.bgBar = ui.Bar()
+        self.bgBar.SetParent(self)
+        self.bgBar.SetPosition(0, 0)
+        self.bgBar.SetSize(width, height)
+        self.bgBar.SetColor(theme["btn_normal"])
+        self.bgBar.AddFlag("not_pick")
+        self.bgBar.Show()
+        
+        # Bordi (2px)
+        self.borderTop = ui.Bar()
+        self.borderTop.SetParent(self)
+        self.borderTop.SetPosition(0, 0)
+        self.borderTop.SetSize(width, 2)
+        self.borderTop.SetColor(theme["border"])
+        self.borderTop.AddFlag("not_pick")
+        self.borderTop.Show()
+        
+        self.borderBot = ui.Bar()
+        self.borderBot.SetParent(self)
+        self.borderBot.SetPosition(0, height - 2)
+        self.borderBot.SetSize(width, 2)
+        self.borderBot.SetColor(theme["border"])
+        self.borderBot.AddFlag("not_pick")
+        self.borderBot.Show()
+        
+        self.borderLeft = ui.Bar()
+        self.borderLeft.SetParent(self)
+        self.borderLeft.SetPosition(0, 0)
+        self.borderLeft.SetSize(2, height)
+        self.borderLeft.SetColor(theme["border"])
+        self.borderLeft.AddFlag("not_pick")
+        self.borderLeft.Show()
+        
+        self.borderRight = ui.Bar()
+        self.borderRight.SetParent(self)
+        self.borderRight.SetPosition(width - 2, 0)
+        self.borderRight.SetSize(2, height)
+        self.borderRight.SetColor(theme["border"])
+        self.borderRight.AddFlag("not_pick")
+        self.borderRight.Show()
+        
+        # Testo
+        self.textLine = ui.TextLine()
+        self.textLine.SetParent(self)
+        self.textLine.SetPosition(width / 2, height / 2 - 7)
+        self.textLine.SetHorizontalAlignCenter()
+        self.textLine.SetText(text)
+        self.textLine.SetPackedFontColor(theme["text_value"])
+        self.textLine.AddFlag("not_pick")
+        self.textLine.Show()
+        
+        self.Show()
+        return self
+    
+    def SetEvent(self, func, *args):
+        self.eventFunc = func
+        self.eventArgs = args
+    
+    def SetText(self, text):
+        self.text = text
+        if self.textLine:
+            self.textLine.SetText(text)
+    
+    def SetTextColor(self, color):
+        if self.textLine:
+            self.textLine.SetPackedFontColor(color)
+    
+    def UpdateTheme(self, theme):
+        self.theme = theme
+        if self.bgBar:
+            self.bgBar.SetColor(theme["btn_normal"])
+        for border in [self.borderTop, self.borderBot, self.borderLeft, self.borderRight]:
+            if border:
+                border.SetColor(theme["border"])
+        if self.textLine:
+            self.textLine.SetPackedFontColor(theme["text_value"])
+    
+    def Down(self):
+        self.isDown = True
+        if self.bgBar:
+            self.bgBar.SetColor(self.theme["btn_down"])
+        if self.textLine:
+            self.textLine.SetPackedFontColor(self.theme["accent"])
+    
+    def SetUp(self):
+        self.isDown = False
+        if self.bgBar:
+            self.bgBar.SetColor(self.theme["btn_normal"])
+        if self.textLine:
+            self.textLine.SetPackedFontColor(self.theme["text_value"])
+    
+    def OnMouseOverIn(self):
+        self.isOver = True
+        if not self.isDown and self.bgBar:
+            self.bgBar.SetColor(self.theme["btn_hover"])
+    
+    def OnMouseOverOut(self):
+        self.isOver = False
+        if not self.isDown and self.bgBar:
+            self.bgBar.SetColor(self.theme["btn_normal"])
+    
+    def OnMouseLeftButtonDown(self):
+        pass
+    
+    def OnMouseLeftButtonUp(self):
+        if self.eventFunc:
+            if self.eventArgs:
+                self.eventFunc(*self.eventArgs)
+            else:
+                self.eventFunc()
 
-        # Sub-windows
-        self.gateTrialWindow = None
-        self.systemSpeakWindow = None
-        self.emergencyWindow = None
-        self.missionsWindow = None
-        self.eventsWindow = None
-
-        # Fracture Defense System
-        self.fractureDefenseWindow = None
-        self.fractureDefenseActive = False
-
-        # Speed Kill System
-        self.speedKillWindow = None
-        self.speedKillActive = False
-
-        # Effects
-        self.awakeningEffect = None
-        self.rankUpEffect = None
-        self.gateEntryEffect = None
-        self.gateVictoryEffect = None
-        self.gateDefeatEffect = None
-
-        # Data
-        self.isLoaded = False
-
-    def LoadWindow(self):
-        """Initialize all sub-windows and UI components"""
-        if self.isLoaded:
-            return
-
+# ============================================================================
+#  HUNTER TERMINAL WINDOW
+# ============================================================================
+class HunterLevelWindow(ui.ScriptWindow):
+    def OpenGateTrialWindow(self):
+        # Mostra la finestra di stato della trial (Gate/Trial)
         try:
-            # Gate/Trial Window
-            self.gateTrialWindow = uihunterlevel_gate_trial.TrialStatusWindow()
-
-            # System Speak Window
-            self.systemSpeakWindow = uihunterlevel_gate_trial.SystemSpeakWindow()
-
-            # Effects
-            self.awakeningEffect = uihunterlevel_awakening.AwakeningEffect()
-            self.rankUpEffect = uihunterlevel_awakening.RankUpEffect()
-            self.gateEntryEffect = uihunterlevel_gate_effects.GateEntryEffect()
-            self.gateVictoryEffect = uihunterlevel_gate_effects.GateVictoryEffect()
-            self.gateDefeatEffect = uihunterlevel_gate_effects.GateDefeatEffect()
-
-            # Fracture Defense Window (NEW)
-            self.fractureDefenseWindow = FractureDefensePopup()
-
-            # Speed Kill Window (NEW)
-            self.speedKillWindow = SpeedKillTimerWindow()
-
-            self.isLoaded = True
-
+            import uihunterlevel_gate_trial
+            wnd = uihunterlevel_gate_trial.GetTrialStatusWindow()
+            wnd.Show()
         except Exception as e:
             import dbg
-            dbg.TraceError("HunterLevelWindow.LoadWindow error: " + str(e))
-
-    def Destroy(self):
-        """Clean up all resources"""
-        if self.gateTrialWindow:
-            self.gateTrialWindow.Destroy()
-            self.gateTrialWindow = None
-
-        if self.systemSpeakWindow:
-            self.systemSpeakWindow.Destroy()
-            self.systemSpeakWindow = None
-
-        if self.fractureDefenseWindow:
-            self.fractureDefenseWindow.Destroy()
-            self.fractureDefenseWindow = None
-
-        if self.speedKillWindow:
-            self.speedKillWindow.Destroy()
-            self.speedKillWindow = None
-
-        self.isLoaded = False
-
-    def IsShow(self):
-        """Check if main window is visible"""
-        if self.gateTrialWindow:
-            return self.gateTrialWindow.IsShow()
-        return False
-
-    def Open(self):
-        """Open the main hunter window"""
-        if self.gateTrialWindow:
-            self.gateTrialWindow.Show()
-
-    def Close(self):
-        """Close the main hunter window"""
-        if self.gateTrialWindow:
-            self.gateTrialWindow.Hide()
-
-    # ============================================================
-    # GATE/TRIAL SYSTEM
-    # ============================================================
-
-    def OpenGateTrialWindow(self):
-        """Open Gate/Trial status window"""
-        if self.gateTrialWindow:
-            self.gateTrialWindow.Show()
+            dbg.TraceError("OpenGateTrialWindow error: " + str(e))
 
     def UpdateGateStatus(self, gateId, gateName, remainingSeconds, colorCode):
-        """Update gate timer status"""
-        if self.gateTrialWindow:
-            self.gateTrialWindow.UpdateGateStatus(gateId, gateName, remainingSeconds, colorCode)
+        """Aggiorna la UI con lo stato del Gate"""
+        pass
 
     def HideGateTimer(self):
-        """Hide gate timer"""
-        if self.gateTrialWindow:
-            self.gateTrialWindow.HideGateTimer()
+        """Nasconde il timer del Gate"""
+        pass
 
     def OnGateComplete(self, success, gloriaChange):
-        """Gate completion callback"""
-        if success == 1 or success == "1":
-            if self.gateVictoryEffect:
-                self.gateVictoryEffect.Show(int(gloriaChange))
-        else:
-            if self.gateDefeatEffect:
-                self.gateDefeatEffect.Show(int(gloriaChange))
+        """Mostra il risultato del completamento Gate"""
+        pass
 
     def OnTrialStart(self, trialId, trialName, toRank, colorCode):
-        """Trial start callback"""
-        if self.gateTrialWindow:
-            self.gateTrialWindow.OnTrialStart(trialId, trialName, toRank, colorCode)
+        """Mostra l'inizio di una nuova Trial"""
+        pass
 
-    def OnTrialStatus(self, trialId, trialName, toRank, remainingTime, colorCode, status):
-        """Update trial status"""
-        if self.gateTrialWindow:
-            self.gateTrialWindow.OnTrialStatus(trialId, trialName, toRank, remainingTime, colorCode, status)
+    def OnTrialStatus(self, trialId, trialName, toRank, colorCode, remainingSeconds,
+                      bossKills, bossReq, metinKills, metinReq,
+                      fractureSeals, fractureReq, chestOpens, chestReq,
+                      dailyMissions, dailyReq):
+        """Aggiorna lo stato della Trial"""
+        pass
 
     def OnTrialProgress(self, trialId, bossKills, metinKills, fractureSeals, chestOpens, dailyMissions):
-        """Update trial progress"""
-        if self.gateTrialWindow:
-            self.gateTrialWindow.OnTrialProgress(trialId, bossKills, metinKills, fractureSeals, chestOpens, dailyMissions)
+        """Aggiorna il progresso della Trial"""
+        pass
 
     def OnTrialComplete(self, newRank, gloriaReward, trialName):
-        """Trial completion callback"""
-        if self.rankUpEffect:
-            # Determine old rank (one below new rank)
-            ranks = ["E", "D", "C", "B", "A", "S", "N"]
-            newRankIdx = ranks.index(newRank) if newRank in ranks else 0
-            oldRank = ranks[max(0, newRankIdx - 1)]
-            self.rankUpEffect.Show(oldRank, newRank)
+        """Mostra il completamento della Trial"""
+        pass
+    
+    def __init__(self):
+        ui.ScriptWindow.__init__(self)
+        self.isLoaded = False
+        self.isDestroyed = False
+        
+        self.currentRankKey = "E"
+        self.theme = RANK_THEMES["E"]
+        
+        self.systemMsgWnd = None
+        self.emergencyWnd = None
+        self.whatIfWnd = None
+        self.rivalWnd = None
+        
+        self.dailyResetSeconds = 0
+        self.weeklyResetSeconds = 0
+        self.lastUpdateTime = 0
+        self.timerUpdateAccum = 0.0
+        
+        self.currentTab = 0
+        self.currentRankingView = "daily_points"
 
-    # ============================================================
-    # SYSTEM MESSAGES
-    # ============================================================
+        # Auto-apertura per progresso missioni
+        self.autoOpenedForMission = False
+        self.autoCloseTimer = 0.0
 
-    def ShowSystemMessage(self, msg, color):
-        """Show system message"""
-        if self.systemSpeakWindow:
-            self.systemSpeakWindow.Speak(msg, color)
+        self.bgElements = []
+        self.headerElements = []
+        self.tabButtons = []
+        self.contentElements = []
+        self.footerElements = []
+        self.totalContentHeight = 0
+        
+        self.baseWindow = None
+        self.contentPanel = None
+        self.scrollBar = None
+        
+        self.playerData = {
+            "name": "-",
+            "total_points": 0,
+            "spendable_points": 0,
+            "daily_points": 0,
+            "weekly_points": 0,
+            "total_kills": 0,
+            "daily_kills": 0,
+            "weekly_kills": 0,
+            "login_streak": 0,
+            "streak_bonus": 0,
+            "total_fractures": 0,
+            "total_chests": 0,
+            "total_metins": 0,
+            "pending_daily_reward": 0,
+            "pending_weekly_reward": 0,
+            "daily_pos": 0,
+            "weekly_pos": 0
+        }
+        
+        self.rankingData = {
+            "daily": [], "weekly": [], "total": [],
+            "daily_points": [], "weekly_points": [], "total_points": [],
+            "daily_kills": [], "weekly_kills": [], "total_kills": [],
+            "fractures": [], "chests": [], "metins": []
+        }
+        self.shopData = []
+        self.achievementsData = []
+        self.calendarData = []
+        self.activeEvent = ("Nessuno", "")
+        
+        # ============================================================
+        # DAILY MISSIONS DATA
+        # ============================================================
+        self.missionsData = []
+        self.missionsCount = 0
+        self.eventsData = []
+        self.eventsCount = 0
+        self.missionsWnd = None
+        self.eventsWnd = None
+        self.missionProgressWnd = None
+        self.missionCompleteWnd = None
+        self.allMissionsCompleteWnd = None
+        
+        self.systemMsgWnd = uihunterlevel_whatif.SystemMessageWindow()
+        self.emergencyWnd = uihunterlevel_whatif.EmergencyQuestWindow()
+        self.whatIfWnd = uihunterlevel_whatif.WhatIfChoiceWindow()
+        self.rivalWnd = uihunterlevel_whatif.RivalTrackerWindow()
+        self.eventWnd = uihunterlevel_whatif.EventStatusWindow()
+        self.bossAlertWnd = uihunterlevel_whatif.BossAlertWindow()
+        self.systemInitWnd = uihunterlevel_whatif.SystemInitWindow()
+        self.awakeningWnd = uihunterlevel_whatif.AwakeningWindow()
+        self.activationWnd = uihunterlevel_whatif.HunterActivationWindow()
+        self.rankUpWnd = uihunterlevel_whatif.RankUpWindow()
+        self.overtakeWnd = uihunterlevel_whatif.OvertakeWindow()
+        
+        # Daily Missions Windows
+        self.missionsWnd = uihunterlevel_whatif.DailyMissionsWindow()
+        self.eventsWnd = uihunterlevel_whatif.EventsScheduleWindow()
+        self.missionProgressWnd = uihunterlevel_whatif.MissionProgressPopup()
+        self.missionCompleteWnd = uihunterlevel_whatif.MissionCompleteWindow()
+        self.allMissionsCompleteWnd = uihunterlevel_whatif.AllMissionsCompleteWindow()
+        
+        # Collega OvertakeWindow a EventStatusWindow per gestione posizione dinamica
+        if self.overtakeWnd and self.eventWnd:
+            self.overtakeWnd.SetEventWindowRef(self.eventWnd)
+        # Collega RivalTrackerWindow a EventStatusWindow per gestione posizione dinamica
+        if self.rivalWnd and self.eventWnd:
+            self.rivalWnd.SetEventWindowRef(self.eventWnd)
+        # Collega EventStatusWindow al terminale per aprire la guida
+        if self.eventWnd:
+            self.eventWnd.SetParentWindow(self)
+        
+    def __del__(self):
+        ui.ScriptWindow.__del__(self)
+        
+    def Destroy(self):
+        if self.isDestroyed:
+            return
+        self.isDestroyed = True
+        self.Hide()
+        self.__ClearAll()
+        
+        for wnd in [self.systemMsgWnd, self.emergencyWnd, self.whatIfWnd, self.rivalWnd, self.eventWnd]:
+            if wnd:
+                wnd.Hide()
+        self.systemMsgWnd = None
+        self.emergencyWnd = None
+        self.whatIfWnd = None
+        self.rivalWnd = None
+        self.eventWnd = None
+        
+        self.ClearDictionary()
+        self.isLoaded = False
+        
+    def Close(self):
+        self.Hide()
+        
+    def LoadWindow(self):
+        if self.isLoaded:
+            return True
+        try:
+            ui.PythonScriptLoader().LoadScriptFile(self, "uiscript/hunterlevel.py")
+            self.baseWindow = self.GetChild("BaseWindow")
+            self.__BuildInterface()
+        except:
+            import dbg
+            dbg.TraceError("HunterLevelWindow.LoadWindow() failed")
+            return False
+        
+        self.isLoaded = True
+        self.isDestroyed = False
+        return True
+    
+    def __ClearAll(self):
+        for e in self.bgElements + self.headerElements + self.contentElements + self.footerElements:
+            try:
+                if hasattr(e, 'SetEvent'):
+                    e.SetEvent(None)
+                e.Hide()
+            except:
+                pass
+        self.bgElements = []
+        self.headerElements = []
+        self.contentElements = []
+        self.footerElements = []
+        for btn in self.tabButtons:
+            try:
+                btn.SetEvent(None)
+                btn.Hide()
+            except:
+                pass
+        self.tabButtons = []
+    
+    def __UpdateTheme(self):
+        newKey = GetRankKey(self.playerData["total_points"])
+        if newKey != self.currentRankKey:
+            self.currentRankKey = newKey
+            self.theme = RANK_THEMES[newKey]
+            self.__BuildInterface()
+            self.__UpdateSpecialWindowsTheme()
+    
+    def __UpdateSpecialWindowsTheme(self):
+        # REMOVED: Non aggiornare il colore del SystemMessageWindow con il tema
+        # I messaggi devono mantenere il colore del loro rank specifico (E,D,C,B,A,S,N)
+        # altrimenti quando il player cambia rank, tutti i messaggi cambiano colore!
+        pass
+    
+    def __BuildInterface(self):
+        self.__ClearAll()
+        self.theme = RANK_THEMES[self.currentRankKey]
+        
+        self.__CreateBackground()
+        self.__CreateHeader()
+        self.__CreateTabs()
+        self.__CreateContentArea()
+        self.__CreateFooter()
+        self.__OnClickTab(self.currentTab)
+    
+    # ========================================================================
+    #  BACKGROUND
+    # ========================================================================
+    def __CreateBackground(self):
+        t = self.theme
+        
+        bg = ui.Bar()
+        bg.SetParent(self.baseWindow)
+        bg.SetPosition(0, 0)
+        bg.SetSize(WINDOW_WIDTH, WINDOW_HEIGHT)
+        bg.SetColor(t["bg_dark"])
+        bg.Show()
+        self.bgElements.append(bg)
+        
+        for (x, y, w, h) in [(0, 0, WINDOW_WIDTH, 3), (0, WINDOW_HEIGHT - 3, WINDOW_WIDTH, 3),
+                             (0, 0, 3, WINDOW_HEIGHT), (WINDOW_WIDTH - 3, 0, 3, WINDOW_HEIGHT)]:
+            border = ui.Bar()
+            border.SetParent(self.baseWindow)
+            border.SetPosition(x, y)
+            border.SetSize(w, h)
+            border.SetColor(t["border"])
+            border.Show()
+            self.bgElements.append(border)
+        
+        closeBtn = SoloLevelingButton()
+        closeBtn.Create(self.baseWindow, WINDOW_WIDTH - 35, 8, 25, 20, "X", t)
+        closeBtn.SetEvent(ui.__mem_func__(self.Close))
+        self.bgElements.append(closeBtn)
+    
+    # ========================================================================
+    #  HEADER
+    # ========================================================================
+    def __CreateHeader(self):
+        t = self.theme
+        
+        headerBg = ui.Bar()
+        headerBg.SetParent(self.baseWindow)
+        headerBg.SetPosition(10, 10)
+        headerBg.SetSize(WINDOW_WIDTH - 20, HEADER_HEIGHT)
+        headerBg.SetColor(t["bg_medium"])
+        headerBg.Show()
+        self.headerElements.append(headerBg)
+        
+        glowTop = ui.Bar()
+        glowTop.SetParent(self.baseWindow)
+        glowTop.SetPosition(10, 10)
+        glowTop.SetSize(WINDOW_WIDTH - 20, 2)
+        glowTop.SetColor(t["glow"])
+        glowTop.Show()
+        self.headerElements.append(glowTop)
+        
+        self.__UpdateHeaderContent()
+    
+    def __UpdateHeaderContent(self):
+        for e in self.headerElements[2:]:
+            try:
+                e.Hide()
+            except:
+                pass
+        self.headerElements = self.headerElements[:2]
+        
+        t = self.theme
+        pts = self.playerData["total_points"]
+        progress = GetRankProgress(pts)
+        
+        self.__HText("Cacciatore:", 20, 18, t["text_muted"])
+        self.__HText(str(self.playerData["name"]), 95, 18, t["accent"])
+        
+        self.__HText("Gloria:", 250, 18, t["text_muted"])
+        self.__HText(FormatNumber(pts), 305, 18, GOLD_COLOR)
+        self.__HText("Oggi:", 400, 18, t["text_muted"])
+        self.__HText("+" + FormatNumber(self.playerData["daily_points"]), 440, 18, 0xFF00FF88)
+        
+        rankText = "[%s] %s - %s" % (self.currentRankKey, t["name"], t["title"])
+        self.__HText(rankText, 20, 40, t["accent"])
+        
+        self.__HText("Crediti:", 250, 40, t["text_muted"])
+        self.__HText(FormatNumber(self.playerData["spendable_points"]), 305, 40, 0xFFFFA500)
+        
+        streak = self.playerData["login_streak"]
+        bonus = self.playerData["streak_bonus"]
+        if streak > 0:
+            self.__HText("Streak: %dg (+%d%%)" % (streak, bonus), 400, 40, 0xFF00FF88)
+        
+        barX, barY = 20, 65
+        barW, barH = 320, 14
+        
+        barBg = ui.Bar()
+        barBg.SetParent(self.baseWindow)
+        barBg.SetPosition(barX, barY)
+        barBg.SetSize(barW, barH)
+        barBg.SetColor(0xFF111111)
+        barBg.Show()
+        self.headerElements.append(barBg)
+        
+        fillW = max(1, int(barW * progress / 100))
+        barFill = ui.Bar()
+        barFill.SetParent(self.baseWindow)
+        barFill.SetPosition(barX, barY)
+        barFill.SetSize(fillW, barH)
+        barFill.SetColor(t["bar_fill"])
+        barFill.Show()
+        self.headerElements.append(barFill)
+        
+        self.__HText("%d%%" % int(progress), 350, 63, t["accent"])
+        
+        nextKey = self.__GetNextRankKey()
+        if nextKey:
+            nextTheme = RANK_THEMES[nextKey]
+            self.__HText("Prossimo:", 400, 63, t["text_muted"])
+            self.__HText(nextTheme["name"], 460, 63, nextTheme["accent"])
+        else:
+            self.__HText("RANK MASSIMO!", 400, 63, GOLD_COLOR)
+    
+    def __HText(self, text, x, y, color):
+        t = ui.TextLine()
+        t.SetParent(self.baseWindow)
+        t.SetPosition(x, y)
+        t.SetText(str(text))
+        t.SetPackedFontColor(color)
+        t.Show()
+        self.headerElements.append(t)
+    
+    def __GetNextRankKey(self):
+        order = ["E", "D", "C", "B", "A", "S", "N"]
+        idx = order.index(self.currentRankKey)
+        if idx < len(order) - 1:
+            return order[idx + 1]
+        return None
+    
+    # ========================================================================
+    #  TABS - Bottoni custom Solo Leveling
+    # ========================================================================
+    def __CreateTabs(self):
+        t = self.theme
+        tabNames = ["Stats", "Rank", "Shop", "Achiev", "Eventi", "Guida"]
+        tabY = HEADER_HEIGHT + 20
+        tabW = 75
+        startX = 15
+        
+        for i, name in enumerate(tabNames):
+            btn = SoloLevelingButton()
+            btn.Create(self.baseWindow, startX + (i * (tabW + 5)), tabY, tabW, 24, name, t)
+            btn.SetEvent(ui.__mem_func__(self.__OnClickTab), i)
+            self.tabButtons.append(btn)
+    
+    def __OnClickTab(self, idx):
+        t = self.theme
+        for i, btn in enumerate(self.tabButtons):
+            if i == idx:
+                btn.Down()
+            else:
+                btn.SetUp()
 
+        # Se il player cambia tab manualmente, disabilita auto-close
+        # (significa che vuole esplorare e tenere la finestra aperta)
+        if self.currentTab != idx and self.autoOpenedForMission:
+            self.autoOpenedForMission = False
+            self.autoCloseTimer = 0.0
+
+        self.currentTab = idx
+        self.__LoadTabContent(idx)
+    
+    # ========================================================================
+    #  CONTENT AREA
+    # ========================================================================
+    def __CreateContentArea(self):
+        t = self.theme
+        contentY = HEADER_HEIGHT + TAB_HEIGHT + 30
+        contentH = CONTENT_HEIGHT
+        
+        contentBg = ui.Bar()
+        contentBg.SetParent(self.baseWindow)
+        contentBg.SetPosition(10, contentY)
+        contentBg.SetSize(WINDOW_WIDTH - 20, contentH)
+        contentBg.SetColor(t["bg_light"])
+        contentBg.Show()
+        self.bgElements.append(contentBg)
+        
+        self.contentPanel = ui.Window()
+        self.contentPanel.SetParent(self.baseWindow)
+        self.contentPanel.SetPosition(15, contentY + 5)
+        self.contentPanel.SetSize(WINDOW_WIDTH - 50, contentH - 10)
+        self.contentPanel.Show()
+        
+        self.scrollBar = ui.ScrollBar()
+        self.scrollBar.SetParent(self.baseWindow)
+        self.scrollBar.SetPosition(WINDOW_WIDTH - 30, contentY + 10)
+        self.scrollBar.SetScrollBarSize(contentH - 20)
+        self.scrollBar.SetScrollEvent(ui.__mem_func__(self.__OnScroll))
+        self.scrollBar.Hide()
+    
+    def __ClearContent(self):
+        for e in self.contentElements:
+            try:
+                if hasattr(e, 'SetEvent'):
+                    e.SetEvent(None)
+                e.Hide()
+            except:
+                pass
+        self.contentElements = []
+        self.totalContentHeight = 0
+        if self.scrollBar:
+            self.scrollBar.Hide()
+            self.scrollBar.SetPos(0)
+    
+    def __LoadTabContent(self, idx):
+        self.__ClearContent()
+        
+        if idx == 0:
+            self.__LoadStats()
+        elif idx == 1:
+            self.__LoadRanking(self.currentRankingView)
+        elif idx == 2:
+            self.__LoadShop()
+        elif idx == 3:
+            self.__LoadAchievements()
+        elif idx == 4:
+            self.__LoadEvents()
+        elif idx == 5:
+            self.__LoadGuide()
+        
+        self.__SavePositions()
+        self.__UpdateScroll()
+    
+    def __SavePositions(self):
+        for e in self.contentElements:
+            try:
+                if not hasattr(e, '_oy'):
+                    e._oy = e.GetLocalPosition()[1]
+            except:
+                pass
+    
+    def __UpdateScroll(self):
+        if not self.contentPanel or not self.scrollBar:
+            return
+        maxY = 0
+        for e in self.contentElements:
+            try:
+                y = e._oy if hasattr(e, '_oy') else e.GetLocalPosition()[1]
+                h = e.GetHeight() if hasattr(e, 'GetHeight') else 20
+                maxY = max(maxY, y + h)
+            except:
+                pass
+        self.totalContentHeight = maxY
+        if maxY > CONTENT_HEIGHT - 10:
+            self.scrollBar.Show()
+            self.scrollBar.SetPos(0)
+        else:
+            self.scrollBar.Hide()
+    
+    def __OnScroll(self):
+        if not self.scrollBar:
+            return
+        try:
+            pos = self.scrollBar.GetPos()
+        except:
+            pos = 0
+        scrollH = max(0, self.totalContentHeight - (CONTENT_HEIGHT - 10))
+        off = -int(pos * scrollH)
+        for e in self.contentElements:
+            try:
+                if not hasattr(e, '_oy'):
+                    e._oy = e.GetLocalPosition()[1]
+                x = e.GetLocalPosition()[0]
+                ny = e._oy + off
+                e.SetPosition(x, ny)
+                if ny < -30 or ny > CONTENT_HEIGHT:
+                    e.Hide()
+                else:
+                    e.Show()
+            except:
+                pass
+    
+    # ========================================================================
+    #  FOOTER
+    # ========================================================================
+    def __CreateFooter(self):
+        t = self.theme
+        footerY = WINDOW_HEIGHT - FOOTER_HEIGHT - 10
+        
+        footerBg = ui.Bar()
+        footerBg.SetParent(self.baseWindow)
+        footerBg.SetPosition(10, footerY)
+        footerBg.SetSize(WINDOW_WIDTH - 20, FOOTER_HEIGHT)
+        footerBg.SetColor(t["bg_medium"])
+        footerBg.Show()
+        self.footerElements.append(footerBg)
+        
+        self.__FText("Reset Daily:", 20, footerY + 10, t["text_muted"])
+        self.dailyTimerLabel = self.__FText("--:--:--", 100, footerY + 10, t["text_value"])
+        
+        self.__FText("Reset Weekly:", 260, footerY + 10, t["text_muted"])
+        self.weeklyTimerLabel = self.__FText("--", 350, footerY + 10, t["text_value"])
+    
+    def __FText(self, text, x, y, color):
+        t = ui.TextLine()
+        t.SetParent(self.baseWindow)
+        t.SetPosition(x, y)
+        t.SetText(str(text))
+        t.SetPackedFontColor(color)
+        t.Show()
+        self.footerElements.append(t)
+        return t
+    
+    # ========================================================================
+    #  CONTENT HELPERS
+    # ========================================================================
+    def __CText(self, txt, x, y, col):
+        t = ui.TextLine()
+        t.SetParent(self.contentPanel)
+        t.SetPosition(x, y)
+        t.SetText(str(txt))
+        t.SetPackedFontColor(col)
+        t.Show()
+        self.contentElements.append(t)
+        return t
+    
+    def __CBar(self, x, y, w, h, col):
+        b = ui.Bar()
+        b.SetParent(self.contentPanel)
+        b.SetPosition(x, y)
+        b.SetSize(w, h)
+        b.SetColor(col)
+        b.Show()
+        self.contentElements.append(b)
+        return b
+    
+    def __CSep(self, x, y):
+        self.__CBar(x, y, 430, 1, self.theme["border"])
+    
+    def __CProgressBar(self, x, y, w, h, pct, col):
+        self.__CBar(x, y, w, h, 0xFF111111)
+        fw = max(1, int(w * pct / 100))
+        self.__CBar(x, y, fw, h, col)
+    
+    def __CButton(self, x, y, text, callback, arg=None):
+        btn = SoloLevelingButton()
+        btn.Create(self.contentPanel, x, y, 80, 22, text, self.theme)
+        if arg is not None:
+            btn.SetEvent(callback, arg)
+        else:
+            btn.SetEvent(callback)
+        self.contentElements.append(btn)
+        return btn
+    
+    # ========================================================================
+    #  TAB CONTENTS
+    # ========================================================================
+    def __LoadStats(self):
+        t = self.theme
+        y = 5
+        
+        self.__CText("STATISTICHE PERSONALI", 5, y, t["accent"])
+        y += 25
+        
+        self.__CBar(5, y, 420, 45, t["bg_dark"])
+        self.__CText("Rango:", 15, y + 5, t["text_muted"])
+        self.__CText("[%s] %s - %s" % (self.currentRankKey, t["name"], t["title"]), 70, y + 5, t["accent"])
+        
+        progress = GetRankProgress(self.playerData["total_points"])
+        self.__CText("Progresso:", 15, y + 25, t["text_muted"])
+        self.__CProgressBar(90, y + 25, 220, 12, progress, t["bar_fill"])
+        self.__CText("%d%%" % int(progress), 320, y + 23, t["accent"])
+        y += 55
+        
+        if self.playerData.get("pending_daily_reward", 0) > 0 or self.playerData.get("pending_weekly_reward", 0) > 0:
+            self.__CBar(5, y, 420, 30, 0x4400FF00)
+            self.__CText("PREMI DISPONIBILI!", 15, y + 8, 0xFF00FF88)
+            self.__CButton(340, y + 3, "Ritira", ui.__mem_func__(self.__OnSmartClaim))
+            y += 40
+        
+        self.__CSep(5, y)
+        y += 15
+        
+        self.__CText("OGGI", 100, y, t["accent"])
+        self.__CText("TOTALE", 300, y, GOLD_COLOR)
+        y += 25
+        
+        self.__CText("Uccisioni:", 15, y, t["text_muted"])
+        self.__CText(str(self.playerData["daily_kills"]), 120, y, 0xFF00FF88)
+        self.__CText(FormatNumber(self.playerData["total_kills"]), 320, y, t["text_value"])
+        y += 22
+        
+        self.__CText("Gloria:", 15, y, t["text_muted"])
+        self.__CText("+" + FormatNumber(self.playerData["daily_points"]), 120, y, GOLD_COLOR)
+        self.__CText(FormatNumber(self.playerData["total_points"]), 320, y, GOLD_COLOR)
+        y += 30
+        
+        self.__CSep(5, y)
+        y += 15
+        
+        self.__CText("ECONOMIA", 5, y, 0xFFFFA500)
+        y += 22
+        self.__CText("Crediti:", 15, y, t["text_muted"])
+        self.__CText(FormatNumber(self.playerData["spendable_points"]) + " CR", 100, y, 0xFFFFA500)
+        y += 30
+        
+        self.__CSep(5, y)
+        y += 15
+        
+        self.__CText("RECORD", 5, y, t["accent"])
+        y += 22
+        self.__CText("Fratture: %d" % self.playerData["total_fractures"], 15, y, t["accent"])
+        self.__CText("Metin: %d" % self.playerData["total_metins"], 160, y, 0xFFFFA500)
+        self.__CText("Bauli: %d" % self.playerData["total_chests"], 300, y, GOLD_COLOR)
+    
+    def __LoadShop(self):
+        t = self.theme
+        y = 5
+        
+        self.__CText("[ MERCANTE HUNTER ]", 150, y, t["accent"])
+        y += 28
+        
+        self.__CText("Crediti disponibili:", 15, y, t["text_muted"])
+        self.__CText(FormatNumber(self.playerData["spendable_points"]), 150, y, 0xFFFFA500)
+        y += 25
+        
+        self.__CSep(5, y)
+        y += 15
+        
+        if not self.shopData:
+            self.__CText("Negozio vuoto.", 160, y + 40, t["text_muted"])
+            return
+        
+        for item in self.shopData:
+            name = item.get("name", "Item").replace("+", " ")
+            price = item.get("price", 0)
+            count = item.get("count", 1)
+            itemId = item.get("id", 0)
+            canBuy = self.playerData["spendable_points"] >= price
+            
+            bgCol = t["bg_dark"] if canBuy else 0x22440000
+            self.__CBar(5, y, 420, 35, bgCol)
+            
+            displayName = "%s x%d" % (name, count) if count > 1 else name
+            self.__CText(displayName, 15, y + 3, t["text_value"] if canBuy else t["text_muted"])
+            
+            self.__CText("Prezzo:", 15, y + 18, t["text_muted"])
+            priceCol = 0xFFFFA500 if canBuy else 0xFFFF4444
+            self.__CText(FormatNumber(price) + " Crediti", 70, y + 18, priceCol)
+            
+            if canBuy:
+                self.__CButton(340, y + 5, "Acquista", ui.__mem_func__(self.__OnBuy), itemId)
+            
+            y += 42
+    
+    def __LoadRanking(self, rType):
+        t = self.theme
+        self.currentRankingView = rType
+        y = 5
+        
+        # =====================================================
+        # TITOLO
+        # =====================================================
+        self.__CText("SALA DELLE LEGGENDE", 150, y, t["accent"])
+        y += 22
+        
+        # =====================================================
+        # RIGA 1: PERIODO (Daily / Weekly / Total)
+        # =====================================================
+        self.__CText("Periodo:", 5, y + 3, t["text_muted"])
+        periods = [("Oggi", "daily"), ("Settimana", "weekly"), ("Sempre", "total")]
+        pX = 70
+        for pLabel, pKey in periods:
+            # Determina se questo periodo è attivo
+            if pKey == "daily" and ("daily" in rType):
+                isActive = True
+            elif pKey == "weekly" and ("weekly" in rType):
+                isActive = True
+            elif pKey == "total" and ("total" in rType or rType in ["fractures", "chests", "metins"]):
+                isActive = True
+            else:
+                isActive = False
+            
+            # Costruisce il tipo corretto
+            if "kills" in rType:
+                targetType = pKey + "_kills"
+            elif "points" in rType or rType in ["daily", "weekly", "total"]:
+                targetType = pKey + "_points"
+            else:
+                targetType = rType  # fractures, chests, metins
+            
+            btn = self.__CButton(pX, y, pLabel, ui.__mem_func__(self.__OnRankPeriod), targetType)
+            if isActive:
+                btn.Down()
+            pX += 85
+        y += 28
+        
+        # =====================================================
+        # RIGA 2: CATEGORIA (Gloria / Kills / Fratture / etc)
+        # =====================================================
+        self.__CText("Tipo:", 5, y + 3, t["text_muted"])
+        categories = [("Gloria", "points"), ("Kills", "kills"), ("Fratture", "fractures"), ("Bauli", "chests"), ("Metin", "metins")]
+        catX = 55
+        for catLabel, catKey in categories:
+            # Determina il tipo target
+            if catKey in ["fractures", "chests", "metins"]:
+                targetType = catKey
+                isActive = (rType == catKey)
+            else:
+                # Mantieni il periodo corrente
+                if "daily" in rType:
+                    targetType = "daily_" + catKey
+                elif "weekly" in rType:
+                    targetType = "weekly_" + catKey
+                else:
+                    targetType = "total_" + catKey
+                isActive = (catKey in rType)
+            
+            btn = self.__CButton(catX, y, catLabel, ui.__mem_func__(self.__OnRankSub), targetType)
+            if isActive:
+                btn.Down()
+            catX += 82
+        y += 28
+        
+        self.__CSep(5, y)
+        y += 8
+        
+        # =====================================================
+        # LA TUA POSIZIONE
+        # =====================================================
+        myPos = self.playerData.get("daily_pos", 0) if "daily" in rType else self.playerData.get("weekly_pos", 0)
+        myPts = self.playerData.get("total_points", 0)
+        myRank = GetRankKey(myPts)
+        myTheme = RANK_THEMES[myRank]
+        
+        self.__CBar(5, y, 420, 24, t["bg_dark"])
+        self.__CText("TU:", 12, y + 5, t["text_muted"])
+        
+        # Badge rank
+        self.__CBar(40, y + 3, 20, 16, myTheme["accent"])
+        self.__CText(myRank, 45, y + 4, 0xFF000000)
+        
+        self.__CText(str(self.playerData.get("name", "-")), 68, y + 5, t["accent"])
+        
+        if myPos > 0:
+            self.__CText("#%d" % myPos, 200, y + 5, GOLD_COLOR)
+        
+        self.__CText(FormatNumber(myPts) + " Gloria", 280, y + 5, t["text_value"])
+        y += 28
+        
+        self.__CSep(5, y)
+        y += 8
+        
+        # =====================================================
+        # CLASSIFICA TOP 10
+        # =====================================================
+        data = self.rankingData.get(rType, [])
+        if not data:
+            # Fallback
+            if "points" in rType:
+                data = self.rankingData.get("daily_points", self.rankingData.get("daily", []))
+            elif "kills" in rType:
+                data = self.rankingData.get("daily_kills", [])
+        
+        if not data:
+            self.__CText("Nessun dato disponibile.", 130, y + 30, t["text_muted"])
+            self.__CText("Gioca per scalare la classifica!", 120, y + 50, t["text_muted"])
+            return
+        
+        # Header colonne
+        self.__CText("#", 12, y, t["text_muted"])
+        self.__CText("Rk", 35, y, t["text_muted"])
+        self.__CText("Cacciatore", 65, y, t["text_muted"])
+        self.__CText("Valore", 350, y, t["text_muted"])
+        y += 16
+        
+        # =====================================================
+        # MOSTRA TUTTI I 10 GIOCATORI
+        # =====================================================
+        for i in range(min(10, len(data))):
+            e = data[i]
+            val = e.get("value", e.get("points", 0))
+            playerName = e.get("name", "-").replace("+", " ")
+            
+            # Calcola rank del giocatore dalla gloria
+            playerGloria = e.get("points", val) if "kills" not in rType else e.get("points", 0)
+            playerRankKey = GetRankKey(playerGloria)
+            playerTheme = RANK_THEMES[playerRankKey]
+            
+            # TOP 3 - Design Premium con medaglie
+            if i < 3:
+                if i == 0:
+                    medalCol, bgCol = GOLD_COLOR, 0x44FFD700
+                elif i == 1:
+                    medalCol, bgCol = SILVER_COLOR, 0x33C0C0C0
+                else:
+                    medalCol, bgCol = BRONZE_COLOR, 0x33CD7F32
+                
+                # Background con bordo colorato
+                self.__CBar(5, y, 420, 26, bgCol)
+                self.__CBar(5, y, 3, 26, medalCol)
+                
+                # Posizione
+                self.__CText(str(i + 1), 14, y + 5, medalCol)
+                
+                # Rank badge
+                self.__CBar(32, y + 4, 20, 16, playerTheme["accent"])
+                self.__CText(playerRankKey, 37, y + 5, 0xFF000000)
+                
+                # Nome giocatore
+                self.__CText(playerName[:20], 58, y + 5, medalCol)
+                
+                # Valore
+                self.__CText(FormatNumber(val), 350, y + 5, t["text_value"])
+                
+                y += 28
+            
+            # POSIZIONI 4-10 - Design compatto
+            else:
+                # Alternanza sfondo
+                if i % 2 == 1:
+                    self.__CBar(5, y, 420, 20, 0x15FFFFFF)
+                
+                # Posizione
+                self.__CText(str(i + 1), 14, y + 2, t["text_value"])
+                
+                # Mini rank badge
+                self.__CBar(32, y + 1, 18, 14, playerTheme["accent"])
+                self.__CText(playerRankKey, 36, y + 1, 0xFF000000)
+                
+                # Nome
+                self.__CText(playerName[:18], 56, y + 2, t["text_value"])
+                
+                # Valore
+                self.__CText(FormatNumber(val), 350, y + 2, t["accent"])
+                
+                y += 21
+    
+    def __OnRankPeriod(self, rType):
+        """Cambia periodo mantenendo la categoria"""
+        self.__ClearContent()
+        self.__LoadRanking(rType)
+        self.__SavePositions()
+        self.__UpdateScroll()
+    
+    def __LoadAchievements(self):
+        t = self.theme
+        y = 5
+        
+        self.__CText("TRAGUARDI", 5, y, t["accent"])
+        y += 30
+        
+        if not self.achievementsData:
+            self.__CText("Nessun traguardo.", 150, y + 40, t["text_muted"])
+            return
+        
+        for a in self.achievementsData:
+            unlocked = a.get("unlocked", False)
+            claimed = a.get("claimed", False)
+            
+            bgCol = 0x22888888 if claimed else (0x2200FF00 if unlocked else t["bg_dark"])
+            self.__CBar(5, y, 420, 38, bgCol)
+            
+            col = 0xFF00FF88 if unlocked else t["text_muted"]
+            self.__CText(a.get("name", "").replace("+", " "), 15, y + 3, col)
+            
+            prg = a.get("progress", 0)
+            req = a.get("requirement", 1)
+            pct = min(100, (float(prg) / float(req)) * 100) if req > 0 else 0
+            
+            self.__CProgressBar(15, y + 22, 200, 8, pct, col)
+            self.__CText("%d / %d" % (min(prg, req), req), 225, y + 19, t["text_value"])
+            
+            btnText = "Riscuoti" if unlocked and not claimed else "Fatto" if claimed else "Vedi"
+            self.__CButton(340, y + 5, btnText, ui.__mem_func__(self.__OnClaim), a.get("id", 0))
+            y += 45
+    
+    def __LoadEvents(self, skipRequest=False):
+        """Tab Eventi - MISSIONI GIORNALIERE + Eventi Calendario"""
+        t = self.theme
+        y = 5
+
+        # HEADER TAB - Spiega che contiene MISSIONI + EVENTI
+        self.__CBar(5, y, 420, 40, 0x33FFD700)
+        self.__CText("MISSIONI & EVENTI", 160, y + 3, GOLD_COLOR)
+        self.__CText("Questa schermata contiene:", 125, y + 18, t["text_value"])
+        self.__CText("Missioni Giornaliere + Eventi Programmati 24H", 65, y + 28, t["text_muted"])
+        y += 48
+
+        # Se non abbiamo dati eventi E non stiamo refreshando dopo averli ricevuti
+        if not self.eventsData and not skipRequest:
+            net.SendChatPacket("/hunter_events_silent")  # Richiedi eventi senza aprire popup
+
+        # =====================================================
+        # SEZIONE MISSIONI GIORNALIERE
+        # =====================================================
+        self.__CBar(5, y, 420, 28, t["bg_dark"])
+        self.__CText("MISSIONI GIORNALIERE (Reset: 00:05)", 15, y + 6, 0xFF00CCFF)
+        self.__CButton(310, y + 2, "Apri Dettagli", ui.__mem_func__(self.__OnOpenMissions))
+        y += 35
+
+        # Tooltip missioni
+        self.__CBar(5, y, 420, 30, 0x33444444)
+        self.__CText("Il Terminale si apre automaticamente quando fai progresso!", 30, y + 2, 0xFF88FF88)
+        self.__CText("Completa TUTTE E 3 per bonus x1.5 Gloria!", 70, y + 16, GOLD_COLOR)
+        y += 35
+
+        # Info missioni disponibili
+        missionCount = len(self.missionsData)
+        completedCount = sum(1 for m in self.missionsData if m.get("status") == "completed")
+        
+        if missionCount > 0:
+            # Box stato missioni
+            self.__CBar(5, y, 420, 85, 0x22000044)
+            
+            self.__CText("Stato: %d/%d complete" % (completedCount, missionCount), 15, y + 5, t["text_value"])
+            
+            # Mini preview delle 3 missioni
+            for i, m in enumerate(self.missionsData[:3]):
+                my = y + 22 + i * 18
+                name = m.get("name", "???").replace("+", " ")[:25]
+                current = m.get("current", 0)
+                target = m.get("target", 1)
+                status = m.get("status", "active")
+                
+                if status == "completed":
+                    self.__CText("[OK]", 15, my, 0xFF00FF00)
+                else:
+                    self.__CText("[...]", 15, my, 0xFFAAAAAA)
+                
+                self.__CText(name, 50, my, t["text_value"] if status != "completed" else 0xFF888888)
+                self.__CText("%d/%d" % (current, target), 280, my, t["accent"])
+            
+            # Info bonus
+            if completedCount == missionCount and missionCount == 3:
+                self.__CBar(5, y + 73, 420, 12, 0x4400FF00)
+                self.__CText("BONUS x1.5 ATTIVO!", 180, y + 73, 0xFF00FF00)
+            
+            y += 92
+        else:
+            self.__CBar(5, y, 420, 35, 0x22440000)
+            self.__CText("Nessuna missione assegnata oggi.", 80, y + 10, t["text_muted"])
+            self.__CText("Le missioni vengono assegnate al login.", 75, y + 22, 0xFF888888)
+            y += 42
+        
+        # Info box bonus/penalita
+        self.__CBar(5, y, 205, 35, 0x2200FF00)
+        self.__CText("Tutte complete:", 12, y + 4, 0xFF00FF00)
+        self.__CText("+50% Gloria Bonus!", 12, y + 18, 0xFF88FF88)
+        
+        self.__CBar(220, y, 205, 35, 0x22FF0000)
+        self.__CText("Non complete:", 227, y + 4, 0xFFFF4444)
+        self.__CText("Penalita' Gloria", 227, y + 18, 0xFFFF8888)
+        y += 42
+        
+        self.__CSep(5, y)
+        y += 15
+        
+        # =====================================================
+        # SEZIONE EVENTI CALENDARIO
+        # =====================================================
+        self.__CBar(5, y, 420, 28, t["bg_dark"])
+        self.__CText("EVENTI DEL GIORNO", 15, y + 6, 0xFFFFAA00)
+        self.__CButton(310, y + 2, "Apri Eventi", ui.__mem_func__(self.__OnOpenEvents))
+        y += 35
+        
+        # Evento in corso?
+        ev = self.activeEvent[0] if self.activeEvent[0] != "Nessuno" else None
+        if ev:
+            self.__CBar(5, y, 420, 40, 0x4400FF00)
+            self.__CText("EVENTO IN CORSO!", 15, y + 5, 0xFF00FF88)
+            self.__CText(ev.replace("+", " "), 15, y + 22, GOLD_COLOR)
+            y += 48
+        else:
+            self.__CBar(5, y, 420, 25, 0x22000000)
+            self.__CText("Nessun evento attivo al momento", 120, y + 5, t["text_muted"])
+            y += 32
+        
+        # Eventi di Oggi (usa eventsData popolato dal server)
+        self.__CText("Eventi Programmati Oggi:", 5, y, t["accent"])
+        y += 20
+        
+        if not self.eventsData:
+            self.__CText("Nessun evento programmato oggi.", 120, y + 10, t["text_muted"])
+            y += 30
+        else:
+            # Header
+            self.__CBar(5, y, 420, 18, t["bg_dark"])
+            self.__CText("Stato", 15, y + 2, t["text_muted"])
+            self.__CText("Evento", 60, y + 2, t["text_muted"])
+            self.__CText("Orario", 280, y + 2, t["text_muted"])
+            self.__CText("Rank", 380, y + 2, t["text_muted"])
+            y += 20
+            
+            # Mostra max 8 eventi nel terminale
+            for i, e in enumerate(self.eventsData[:8]):
+                eventName = e.get("name", "").replace("+", " ")[:22]
+                startTime = e.get("start_time", "00:00")
+                endTime = e.get("end_time", "00:00")
+                status = e.get("status", "upcoming")
+                minRank = e.get("min_rank", "E")
+                
+                if i % 2 == 0:
+                    self.__CBar(5, y - 1, 420, 18, 0x11FFFFFF)
+                
+                # Indicatore stato
+                if status == "active":
+                    self.__CText("[ON]", 15, y, 0xFF00FF00)
+                elif status == "ended":
+                    self.__CText("[--]", 15, y, 0xFF666666)
+                else:
+                    self.__CText("[..]", 15, y, 0xFFAAAA00)
+                
+                # Nome evento (colore in base a status)
+                nameColor = t["text_value"]
+                if status == "active":
+                    nameColor = 0xFF00FF88
+                elif status == "ended":
+                    nameColor = 0xFF888888
+                self.__CText(eventName, 60, y, nameColor)
+                
+                # Orario
+                self.__CText("%s-%s" % (startTime, endTime), 280, y, t["accent"])
+                
+                # Rank minimo
+                self.__CText(minRank, 390, y, t["text_muted"])
+                y += 19
+            
+            # Se ci sono piu' di 8 eventi, mostra quanti altri
+            if len(self.eventsData) > 8:
+                self.__CText("... e altri %d eventi (clicca 'Apri Eventi')" % (len(self.eventsData) - 8), 100, y, t["text_muted"])
+                y += 19
+        
+        y += 10
+        self.__CSep(5, y)
+        y += 15
+        
+        # =====================================================
+        # INFO RESET
+        # =====================================================
+        self.__CBar(5, y, 420, 40, t["bg_dark"])
+        self.__CText("ORARI RESET:", 180, y + 4, t["accent"])
+        self.__CText("Missioni: Ogni giorno alle 00:05", 50, y + 20, 0xFFAAAAAA)
+        self.__CText("Eventi: In base al calendario", 230, y + 20, 0xFFAAAAAA)
+    
+    def __OnOpenMissions(self):
+        """Apre finestra Missioni Giornaliere"""
+        # Sempre richiedi dati freschi dal server e apri la finestra
+        net.SendChatPacket("/hunter_missions")
+    
+    def __OnOpenEvents(self):
+        """Apre finestra Eventi del Giorno"""
+        # Sempre richiedi dati freschi dal server e apri la finestra
+        net.SendChatPacket("/hunter_events")
+    
+    def __LoadGuide(self):
+        t = self.theme
+        y = 5
+        self.currentGuideTab = getattr(self, 'currentGuideTab', 0)
+        
+        # =====================================================
+        # HEADER - TITOLO E TABS
+        # =====================================================
+        self.__CText("GUIDA COMPLETA HUNTER SYSTEM", 100, y, GOLD_COLOR)
+        y += 25
+        
+        # Tab buttons per sottosezioni
+        guideTabs = [("Ranghi", 0), ("Gloria", 1), ("Missioni", 2), ("Eventi", 3), ("Shop", 4), ("FAQ", 5)]
+        tabX = 5
+        for tabName, tabIdx in guideTabs:
+            btn = self.__CButton(tabX, y, tabName, ui.__mem_func__(self.__OnGuideTab), tabIdx)
+            if self.currentGuideTab == tabIdx:
+                btn.Down()
+            tabX += 70
+        y += 30
+        
+        self.__CSep(5, y)
+        y += 10
+        
+        # =====================================================
+        # CONTENUTO IN BASE AL TAB SELEZIONATO
+        # =====================================================
+        if self.currentGuideTab == 0:
+            y = self.__LoadGuideRanks(y)
+        elif self.currentGuideTab == 1:
+            y = self.__LoadGuideGlory(y)
+        elif self.currentGuideTab == 2:
+            y = self.__LoadGuideMissions(y)
+        elif self.currentGuideTab == 3:
+            y = self.__LoadGuideEvents(y)
+        elif self.currentGuideTab == 4:
+            y = self.__LoadGuideShop(y)
+        else:
+            y = self.__LoadGuideFAQ(y)
+    
+    def __OnGuideTab(self, tabIdx):
+        self.currentGuideTab = tabIdx
+        self.__ClearContent()
+        self.__LoadGuide()
+        self.__SavePositions()
+        self.__UpdateScroll()
+    
+    def __LoadGuideRanks(self, y):
+        """Guida completa ai ranghi"""
+        t = self.theme
+        
+        self.__CText("SISTEMA DEI RANGHI", 160, y, t["accent"])
+        y += 22
+        
+        self.__CText("Il tuo Rango determina il tuo prestigio e i contenuti", 30, y, t["text_muted"])
+        y += 16
+        self.__CText("a cui puoi accedere. Accumula Gloria per salire!", 50, y, t["text_muted"])
+        y += 25
+        
+        # Lista ranghi con dettagli
+        rankDetails = [
+            ("E", "Risvegliato", "0", "2.000", "Hai appena scoperto i tuoi poteri."),
+            ("D", "Apprendista", "2.000", "10.000", "Inizi a padroneggiare le basi."),
+            ("C", "Cacciatore", "10.000", "50.000", "Sei un vero Cacciatore ora."),
+            ("B", "Veterano", "50.000", "150.000", "I mostri tremano al tuo passaggio."),
+            ("A", "Maestro", "150.000", "500.000", "Solo i migliori arrivano qui."),
+            ("S", "Leggenda", "500.000", "1.500.000", "Il tuo nome e' conosciuto ovunque."),
+            ("N", "Monarca Nazionale", "1.500.000", "MAX", "Hai raggiunto l'apice del potere!"),
+        ]
+        
+        for key, title, minPts, maxPts, desc in rankDetails:
+            rt = RANK_THEMES[key]
+            
+            # Box rank
+            self.__CBar(5, y, 420, 45, rt["bg_dark"])
+            self.__CBar(5, y, 5, 45, rt["accent"])
+            
+            # Badge e titolo
+            self.__CBar(15, y + 5, 25, 18, rt["accent"])
+            self.__CText(key, 22, y + 6, 0xFF000000)
+            self.__CText(title, 50, y + 5, rt["accent"])
+            
+            # Range punti
+            self.__CText("%s - %s Gloria" % (minPts, maxPts), 200, y + 5, rt["text_value"])
+            
+            # Descrizione
+            self.__CText(desc, 15, y + 27, rt["text_muted"])
+            
+            y += 50
+        
+        return y
+    
+    def __LoadGuideGlory(self, y):
+        """Guida su come guadagnare Gloria e Crediti"""
+        t = self.theme
+        
+        # =====================================================
+        # GLORIA
+        # =====================================================
+        self.__CText("COME GUADAGNARE GLORIA", 140, y, GOLD_COLOR)
+        y += 25
+
+        # IMPORTANTE: Spiegazione mostri normali NON danno Gloria
+        self.__CBar(5, y, 420, 55, 0x44FF0000)
+        self.__CText("ATTENZIONE!", 180, y + 5, 0xFFFF0000)
+        self.__CText("I mostri, metin e boss NORMALI NON danno Gloria!", 30, y + 22, 0xFFFFAAAA)
+        self.__CText("Ottieni Gloria SOLO da:", 140, y + 37, 0xFFFFFFFF)
+        y += 62
+
+        gloryMethods = [
+            ("Fratture Dimensionali", "+200-1000", "Mob/Boss/Metin DENTRO le fratture"),
+            ("Missioni Giornaliere", "+50-300", "3 missioni giornaliere (vedi tab Eventi)"),
+            ("Emergency Quest", "+100-600", "40% chance ogni 100 kill normali"),
+            ("Eventi Programmati", "+100-2000", "Glory Rush, Metin Frenzy, Boss Massacre..."),
+            ("Streak Login", "+1-20% bonus", "Accedi ogni giorno per bonus Gloria"),
+            ("Bauli Hunter", "+25-100", "Bauli spawn nelle mappe normali"),
+            ("Speed Kill Bonus", "x2 reward", "Boss 60s, Metin 300s = doppia Gloria"),
+        ]
+
+        for method, reward, desc in gloryMethods:
+            self.__CBar(5, y, 420, 35, t["bg_dark"])
+            self.__CText(method, 15, y + 3, t["text_value"])
+            self.__CText(reward, 200, y + 3, 0xFF00FF00)
+            self.__CText(desc, 15, y + 18, t["text_muted"])
+            y += 38
+        
+        y += 15
+        self.__CSep(5, y)
+        y += 15
+        
+        # =====================================================
+        # CREDITI
+        # =====================================================
+        self.__CText("COME GUADAGNARE CREDITI", 140, y, 0xFFFFA500)
+        y += 25
+        
+        creditMethods = [
+            ("Converti Gloria", "100 Gloria = 10 Crediti", "/hunter_convert"),
+            ("Classifica Daily", "Top 3 riceve Crediti", "Automatico a mezzanotte"),
+            ("Classifica Weekly", "Top 10 riceve Crediti", "Automatico ogni Lunedi"),
+            ("Eventi Speciali", "Premio partecipazione", "Controlla il calendario"),
+        ]
+        
+        for method, info, note in creditMethods:
+            self.__CBar(5, y, 420, 28, t["bg_dark"])
+            self.__CText(method, 15, y + 6, t["text_value"])
+            self.__CText(info, 150, y + 6, 0xFFFFA500)
+            self.__CText(note, 320, y + 6, t["text_muted"])
+            y += 32
+        
+        return y
+    
+    def __LoadGuideMissions(self, y):
+        """Guida alle missioni giornaliere"""
+        t = self.theme
+        
+        self.__CText("MISSIONI GIORNALIERE", 150, y, t["accent"])
+        y += 25
+        
+        # Intro
+        self.__CBar(5, y, 420, 80, t["bg_dark"])
+        self.__CText("Ogni giorno alle 00:05 ricevi 3 nuove missioni.", 50, y + 5, t["text_value"])
+        self.__CText("Le missioni sono basate sul tuo Rank attuale.", 60, y + 20, t["text_muted"])
+
+        self.__CText("DOVE VEDERLE:", 170, y + 40, 0xFFFFAA00)
+        self.__CText("1. Scrivi /hunter_missions in chat", 80, y + 55, 0xFF00CCFF)
+        self.__CText("2. Premi N > Tab Eventi > Apri Dettagli", 75, y + 68, 0xFF00CCFF)
+        y += 90
+        
+        # Tipi di missioni (quelli effettivi nel DB)
+        self.__CText("TIPI DI MISSIONI:", 5, y, t["accent"])
+        y += 22
+        
+        missionTypes = [
+            ("kill_mob", "Uccidi Mostri", "Elimina un certo numero di mob (vnum specifico o qualsiasi)"),
+            ("kill_boss", "Caccia al Boss", "Sconfiggi boss nel mondo di gioco"),
+            ("kill_metin", "Distruggi Metin", "Distruggi pietre metin nelle mappe"),
+            ("seal_fracture", "Sigilla Frattura", "Chiudi le fratture dimensionali (rank A+)"),
+        ]
+        
+        for mType, name, desc in missionTypes:
+            self.__CBar(5, y, 420, 32, t["bg_dark"])
+            self.__CText("- %s" % name, 15, y + 3, t["text_value"])
+            self.__CText(desc, 20, y + 17, t["text_muted"])
+            y += 34
+        
+        y += 10
+        self.__CSep(5, y)
+        y += 15
+        
+        # Come funziona
+        self.__CText("COME FUNZIONA:", 5, y, t["accent"])
+        y += 22
+        
+        steps = [
+            "1. Al login ricevi automaticamente 3 missioni",
+            "2. Uccidi mob/boss/metin per fare progresso",
+            "3. Un popup ti mostra il progresso (3 secondi)",
+            "4. Al completamento ricevi Gloria + effetto verde",
+            "5. Se completi TUTTE E 3: Bonus x1.5 + effetto oro!",
+        ]
+        
+        for step in steps:
+            self.__CText(step, 15, y, t["text_value"])
+            y += 18
+        
+        y += 15
+        
+        # Penalita
+        self.__CBar(5, y, 420, 55, 0x33FF0000)
+        self.__CText("SISTEMA PENALITA'", 160, y + 5, 0xFFFF4444)
+        self.__CText("Missioni NON completate entro mezzanotte:", 90, y + 22, t["text_value"])
+        self.__CText("= Perdi Gloria pari alla penalita' indicata!", 85, y + 38, 0xFFFF6666)
+        y += 65
+        
+        # Bonus completamento
+        self.__CBar(5, y, 420, 45, 0x3300FF00)
+        self.__CText("BONUS TUTTE COMPLETE", 155, y + 5, 0xFF00FF00)
+        self.__CText("Completa tutte e 3 le missioni = +50% Gloria extra!", 75, y + 25, 0xFF88FF88)
+        y += 55
+
+        y += 15
+        self.__CSep(5, y)
+        y += 15
+
+        # =====================================================
+        # EMERGENCY QUEST - Sezione dedicata
+        # =====================================================
+        self.__CBar(5, y, 420, 35, 0x33FF6600)
+        self.__CText("EMERGENCY QUEST", 160, y + 5, 0xFFFF6600)
+        self.__CText("MISSIONI SPECIALI A TEMPO - PREMI MASSIMI!", 80, y + 22, 0xFFFFAA00)
+        y += 43
+
+        self.__CText("COME FUNZIONA:", 5, y, t["accent"])
+        y += 22
+
+        emergencySteps = [
+            "1. Spawn RANDOM dopo aver ucciso ~2000 mob normali",
+            "2. 40% chance Emergency, 60% chance Frattura",
+            "3. Tempo limitato: 30-180 secondi per completare!",
+            "4. Obiettivi: 30-250 kill a seconda della difficolta'",
+            "5. Premi: 150-1200 Gloria + item bonus",
+            "6. Se fallisci, non c'e' penalita' (solo opportunita' persa)",
+        ]
+
+        for step in emergencySteps:
+            self.__CText(step, 15, y, t["text_value"])
+            y += 18
+
+        y += 10
+
+        # Difficoltà Emergency
+        self.__CText("LIVELLI DI DIFFICOLTA':", 5, y, t["accent"])
+        y += 22
+
+        emergencyLevels = [
+            ("EASY", 0xFF00FF00, "30 kill/60s", "+150 Gloria"),
+            ("NORMAL", 0xFF00CCFF, "50 kill/60s", "+250 Gloria"),
+            ("HARD", 0xFFFFAA00, "60-120 kill/60-90s", "+300-600 Gloria"),
+            ("EXTREME", 0xFFFF6600, "120-250 kill/90-180s", "+600-1000 Gloria"),
+            ("GOD_MODE", 0xFFFF0000, "250+ kill/180s", "+1200 Gloria"),
+        ]
+
+        for diff, color, req, reward in emergencyLevels:
+            self.__CBar(5, y, 420, 22, t["bg_dark"])
+            self.__CBar(5, y, 4, 22, color)
+            self.__CText(diff, 15, y + 3, color)
+            self.__CText(req, 150, y + 3, t["text_value"])
+            self.__CText(reward, 290, y + 3, 0xFF00FF00)
+            y += 24
+
+        y += 10
+
+        # Speed Kill bonus per Emergency
+        self.__CBar(5, y, 420, 50, 0x3300FFFF)
+        self.__CText("SPEED KILL BONUS", 165, y + 5, 0xFF00FFFF)
+        self.__CText("Boss: Uccidi entro 60 secondi = x2 Punti Gloria!", 45, y + 22, t["text_value"])
+        self.__CText("Metin: Distruggi entro 300 secondi = x2 Punti Gloria!", 35, y + 36, t["text_value"])
+        y += 60
+
+        y += 15
+        self.__CSep(5, y)
+        y += 15
+
+        # Ricompense per rank
+        self.__CText("RICOMPENSE PER RANK:", 5, y, t["accent"])
+        y += 22
+        
+        rankRewards = [
+            ("E", "15-50", "5-15"),
+            ("D", "40-100", "12-30"),
+            ("C", "80-200", "25-60"),
+            ("B", "150-400", "45-120"),
+            ("A", "300-800", "90-240"),
+            ("S", "600-1500", "180-450"),
+            ("N", "1200-3000", "350-900"),
+        ]
+        
+        self.__CText("Rank    Reward Gloria    Penalita'", 60, y, t["text_muted"])
+        y += 18
+        
+        for rank, reward, penalty in rankRewards:
+            color = self.RANK_COLORS.get(rank, t["text_value"])
+            self.__CText("%s" % rank, 80, y, color)
+            self.__CText("%s" % reward, 140, y, 0xFF00FF00)
+            self.__CText("%s" % penalty, 260, y, 0xFFFF6666)
+            y += 16
+        
+        y += 15
+        
+        return y
+    
+    def __LoadGuideEvents(self, y):
+        """Guida agli eventi programmati - Sistema 24H"""
+        t = self.theme
+        
+        self.__CText("EVENTI PROGRAMMATI 24H", 145, y, t["accent"])
+        y += 25
+        
+        # Intro
+        self.__CBar(5, y, 420, 55, t["bg_dark"])
+        self.__CText("Gli eventi si attivano automaticamente ad orari", 70, y + 5, t["text_muted"])
+        self.__CText("prestabiliti configurati nel database.", 100, y + 20, t["text_muted"])
+        self.__CText("Clicca 'Apri Eventi' per vedere quelli di oggi!", 65, y + 37, 0xFF00CCFF)
+        y += 65
+        
+        # Tipi di eventi
+        self.__CText("TIPI DI EVENTO:", 5, y, t["accent"])
+        y += 22
+        
+        eventTypes = [
+            ("GLORY RUSH", 0xFFFFD700, "Gloria x2 per ogni kill!"),
+            ("RIFT HUNT", 0xFF9900FF, "Fratture +50% spawn"),
+            ("METIN FRENZY", 0xFFFF6600, "Metin Bonus +50%"),
+            ("BOSS MASSACRE", 0xFFFF0000, "Boss Gloria +50%"),
+            ("DOUBLE SPAWN", 0xFF00FF00, "Spawn Elite x2"),
+        ]
+        
+        for name, color, desc in eventTypes:
+            self.__CBar(5, y, 420, 22, t["bg_dark"])
+            self.__CBar(5, y, 4, 22, color)
+            self.__CText(name, 15, y + 3, color)
+            self.__CText(desc, 150, y + 3, t["text_muted"])
+            y += 24
+        
+        y += 10
+        self.__CSep(5, y)
+        y += 15
+        
+        # Come funziona
+        self.__CText("COME FUNZIONA:", 5, y, t["accent"])
+        y += 22
+        
+        steps = [
+            "1. Gli eventi sono configurati nel DB",
+            "2. Si attivano automaticamente all'ora impostata",
+            "3. Il bonus si applica per tutta la durata",
+            "4. Puoi vedere gli eventi nella tab Eventi",
+            "5. 'Apri Eventi' mostra la lista completa",
+        ]
+        
+        for step in steps:
+            self.__CText(step, 15, y, t["text_value"])
+            y += 18
+        
+        y += 15
+        
+        # Box informativo
+        self.__CBar(5, y, 420, 55, 0x33FFD700)
+        self.__CText("COME PARTECIPARE", 160, y + 5, GOLD_COLOR)
+        self.__CText("Quando un evento e' [IN CORSO], clicca 'Partecipa'", 55, y + 22, t["text_value"])
+        self.__CText("Bonus Gloria attivo per tutta la durata dell'evento!", 50, y + 38, t["text_muted"])
+        y += 65
+
+
+        # =============================
+        # EVENTI PROGRAMMATI DETTAGLIATI
+        # =============================
+        self.__CBar(5, y, 420, 30, 0x33FFD700)
+        self.__CText("LISTA COMPLETA EVENTI PROGRAMMATI", 70, y + 5, GOLD_COLOR)
+        y += 38
+
+        # allScheduledEvents deve essere una lista di dict con chiavi:
+        # event_name, event_type, event_desc, start_hour, start_minute, duration_minutes, days_active, min_rank, reward_glory_base, reward_glory_winner, color_scheme, priority
+        global allScheduledEvents
+        if 'allScheduledEvents' in globals() and allScheduledEvents:
+            # Header
+            self.__CBar(5, y, 420, 22, t["bg_dark"])
+            self.__CText("Orario", 10, y + 3, t["text_muted"])
+            self.__CText("Nome Evento", 70, y + 3, t["text_muted"])
+            self.__CText("Tipo", 220, y + 3, t["text_muted"])
+            self.__CText("Rank", 280, y + 3, t["text_muted"])
+            self.__CText("Premio", 330, y + 3, t["text_muted"])
+            y += 22
+            for ev in allScheduledEvents:
+                # Orario
+                start = "%02d:%02d" % (ev.get("start_hour",0), ev.get("start_minute",0))
+                durata = ev.get("duration_minutes", 0)
+                giorni = ev.get("days_active", "1,2,3,4,5,6,7")
+                giorni_txt = "Tutti" if giorni == "1,2,3,4,5,6,7" else giorni
+                # Colore
+                color_map = {"GOLD":0xFFFFD700, "PURPLE":0xFF9900FF, "RED":0xFFFF0000, "ORANGE":0xFFFF6600}
+                bar_col = color_map.get(ev.get("color_scheme","GOLD"), 0xFFCCCCCC)
+                self.__CBar(5, y, 420, 22, bar_col)
+                # Nome evento
+                self.__CText("%s-%dm" % (start, durata), 10, y + 3, t["text_value"])
+                self.__CText(ev.get("event_name","?"), 70, y + 3, GOLD_COLOR)
+                self.__CText(ev.get("event_type","?"), 220, y + 3, t["accent"])
+                self.__CText(ev.get("min_rank","E"), 280, y + 3, t["text_value"])
+                self.__CText("%d/%d" % (ev.get("reward_glory_base",0), ev.get("reward_glory_winner",0)), 330, y + 3, 0xFF00FF00)
+                y += 22
+                # Descrizione
+                self.__CText(ev.get("event_desc",""), 20, y, t["text_muted"])
+                y += 18
+                # Giorni attivi
+                self.__CText("Giorni: %s | Priorità: %s" % (giorni_txt, str(ev.get("priority",5))), 20, y, t["text_muted"])
+                y += 18
+                y += 2
+        else:
+            self.__CText("Nessun evento programmato trovato.", 60, y + 5, t["text_muted"])
+            y += 28
+
+        y += 10
+        self.__CSep(5, y)
+        y += 15
+        # ...existing code...
+
+        # =====================================================
+        # FRATTURE DIMENSIONALI
+        # =====================================================
+        self.__CBar(5, y, 420, 30, 0x339900FF)
+        self.__CText("FRATTURE DIMENSIONALI", 145, y + 5, 0xFF9900FF)
+        self.__CText("Portali con mob potenti - Alta ricompensa!", 75, y + 20, t["text_muted"])
+        y += 38
+
+        self.__CText("RANK FRATTURE:", 5, y, t["accent"])
+        y += 22
+
+        fracturesInfo = [
+            ("E-Rank (Verde)", "0+ Gloria", "+200 Gloria", "Tutti possono aprire"),
+            ("D-Rank (Blu)", "2K+ Gloria", "+350 Gloria", ""),
+            ("C-Rank (Arancio)", "10K+ Gloria", "+500 Gloria", ""),
+            ("B-Rank (Rosso)", "50K+ Gloria", "+700 Gloria", ""),
+            ("A-Rank (Oro)", "150K+ Gloria", "+900 Gloria", "Solo rank A+"),
+            ("S-Rank (Viola)", "500K+ Gloria", "+1200 Gloria", "Solo rank S+"),
+            ("National (B/W)", "1.5M+ Gloria", "+2000 Gloria", "Solo National"),
+        ]
+
+        for fracName, reqGloria, reward, note in fracturesInfo:
+            self.__CBar(5, y, 420, 18, t["bg_dark"])
+            self.__CText(fracName, 15, y + 2, t["text_value"])
+            self.__CText(reqGloria, 140, y + 2, t["text_muted"])
+            self.__CText(reward, 250, y + 2, 0xFF00FF00)
+            if note:
+                self.__CText(note, 320, y + 2, 0xFFFF6666)
+            y += 20
+
+        y += 10
+
+        self.__CBar(5, y, 420, 45, 0x33FFD700)
+        self.__CText("ATTENZIONE!", 180, y + 5, GOLD_COLOR)
+        self.__CText("Aprire una frattura rivela la tua posizione a TUTTI!", 50, y + 22, 0xFFFF6666)
+        self.__CText("Altri player possono rubarti il Boss! Preparati a difenderlo.", 35, y + 34, t["text_value"])
+        y += 55
+
+        return y
+    
+    def __LoadGuideShop(self, y):
+        """Guida allo shop Hunter"""
+        t = self.theme
+        
+        self.__CText("MERCANTE HUNTER", 165, y, 0xFFFFA500)
+        y += 25
+        
+        # Intro
+        self.__CText("Usa i tuoi Crediti per acquistare oggetti esclusivi!", 60, y, t["text_muted"])
+        y += 25
+        
+        # Come ottenere crediti
+        self.__CBar(5, y, 420, 50, t["bg_dark"])
+        self.__CText("COME OTTENERE CREDITI:", 140, y + 5, 0xFFFFA500)
+        self.__CText("- Converti Gloria: /hunter_convert [quantita]", 15, y + 22, t["text_value"])
+        self.__CText("- Premi classifica giornaliera e settimanale", 15, y + 36, t["text_value"])
+        y += 60
+        
+        # Categorie shop
+        self.__CText("CATEGORIE DISPONIBILI:", 5, y, t["accent"])
+        y += 22
+        
+        categories = [
+            ("Consumabili", "Pozioni, buff temporanei, boost EXP"),
+            ("Equipaggiamento", "Armi e armature esclusive Hunter"),
+            ("Cosmetici", "Titoli, aure, effetti visivi"),
+            ("Materiali", "Pietre, upgrade, crafting"),
+            ("Speciali", "Item rari a rotazione settimanale"),
+        ]
+        
+        for cat, desc in categories:
+            self.__CBar(5, y, 420, 26, t["bg_dark"])
+            self.__CText(cat, 15, y + 5, 0xFFFFA500)
+            self.__CText(desc, 130, y + 5, t["text_muted"])
+            y += 28
+        
+        y += 15
+        self.__CSep(5, y)
+        y += 15
+        
+        # Consigli
+        self.__CText("CONSIGLI ACQUISTI:", 5, y, t["accent"])
+        y += 22
+        
+        tips = [
+            "- Non sprecare Crediti su consumabili comuni",
+            "- Gli item speciali cambiano ogni settimana",
+            "- Risparmia per equipaggiamento di alto rank",
+            "- I cosmetici sono permanenti, buon investimento!",
+        ]
+        
+        for tip in tips:
+            self.__CText(tip, 15, y, t["text_value"])
+            y += 18
+        
+        return y
+    
+    def __LoadGuideFAQ(self, y):
+        """FAQ e domande frequenti"""
+        t = self.theme
+
+        self.__CText("DOMANDE FREQUENTI (FAQ)", 130, y, t["accent"])
+        y += 25
+
+        faqs = [
+            ("Come attivo il sistema Hunter?",
+             "Raggiungi il livello 30 per attivare il sistema automaticamente."),
+
+            ("Come vedo le mie missioni?",
+             "Usa /hunter_missions oppure premi N > Tab Eventi > Apri Dettagli."),
+
+            ("I mostri normali danno Gloria?",
+             "NO! Solo Fratture, Missioni, Emergency Quest ed Eventi danno Gloria!"),
+
+            ("Perche' perdo Gloria?",
+             "Non hai completato le missioni giornaliere entro mezzanotte."),
+
+            ("Cos'e' il Bonus x1.5?",
+             "Se completi TUTTE E 3 le missioni, ricevi +50% Gloria extra!"),
+
+            ("Come salgo di Rank?",
+             "Accumula Gloria! E->D: 2000, D->C: 10000, C->B: 50000, etc."),
+
+            ("Posso perdere il mio Rank?",
+             "No, il Rank e' permanente. La Gloria puo' scendere ma non il Rank."),
+
+            ("Come partecipo agli eventi?",
+             "Usa /hunter_events per vedere gli eventi, poi clicca 'Partecipa'."),
+
+            ("Cosa sono le Fratture?",
+             "Portali dimensionali con mob potenti. Danno +200-1000 Gloria!"),
+
+            ("Quando si resettano le missioni?",
+             "Ogni giorno alle 00:05. Le missioni non complete danno penalita'."),
+
+            ("Come funziona lo streak bonus?",
+             "Login consecutivi: 3gg=+5%, 7gg=+10%, 30gg=+20% Gloria extra!"),
+
+            ("Cos'e' l'Emergency Quest?",
+             "Missioni speciali che spawnano random! Tempo limitato, premi ALTI."),
+
+            ("Come ottengo Speed Kill Bonus?",
+             "Uccidi Boss in 60s o Metin in 300s = x2 Punti Gloria!"),
+
+            ("Perche' il Terminale si apre da solo?",
+             "Quando fai progresso missioni si apre automaticamente per 5 secondi!"),
+
+            ("Cosa succede se fallisco 3 missioni?",
+             "Ricevi uno Strike. A 3 Strike = 24h di penalty (no Gloria)."),
+
+            ("Come funziona il sistema Rival?",
+             "Se qualcuno ti supera in classifica, ricevi una notifica!"),
+
+            ("Cosa sono i Bauli Dimensionali?",
+             "Spawn random dopo kill. Danno item rari + Buoni Gloria!"),
+
+            ("Posso aprire Fratture da E-Rank?",
+             "SI, ma quelle Rank A+ richiedono 500K+ Gloria per entrare."),
+        ]
+
+        for q, a in faqs:
+            # Domanda
+            self.__CBar(5, y, 420, 18, t["bg_dark"])
+            self.__CText("D: " + q, 10, y + 2, GOLD_COLOR)
+            y += 20
+
+            # Risposta
+            self.__CText("R: " + a, 10, y, t["text_value"])
+            y += 22
+
+        y += 15
+        self.__CSep(5, y)
+        y += 15
+
+        # Comandi utili
+        self.__CBar(5, y, 420, 130, t["bg_dark"])
+        self.__CText("COMANDI E SCORCIATOIE:", 155, y + 5, t["accent"])
+        y += 22
+
+        commands = [
+            ("Tasto N", "Apre/Chiude il Terminale Hunter"),
+            ("/hunter_missions", "Apre pannello missioni giornaliere"),
+            ("/hunter_events", "Mostra eventi programmati di oggi"),
+            ("/hunter_stats", "Mostra le tue statistiche complete"),
+            ("/hunter_convert [qty]", "Converti Gloria in Crediti (ratio 10:1)"),
+            ("/hunter_shop", "Apre il Mercante Hunter"),
+        ]
+
+        for cmd, desc in commands:
+            self.__CText(cmd, 15, y, 0xFF00CCFF)
+            self.__CText(desc, 180, y, t["text_muted"])
+            y += 18
+
+        y += 20
+
+        # Consigli finali
+        self.__CBar(5, y, 420, 110, 0x33FFD700)
+        self.__CText("CONSIGLI PER NUOVI HUNTER:", 130, y + 5, GOLD_COLOR)
+        self.__CText("1. Completa SEMPRE le 3 missioni giornaliere (evita penalty)", 15, y + 22, t["text_value"])
+        self.__CText("2. Emergency Quest = opportunita' MASSIMA! Non perderle!", 15, y + 36, t["text_value"])
+        self.__CText("3. Speed Kill Boss (60s) e Metin (300s) = DOPPI PUNTI!", 15, y + 50, t["text_value"])
+        self.__CText("4. Accedi ogni giorno per streak bonus (fino a +20%)", 15, y + 64, t["text_value"])
+        self.__CText("5. Weekend = eventi speciali con Gloria x2/x3!", 15, y + 78, t["text_value"])
+        self.__CText("6. Fratture danno PIU' Gloria dei mob normali", 15, y + 92, t["text_value"])
+        y += 120
+
+        return y
+    
+    # ========================================================================
+    #  CALLBACKS
+    # ========================================================================
+    def __OnRankSub(self, rType):
+        self.__ClearContent()
+        self.__LoadRanking(rType)
+        self.__SavePositions()
+        self.__UpdateScroll()
+    
+    def __OnBuy(self, iid):
+        net.SendChatPacket("/hunter_buy %d" % iid)
+    
+    def __OnClaim(self, aid):
+        net.SendChatPacket("/hunter_claim %d" % aid)
+    
+    def __OnSmartClaim(self):
+        net.SendChatPacket("/hunter_smart_claim")
+    
+    # ========================================================================
+    #  PUBLIC METHODS
+    # ========================================================================
+    
+    # Colori per ogni rank (usati globalmente)
+    RANK_COLORS = {
+        # Rank giocatore (lettere)
+        "E": 0xFF808080,  # Grigio
+        "D": 0xFF00FF00,  # Verde
+        "C": 0xFF00FFFF,  # Cyan
+        "B": 0xFF0066FF,  # Blu
+        "A": 0xFFAA00FF,  # Viola
+        "S": 0xFFFF6600,  # Arancione
+        "N": 0xFFFF0000,  # Rosso
+        # Colori fratture (nomi)
+        "GREEN": 0xFF00FF00,       # Verde Neon
+        "BLUE": 0xFF0099FF,        # Blu System
+        "CYAN": 0xFF00FFFF,        # Cyan
+        "ORANGE": 0xFFFF6600,      # Arancione Fuoco
+        "RED": 0xFFFF0000,         # Rosso Sangue
+        "GOLD": 0xFFFFD700,        # Oro
+        "PURPLE": 0xFF9900FF,      # Viola Ombra
+        "BLACKWHITE": 0xFFFFFFFF,  # Bianco
+    }
+    
+    def ShowSystemMessage(self, msg, rankKey="E"):
+        """Mostra messaggio del Sistema con colore basato sul rank"""
+        if self.systemMsgWnd:
+            color = self.RANK_COLORS.get(rankKey, 0xFF808080)
+            # DEBUG: Log color lookup
+            import dbg
+            dbg.TraceError("[PY-DEBUG] ShowSystemMessage: rankKey='%s', color=0x%X" % (rankKey, color))
+            self.systemMsgWnd.ShowMessage(msg, color)
+            # REMOVED: SetRankColor() era ridondante e causava override del colore
+    
     def ShowWelcomeMessage(self, rankKey, name, points):
-        """Show welcome message"""
-        msg = "Welcome, %s! Rank: %s | Points: %d" % (name, rankKey, points)
-        self.ShowSystemMessage(msg, rankKey)
-
-    def ShowBossAlert(self, bossName):
-        """Show boss alert"""
-        msg = "[BOSS SPAWN] %s appeared!" % bossName
-        self.ShowSystemMessage(msg, "RED")
-
-    def ShowSystemInit(self):
-        """Show system initialization"""
-        self.ShowSystemMessage("Hunter System Initialized", "GOLD")
-
-    def ShowAwakening(self, playerName):
-        """Show awakening effect"""
-        if self.awakeningEffect:
-            level = player.GetStatus(player.LEVEL)
-            self.awakeningEffect.Show(level)
-
-    def ShowHunterActivation(self, playerName):
-        """Show hunter activation"""
-        self.ShowSystemMessage("Hunter System Activated!", "GOLD")
-
-    def ShowRankUp(self, oldRank, newRank):
-        """Show rank up effect"""
-        if self.rankUpEffect:
-            self.rankUpEffect.Show(oldRank, newRank)
-
-    def ShowOvertake(self, overtakenName, newPosition):
-        """Show overtake notification"""
-        msg = "You overtook %s! New Position: #%d" % (overtakenName, newPosition)
-        self.ShowSystemMessage(msg, "GOLD")
-
-    def ShowEventStatus(self, eventName, duration, eventType):
-        """Show event status"""
-        msg = "[EVENT] %s started!" % eventName
-        self.ShowSystemMessage(msg, "PURPLE")
-
-    def CloseEventStatus(self):
-        """Close event status"""
-        pass
-
-    # ============================================================
-    # EMERGENCY QUEST
-    # ============================================================
-
-    def StartEmergencyQuest(self, title, seconds, vnum, count):
-        """Start emergency quest"""
-        # Similar to daily mission popup
-        msg = "[EMERGENCY] %s - Kill %d mobs in %d seconds!" % (title, count, seconds)
-        self.ShowSystemMessage(msg, "RED")
-
+        """Mostra il messaggio di benvenuto epico basato sul rank"""
+        
+        RANK_TITLES = {
+            "E": "[E-RANK] RISVEGLIATO",
+            "D": "[D-RANK] APPRENDISTA", 
+            "C": "[C-RANK] CACCIATORE",
+            "B": "[B-RANK] VETERANO",
+            "A": "* [A-RANK] MAESTRO *",
+            "S": "** [S-RANK] LEGGENDA **",
+            "N": "*** [NATIONAL] MONARCA ***",
+        }
+        
+        RANK_MESSAGES = {
+            "E": "Il Sistema ti osserva. Dimostra il tuo valore.",
+            "D": "Bentornato, Cacciatore. Il Sistema ti riconosce.",
+            "C": "Il Sistema saluta un guerriero esperto.",
+            "B": "Bentornato, Veterano. Il Sistema ti onora.",
+            "A": "Il Sistema si inchina al tuo potere.",
+            "S": "ATTENZIONE: Cacciatore S-Rank rilevato.",
+            "N": "!! ALLERTA MASSIMA !! MONARCA NAZIONALE ONLINE !!",
+        }
+        
+        color = self.RANK_COLORS.get(rankKey, 0xFF808080)
+        title = RANK_TITLES.get(rankKey, "[E-RANK]")
+        message = RANK_MESSAGES.get(rankKey, "Bentornato.")
+        
+        # Mostra il messaggio con il colore del rank
+        if self.systemMsgWnd:
+            fullMsg = title + " - " + message
+            self.systemMsgWnd.ShowMessage(fullMsg, color)
+    
+    def StartEmergencyQuest(self, title, seconds, mobVnum, count):
+        if self.emergencyWnd:
+            self.emergencyWnd.StartMission(title, seconds, mobVnum, count)
+    
     def UpdateEmergencyCount(self, current):
-        """Update emergency quest count"""
-        pass
-
+        if self.emergencyWnd:
+            self.emergencyWnd.UpdateProgress(current)
+    
     def EndEmergencyQuest(self, success):
-        """End emergency quest"""
-        if success:
-            self.ShowSystemMessage("Emergency Quest Completed!", "GOLD")
-        else:
-            self.ShowSystemMessage("Emergency Quest Failed", "RED")
-
-    # ============================================================
-    # WHATIF / RIVAL
-    # ============================================================
-
-    def UpdateRival(self, name, points, label, mode):
-        """Update rival information"""
-        pass
-
-    def OpenWhatIf(self, qid, text, opt1, opt2, opt3, colorCode):
-        """Open whatif question dialog"""
-        pass
-
-    # ============================================================
-    # MISSIONS & EVENTS
-    # ============================================================
-
+        if self.emergencyWnd:
+            self.emergencyWnd.EndMission(success)
+    
+    def UpdateRival(self, name, points, label="Gloria", mode="VICINO"):
+        if self.rivalWnd:
+            self.rivalWnd.ShowRival(name, points, label, mode)
+    
+    def OpenWhatIf(self, qid, questionText, opt1, opt2, opt3, colorCode="PURPLE"):
+        if self.whatIfWnd:
+            self.whatIfWnd.Create(qid, questionText, [opt1, opt2, opt3], colorCode)
+    
+    def ShowBossAlert(self, bossName):
+        """Mostra ALERT a schermo intero quando spawna un BOSS"""
+        if self.bossAlertWnd:
+            self.bossAlertWnd.ShowAlert(bossName)
+    
+    def ShowSystemInit(self):
+        """Mostra effetto di inizializzazione sistema al login"""
+        if self.systemInitWnd:
+            self.systemInitWnd.StartLoading()
+    
+    def ShowAwakening(self, playerName):
+        """Mostra effetto risveglio al Lv 5 (misterioso)"""
+        if self.awakeningWnd:
+            self.awakeningWnd.StartAwakening(playerName)
+    
+    def ShowHunterActivation(self, playerName):
+        """Mostra effetto attivazione Hunter al Lv 30"""
+        if self.activationWnd:
+            self.activationWnd.StartActivation(playerName)
+    
+    def ShowRankUp(self, oldRank, newRank):
+        """Mostra effetto salita di rank"""
+        if self.rankUpWnd:
+            self.rankUpWnd.ShowRankUp(oldRank, newRank)
+    
+    def ShowOvertake(self, overtakenName, newPosition):
+        """Mostra effetto sorpasso in classifica"""
+        if self.overtakeWnd:
+            self.overtakeWnd.ShowOvertake(overtakenName, newPosition)
+    
+    def ShowEventStatus(self, eventName, duration, eventType="default"):
+        """Mostra finestra stato evento"""
+        if self.eventWnd:
+            self.eventWnd.ShowEvent(eventName, duration, eventType)
+    
+    def CloseEventStatus(self):
+        """Chiude la finestra stato evento"""
+        if self.eventWnd:
+            self.eventWnd.Hide()
+    
+    # ========================================================================
+    #  DAILY MISSIONS SYSTEM
+    # ========================================================================
     def SetMissionsCount(self, count):
-        """Set missions count"""
-        pass
-
+        """Prepara per ricevere dati missioni"""
+        self.missionsCount = int(count)
+        self.missionsData = []
+    
     def AddMissionData(self, missionData):
-        """Add mission data"""
-        pass
-
+        """Aggiunge dati di una missione"""
+        # formato: id|name|type|current|target|reward|penalty|status
+        try:
+            parts = missionData.split("|")
+            if len(parts) >= 8:
+                mission = {
+                    "id": int(parts[0]),
+                    "name": parts[1],
+                    "type": parts[2],
+                    "current": int(parts[3]),
+                    "target": int(parts[4]),
+                    "reward": int(parts[5]),
+                    "penalty": int(parts[6]),
+                    "status": parts[7]  # active, completed, failed
+                }
+                self.missionsData.append(mission)
+                
+                # Quando abbiamo ricevuto tutti i dati, aggiorna UI
+                if len(self.missionsData) >= self.missionsCount:
+                    if self.missionsWnd:
+                        self.missionsWnd.SetMissions(self.missionsData, self.theme)
+        except:
+            import dbg
+            dbg.TraceError("AddMissionData parse error: " + str(missionData))
+    
     def UpdateMissionProgress(self, missionId, current, target):
-        """Update mission progress"""
-        pass
+        """Aggiorna progresso di una missione specifica"""
+        missionId = int(missionId)
+        current = int(current)
+        target = int(target)
 
+        # Aggiorna nei dati locali
+        for m in self.missionsData:
+            if m["id"] == missionId:
+                m["current"] = current
+                m["target"] = target
+                break
+
+        # Mostra popup progresso (3 sec)
+        if self.missionProgressWnd:
+            # Trova nome missione
+            missionName = "Missione #%d" % missionId
+            for m in self.missionsData:
+                if m["id"] == missionId:
+                    missionName = m["name"]
+                    break
+            self.missionProgressWnd.ShowProgress(missionName, current, target, self.theme)
+
+        # AUTO-APERTURA: Apri la finestra Daily Missions (non il terminale)
+        if self.missionsWnd:
+            if not self.missionsWnd.IsShow():
+                self.missionsWnd.Open()
+                self.missionsWnd.autoCloseTimer = 5.0  # Chiudi dopo 5 secondi
+            else:
+                # Se già aperta, resetta il timer
+                self.missionsWnd.autoCloseTimer = 5.0
+            
+            # Aggiorna i dati nella finestra
+            self.missionsWnd.UpdateProgress(missionId, current, target)
+    
     def OnMissionComplete(self, missionId, name, reward):
-        """Mission complete callback"""
-        msg = "[MISSION COMPLETE] %s - Reward: %d" % (name, reward)
-        self.ShowSystemMessage(msg, "GOLD")
-
+        """Notifica completamento missione"""
+        missionId = int(missionId)
+        reward = int(reward)
+        
+        # Aggiorna status locale
+        for m in self.missionsData:
+            if m["id"] == missionId:
+                m["status"] = "completed"
+                break
+        
+        # Mostra effetto completamento
+        if self.missionCompleteWnd:
+            self.missionCompleteWnd.ShowComplete(name, reward, self.theme)
+        
+        # Aggiorna finestra missioni se aperta
+        if self.missionsWnd and self.missionsWnd.IsShow():
+            self.missionsWnd.SetMissionComplete(missionId)
+    
     def OnAllMissionsComplete(self, bonus):
-        """All missions complete callback"""
-        msg = "[ALL MISSIONS COMPLETE] Bonus: %d" % bonus
-        self.ShowSystemMessage(msg, "PURPLE")
-
+        """Notifica tutte le missioni complete - bonus x1.5"""
+        bonus = int(bonus)
+        if self.allMissionsCompleteWnd:
+            self.allMissionsCompleteWnd.ShowBonus(bonus, self.theme)
+    
     def OpenMissionsPanel(self):
-        """Open missions panel"""
-        pass
-
+        """Apre pannello missioni giornaliere"""
+        if self.missionsWnd:
+            self.missionsWnd.Open(self.missionsData, self.theme)
+    
+    # ========================================================================
+    #  EVENTS SCHEDULE SYSTEM
+    # ========================================================================
     def SetEventsCount(self, count):
-        """Set events count"""
-        pass
-
+        """Prepara per ricevere dati eventi"""
+        import dbg
+        dbg.TraceError("SetEventsCount: expecting %s events" % str(count))
+        self.eventsCount = int(count)
+        self.eventsData = []
+    
     def AddEventData(self, eventData):
-        """Add event data"""
-        pass
-
+        """Aggiunge dati di un evento"""
+        # Ora riceve direttamente un dizionario da game.py
+        try:
+            if isinstance(eventData, dict):
+                # Nuovo formato dizionario
+                event = {
+                    "id": eventData.get("id", 0),
+                    "name": eventData.get("name", "Evento"),
+                    "start_time": eventData.get("start_time", "00:00"),
+                    "end_time": eventData.get("end_time", "00:00"),
+                    "type": eventData.get("type", "glory_rush"),
+                    "reward": eventData.get("reward", "+50 Gloria"),
+                    "status": eventData.get("status", "upcoming"),
+                    "desc": eventData.get("desc", ""),
+                    "color": eventData.get("color", "GOLD"),
+                    "min_rank": eventData.get("min_rank", "E")
+                }
+            else:
+                # Fallback vecchio formato stringa
+                parts = eventData.split("|")
+                if len(parts) >= 7:
+                    event = {
+                        "id": int(parts[0]),
+                        "name": parts[1],
+                        "start_time": parts[2],
+                        "end_time": parts[3],
+                        "type": parts[4],
+                        "reward": parts[5],
+                        "status": parts[6],
+                        "desc": parts[7] if len(parts) > 7 else "",
+                        "color": parts[8] if len(parts) > 8 else "GOLD",
+                        "min_rank": parts[9] if len(parts) > 9 else "E"
+                    }
+                else:
+                    return
+                    
+            self.eventsData.append(event)
+            
+            import dbg
+            dbg.TraceError("AddEventData: received event %d/%d: %s" % (len(self.eventsData), self.eventsCount, event.get("name", "?")))
+            
+            # Quando abbiamo tutti i dati, aggiorna UI
+            if len(self.eventsData) >= self.eventsCount:
+                dbg.TraceError("All events received! Total: %d events" % len(self.eventsData))
+                # Aggiorna finestra eventi popup se esiste
+                if self.eventsWnd:
+                    self.eventsWnd.SetEvents(self.eventsData, self.theme)
+                # Se siamo nel tab Eventi (4), refresha il contenuto del terminale
+                if self.currentTab == 4:
+                    self.__ClearContent()
+                    self.__LoadEvents(skipRequest=True)  # Non richiedere di nuovo dal server
+                    self.__SavePositions()
+                    self.__UpdateScroll()
+        except Exception as e:
+            import dbg
+            dbg.TraceError("AddEventData parse error: " + str(eventData) + " - " + str(e))
+    
     def OnEventJoined(self, eventId, name, glory):
-        """Event joined callback"""
-        msg = "[EVENT JOINED] %s" % name
-        self.ShowSystemMessage(msg, "PURPLE")
-
+        """Conferma partecipazione ad evento"""
+        eventId = int(eventId)
+        glory = int(glory)
+        
+        # Aggiorna status locale
+        for e in self.eventsData:
+            if e["id"] == eventId:
+                e["status"] = "joined"
+                break
+        
+        # Mostra conferma
+        if self.systemMsgWnd:
+            self.systemMsgWnd.ShowMessage("Iscritto a: %s (+%d Gloria)" % (name, glory), "GREEN")
+        
+        # Aggiorna finestra eventi
+        if self.eventsWnd and self.eventsWnd.IsShow():
+            self.eventsWnd.SetEventJoined(eventId)
+    
     def OpenEventsPanel(self):
-        """Open events panel"""
+        """Apre pannello eventi programmati"""
+        import dbg
+        dbg.TraceError("OpenEventsPanel called, eventsData count: " + str(len(self.eventsData)))
+        if self.eventsWnd:
+            dbg.TraceError("eventsWnd exists, calling Open")
+            self.eventsWnd.Open(self.eventsData, self.theme)
+        else:
+            dbg.TraceError("eventsWnd is None!")
+    
+    # ========================================================================
+    #  DATA SETTERS
+    # ========================================================================
+    def SetPlayerData(self, d):
+        self.playerData.update(d)
+        self.__UpdateTheme()
+        self.__UpdateHeaderContent()
+        if self.currentTab == 0:
+            self.__ClearContent()
+            self.__LoadStats()
+            self.__SavePositions()
+            self.__UpdateScroll()
+    
+    def SetRankingData(self, rt, d):
+        self.rankingData[rt] = d
+        if rt == "daily":
+            self.rankingData["daily_points"] = d
+        elif rt == "weekly":
+            self.rankingData["weekly_points"] = d
+        elif rt == "total":
+            self.rankingData["total_points"] = d
+    
+    def SetShopItems(self, d):
+        self.shopData = d
+    
+    def SetAchievements(self, d):
+        self.achievementsData = d
+    
+    def SetCalendarEvents(self, d):
+        self.calendarData = d
+    
+    def SetActiveEvent(self, n, desc):
+        self.activeEvent = (n if n else "Nessuno", desc)
+        # Mostra/nasconde il popup evento
+        if self.eventWnd:
+            self.eventWnd.SetEvent(n, desc)
+    
+    def SetTimers(self, ds, ws):
+        try:
+            self.dailyResetSeconds = int(ds)
+            self.weeklyResetSeconds = int(ws)
+        except:
+            pass
+    
+    def SetFractures(self, d):
         pass
+    
+    # ========================================================================
+    #  UPDATE
+    # ========================================================================
+    def OnUpdate(self):
+        if not self.isLoaded or self.isDestroyed:
+            return
+        
+        if self.systemMsgWnd:
+            self.systemMsgWnd.OnUpdate()
+        if self.emergencyWnd:
+            self.emergencyWnd.OnUpdate()
+        if self.rivalWnd:
+            self.rivalWnd.OnUpdate()
+        if self.eventWnd:
+            self.eventWnd.OnUpdate()
+        
+        ct = app.GetTime()
+        dt = ct - self.lastUpdateTime
+        self.lastUpdateTime = ct
+        self.timerUpdateAccum += dt
 
-    # ============================================================
-    # FRACTURE DEFENSE SYSTEM (NEW)
-    # ============================================================
+        # Auto-close timer per finestra missioni
+        if self.autoCloseTimer > 0.0:
+            self.autoCloseTimer -= dt
+            if self.autoCloseTimer <= 0.0:
+                self.autoCloseTimer = 0.0
+                # Chiudi solo se è stata aperta automaticamente e player non ha interagito
+                if self.autoOpenedForMission:
+                    self.Close()
+                    self.autoOpenedForMission = False
 
-    def StartFractureDefense(self, fractureName, duration, color):
-        """
-        Start fracture defense popup with timer
-        @param fractureName: Name of the fracture (e.g., "Frattura E-Rank")
-        @param duration: Defense duration in seconds (e.g., 60)
-        @param color: Color code (e.g., "PURPLE", "BLUE")
-        """
-        if self.fractureDefenseWindow:
-            self.fractureDefenseWindow.Start(fractureName, duration, color)
-            self.fractureDefenseActive = True
-
-    def UpdateFractureDefenseTimer(self, remainingSeconds):
-        """
-        Update fracture defense countdown timer
-        @param remainingSeconds: Seconds remaining
-        """
-        if self.fractureDefenseWindow and self.fractureDefenseActive:
-            self.fractureDefenseWindow.UpdateTimer(remainingSeconds)
-
-    def CompleteFractureDefense(self, success, message):
-        """
-        Complete fracture defense (success or failure)
-        @param success: 1 if successful, 0 if failed
-        @param message: Completion message
-        """
-        if self.fractureDefenseWindow:
-            isSuccess = (success == 1 or success == "1")
-            self.fractureDefenseWindow.Complete(isSuccess, message)
-            self.fractureDefenseActive = False
-
-    # ============================================================
-    # SPEED KILL SYSTEM (NEW)
-    # ============================================================
-
-    def StartSpeedKill(self, mobType, duration, color):
-        """
-        Start speed kill challenge timer
-        @param mobType: Type of mob (e.g., "BOSS", "SUPER METIN")
-        @param duration: Time limit in seconds (e.g., 60 for boss, 300 for metin)
-        @param color: Color code (e.g., "GOLD", "RED")
-        """
-        if self.speedKillWindow:
-            self.speedKillWindow.Start(mobType, duration, color)
-            self.speedKillActive = True
-
-    def UpdateSpeedKillTimer(self, remainingSeconds):
-        """
-        Update speed kill countdown timer
-        @param remainingSeconds: Seconds remaining
-        """
-        if self.speedKillWindow and self.speedKillActive:
-            self.speedKillWindow.UpdateTimer(remainingSeconds)
-
-    def EndSpeedKill(self, isSuccess):
-        """
-        End speed kill challenge
-        @param isSuccess: 1 if completed in time (2x gloria), 0 if failed
-        """
-        if self.speedKillWindow:
-            success = (isSuccess == 1 or isSuccess == "1")
-            self.speedKillWindow.End(success)
-            self.speedKillActive = False
-
-
-# ============================================================
-# FRACTURE DEFENSE POPUP WINDOW
-# ============================================================
-
-class FractureDefensePopup(ui.Window):
-    """
-    Popup window for Fracture Defense quest
-    Shows countdown timer and defense status
-    """
-
-    def __init__(self):
-        ui.Window.__init__(self)
-
-        self.screenWidth = wndMgr.GetScreenWidth()
-        self.screenHeight = wndMgr.GetScreenHeight()
-
-        self.fractureName = ""
-        self.duration = 60
-        self.remaining = 60
-        self.color = 0xFFAA00FF
-
-        self.__BuildUI()
-        self.Hide()
-
-    def __BuildUI(self):
-        """Build popup UI"""
-        # Window size
-        width = 400
-        height = 150
-
-        self.SetSize(width, height)
-        self.SetPosition((self.screenWidth - width) // 2, 100)
-
-        # Background
-        self.bg = ui.Bar()
-        self.bg.SetParent(self)
-        self.bg.SetPosition(0, 0)
-        self.bg.SetSize(width, height)
-        self.bg.SetColor(0xAA000000)
-        self.bg.AddFlag("not_pick")
-        self.bg.Show()
-
-        # Border
-        self.border = ui.Bar()
-        self.border.SetParent(self)
-        self.border.SetPosition(0, 0)
-        self.border.SetSize(width, 2)
-        self.border.SetColor(0xFFAA00FF)
-        self.border.AddFlag("not_pick")
-        self.border.Show()
-
-        # Title
-        self.titleText = ui.TextLine()
-        self.titleText.SetParent(self)
-        self.titleText.SetPosition(width // 2, 15)
-        self.titleText.SetHorizontalAlignCenter()
-        self.titleText.SetText("DEFEND THE FRACTURE!")
-        self.titleText.SetPackedFontColor(0xFFFFFFFF)
-        self.titleText.SetOutline()
-        self.titleText.Show()
-
-        # Fracture name
-        self.nameText = ui.TextLine()
-        self.nameText.SetParent(self)
-        self.nameText.SetPosition(width // 2, 45)
-        self.nameText.SetHorizontalAlignCenter()
-        self.nameText.SetText("")
-        self.nameText.SetPackedFontColor(0xFFFFFFFF)
-        self.nameText.SetOutline()
-        self.nameText.Show()
-
-        # Timer text
-        self.timerText = ui.TextLine()
-        self.timerText.SetParent(self)
-        self.timerText.SetPosition(width // 2, 75)
-        self.timerText.SetHorizontalAlignCenter()
-        self.timerText.SetText("60")
-        self.timerText.SetPackedFontColor(0xFFFFD700)
-        self.timerText.SetOutline()
-        self.timerText.Show()
-
-        # Instructions
-        self.instructionText = ui.TextLine()
-        self.instructionText.SetParent(self)
-        self.instructionText.SetPosition(width // 2, 110)
-        self.instructionText.SetHorizontalAlignCenter()
-        self.instructionText.SetText("Stay near the fracture!")
-        self.instructionText.SetPackedFontColor(0xFFFF6600)
-        self.instructionText.SetOutline()
-        self.instructionText.Show()
-
-    def Start(self, fractureName, duration, colorCode):
-        """Start defense timer"""
-        self.fractureName = fractureName
-        self.duration = duration
-        self.remaining = duration
-
-        # Get color
-        self.color = uihunterlevel_gate_trial.GetColorCode(colorCode)
-        self.border.SetColor(self.color)
-
-        self.nameText.SetText(fractureName)
-        self.timerText.SetText(str(duration))
-
+        if self.timerUpdateAccum >= 1.0:
+            self.timerUpdateAccum = 0.0
+            if self.dailyResetSeconds > 0:
+                self.dailyResetSeconds -= 1
+            if self.weeklyResetSeconds > 0:
+                self.weeklyResetSeconds -= 1
+            self.__UpdateTimers()
+    
+    def __UpdateTimers(self):
+        if hasattr(self, 'dailyTimerLabel') and self.dailyTimerLabel:
+            d = max(0, int(self.dailyResetSeconds))
+            self.dailyTimerLabel.SetText("%02d:%02d:%02d" % (d // 3600, (d % 3600) // 60, d % 60))
+        if hasattr(self, 'weeklyTimerLabel') and self.weeklyTimerLabel:
+            w = max(0, int(self.weeklyResetSeconds))
+            self.weeklyTimerLabel.SetText("%dg %02d:%02d" % (w // 86400, (w % 86400) // 3600, (w % 3600) // 60))
+    
+    def Open(self):
+        if not self.isLoaded:
+            if not self.LoadWindow():
+                return
+        self.__UpdateTheme()
+        self.SetCenterPosition()
+        self.SetTop()
         self.Show()
 
-    def UpdateTimer(self, remainingSeconds):
-        """Update countdown timer"""
-        self.remaining = remainingSeconds
-        self.timerText.SetText(str(max(0, remainingSeconds)))
+        # Se il player apre manualmente mentre c'è un timer auto-close, disabilitalo
+        # Questo evita che la finestra si chiuda se il player vuole tenerla aperta
+        if self.IsShow() and self.autoCloseTimer > 0.0:
+            self.autoOpenedForMission = False
+            self.autoCloseTimer = 0.0
+    
+    def OnPressEscapeKey(self):
+        self.Close()
+        return True
 
-        # Change color if time is running out
-        if remainingSeconds <= 10:
-            self.timerText.SetPackedFontColor(0xFFFF0000)  # Red
-        elif remainingSeconds <= 30:
-            self.timerText.SetPackedFontColor(0xFFFF6600)  # Orange
+# ============================================================================
+#  WINDOW MANAGER
+# ============================================================================
+_wndManager = None
+
+def SetWindowManager(w):
+    global _wndManager
+    _wndManager = proxy(w) if w else None
+
+def GetHunterLevelWindow():
+    global _wndManager
+    try:
+        return _wndManager
+    except:
+        return None
+
+def OpenHunterLevelWindow():
+    w = GetHunterLevelWindow()
+    if w:
+        w.Open()
+
+def CloseHunterLevelWindow():
+    w = GetHunterLevelWindow()
+    if w:
+        w.Close()
+
+def ToggleHunterLevelWindow():
+    w = GetHunterLevelWindow()
+    if w:
+        if w.IsShow():
+            w.Close()
         else:
-            self.timerText.SetPackedFontColor(0xFFFFD700)  # Gold
-
-    def Complete(self, success, message):
-        """Complete defense"""
-        if success:
-            self.titleText.SetText("DEFENSE SUCCESSFUL!")
-            self.titleText.SetPackedFontColor(0xFF00FF00)
-        else:
-            self.titleText.SetText("DEFENSE FAILED!")
-            self.titleText.SetPackedFontColor(0xFFFF0000)
-
-        self.instructionText.SetText(message)
-
-        # Auto-hide after 3 seconds
-        import event
-        event.QueueEvent(lambda: self.Hide(), 3.0)
-
-    def Destroy(self):
-        """Clean up"""
-        self.Hide()
-
-
-# ============================================================
-# SPEED KILL TIMER WINDOW
-# ============================================================
-
-class SpeedKillTimerWindow(ui.Window):
-    """
-    Side timer window for Speed Kill challenges
-    Shows countdown and mob type
-    """
-
-    def __init__(self):
-        ui.Window.__init__(self)
-
-        self.screenWidth = wndMgr.GetScreenWidth()
-        self.screenHeight = wndMgr.GetScreenHeight()
-
-        self.mobType = ""
-        self.duration = 60
-        self.remaining = 60
-        self.color = 0xFFFFD700
-
-        self.__BuildUI()
-        self.Hide()
-
-    def __BuildUI(self):
-        """Build timer UI"""
-        # Window size (side panel)
-        width = 250
-        height = 100
-
-        self.SetSize(width, height)
-        self.SetPosition(self.screenWidth - width - 20, 200)
-
-        # Background
-        self.bg = ui.Bar()
-        self.bg.SetParent(self)
-        self.bg.SetPosition(0, 0)
-        self.bg.SetSize(width, height)
-        self.bg.SetColor(0xAA000000)
-        self.bg.AddFlag("not_pick")
-        self.bg.Show()
-
-        # Border
-        self.border = ui.Bar()
-        self.border.SetParent(self)
-        self.border.SetPosition(0, 0)
-        self.border.SetSize(width, 3)
-        self.border.SetColor(0xFFFFD700)
-        self.border.AddFlag("not_pick")
-        self.border.Show()
-
-        # Title
-        self.titleText = ui.TextLine()
-        self.titleText.SetParent(self)
-        self.titleText.SetPosition(width // 2, 10)
-        self.titleText.SetHorizontalAlignCenter()
-        self.titleText.SetText("SPEED KILL CHALLENGE")
-        self.titleText.SetPackedFontColor(0xFFFFD700)
-        self.titleText.SetOutline()
-        self.titleText.Show()
-
-        # Mob type
-        self.mobText = ui.TextLine()
-        self.mobText.SetParent(self)
-        self.mobText.SetPosition(width // 2, 35)
-        self.mobText.SetHorizontalAlignCenter()
-        self.mobText.SetText("")
-        self.mobText.SetPackedFontColor(0xFFFFFFFF)
-        self.mobText.SetOutline()
-        self.mobText.Show()
-
-        # Timer
-        self.timerText = ui.TextLine()
-        self.timerText.SetParent(self)
-        self.timerText.SetPosition(width // 2, 60)
-        self.timerText.SetHorizontalAlignCenter()
-        self.timerText.SetText("0:00")
-        self.timerText.SetPackedFontColor(0xFFFFD700)
-        self.timerText.SetOutline()
-        self.timerText.Show()
-
-    def Start(self, mobType, duration, colorCode):
-        """Start speed kill timer"""
-        self.mobType = mobType
-        self.duration = duration
-        self.remaining = duration
-
-        # Get color
-        self.color = uihunterlevel_gate_trial.GetColorCode(colorCode)
-        self.border.SetColor(self.color)
-
-        self.mobText.SetText(mobType)
-        self.timerText.SetText(self._FormatTime(duration))
-
-        self.Show()
-
-    def UpdateTimer(self, remainingSeconds):
-        """Update countdown"""
-        self.remaining = remainingSeconds
-        self.timerText.SetText(self._FormatTime(max(0, remainingSeconds)))
-
-        # Change color based on time
-        if remainingSeconds <= 10:
-            self.timerText.SetPackedFontColor(0xFFFF0000)  # Red
-            self.border.SetColor(0xFFFF0000)
-        elif remainingSeconds <= 30:
-            self.timerText.SetPackedFontColor(0xFFFF6600)  # Orange
-            self.border.SetColor(0xFFFF6600)
-        else:
-            self.timerText.SetPackedFontColor(self.color)
-
-    def End(self, success):
-        """End speed kill"""
-        if success:
-            self.titleText.SetText("SPEED KILL SUCCESS!")
-            self.titleText.SetPackedFontColor(0xFF00FF00)
-            self.mobText.SetText("GLORIA x2!")
-        else:
-            self.titleText.SetText("TIME EXPIRED")
-            self.titleText.SetPackedFontColor(0xFFFF0000)
-            self.mobText.SetText("Normal gloria")
-
-        # Auto-hide after 3 seconds
-        import event
-        event.QueueEvent(lambda: self.Hide(), 3.0)
-
-    def _FormatTime(self, seconds):
-        """Format seconds as MM:SS"""
-        minutes = seconds // 60
-        secs = seconds % 60
-        return "%d:%02d" % (minutes, secs)
-
-    def Destroy(self):
-        """Clean up"""
-        self.Hide()
+            w.Open()
