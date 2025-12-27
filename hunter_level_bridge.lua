@@ -1614,10 +1614,6 @@ quest hunter_level_bridge begin
 
         function open_gate(fname, frank, fcolor, pid)
             -- NUOVO SISTEMA: Inizia la Difesa Frattura!
-            -- Salva VID della frattura per purgarla dopo (non subito!)
-            local fracture_vid = npc.get_vid()
-            pc.setqf("hq_defense_fracture_vid", fracture_vid)
-
             -- SECURITY: Valida rank prima di salvarlo
             frank = hunter_level_bridge.validate_rank(frank)
 
@@ -1715,15 +1711,8 @@ quest hunter_level_bridge begin
             local fcolor = pc.getqf("hq_defense_color") or "PURPLE"
             local pid = pc.get_player_id()
 
-            -- Purga la frattura SOLO ADESSO (dopo difesa completata)
-            local fracture_vid = pc.getqf("hq_defense_fracture_vid") or 0
-            if fracture_vid > 0 then
-                d.purge_vid(fracture_vid)
-            end
-
             -- Reset flags difesa
             pc.setqf("hq_defense_active", 0)
-            pc.setqf("hq_defense_fracture_vid", 0)
             cleartimer("hq_defense_timer")
 
             -- Statistiche
@@ -1747,14 +1736,8 @@ quest hunter_level_bridge begin
         function fail_defense(reason)
             local fcolor = pc.getqf("hq_defense_color") or "RED"
 
-            -- Purga la frattura ANCHE in caso di fallimento
-            local fracture_vid = pc.getqf("hq_defense_fracture_vid") or 0
-            if fracture_vid > 0 then
-                d.purge_vid(fracture_vid)
-            end
-
+            -- Reset flags
             pc.setqf("hq_defense_active", 0)
-            pc.setqf("hq_defense_fracture_vid", 0)
             cleartimer("hq_defense_timer")
 
             local msg = hunter_level_bridge.get_text("defense_failed") or ("DIFESA FALLITA: " .. reason)
@@ -1945,7 +1928,6 @@ quest hunter_level_bridge begin
             -- CLEANUP: Se player riconnette durante difesa attiva, pulisci stato
             if pc.getqf("hq_defense_active") == 1 then
                 pc.setqf("hq_defense_active", 0)
-                pc.setqf("hq_defense_fracture_vid", 0)
                 pc.setqf("hq_defense_x", 0)
                 pc.setqf("hq_defense_y", 0)
                 cleartimer("hq_defense_timer")
