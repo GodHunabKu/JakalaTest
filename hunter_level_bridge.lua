@@ -1381,8 +1381,24 @@ quest hunter_level_bridge begin
         end
 
         function trigger_random_emergency()
+            -- SAFETY CHECK: Non spawnare emergency se già in corso altre attività critiche
+            if pc.getqf("hq_defense_active") == 1 then
+                -- Difesa frattura in corso - NON spawnare emergency (conflitto popup)
+                return
+            end
+
+            if pc.getqf("hq_emerg_active") == 1 then
+                -- Emergency già attiva - NON spawnare altra emergency
+                return
+            end
+
+            if pc.getqf("hq_speedkill_active") == 1 then
+                -- Speed kill in corso - NON spawnare emergency (lascia focus sul boss)
+                return
+            end
+
             local lv = pc.get_level()
-            
+
             local q = "SELECT id, name, duration_seconds, target_count, target_vnum, reward_points, reward_item_vnum, reward_item_count, difficulty FROM srv1_hunabku.hunter_quest_emergencies WHERE enabled = 1 AND min_level <= " .. lv .. " AND max_level >= " .. lv .. " ORDER BY RAND() LIMIT 1"
             
             local c, d = mysql_direct_query(q)
@@ -1650,6 +1666,17 @@ quest hunter_level_bridge begin
         end
 
         function open_gate(fname, frank, fcolor, pid)
+            -- SAFETY CHECK: Blocca apertura frattura se emergency attiva
+            if pc.getqf("hq_emerg_active") == 1 then
+                syschat("|cffFF0000[CONFLITTO]|r Completa prima l'Emergency Quest in corso!")
+                return
+            end
+
+            if pc.getqf("hq_defense_active") == 1 then
+                syschat("|cffFF0000[CONFLITTO]|r Stai già difendendo un'altra frattura!")
+                return
+            end
+
             -- NUOVO SISTEMA: Inizia la Difesa Frattura!
             -- SECURITY: Valida rank prima di salvarlo
             frank = hunter_level_bridge.validate_rank(frank)
