@@ -1,1 +1,0 @@
-{"id":"17636878122749","login":"onetest2","vnum":"519","count":"1","item_name":"Spada Drago Osc [ET]","given_time":"2025-11-21 01:16:52","taken_time":null,"why":"Acquisto Shop"}
