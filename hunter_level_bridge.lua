@@ -280,12 +280,24 @@ quest hunter_level_bridge begin
         function get_rank_bonus(points)
             local q = "SELECT bonus_gloria FROM srv1_hunabku.hunter_ranks WHERE min_points <= " .. points .. " ORDER BY min_points DESC LIMIT 1"
             local c, d = mysql_direct_query(q)
-            if c > 0 and d[1] then 
-                return tonumber(d[1].bonus_gloria) or 0 
+            if c > 0 and d[1] then
+                return tonumber(d[1].bonus_gloria) or 0
             end
             return 0
         end
-        
+
+        -- Controlla se il giocatore ha una trial in progress (prova d'esame)
+        -- Se sÃ¬, ritorna 0.5 (50% gloria), altrimenti 1.0 (100% gloria)
+        function get_trial_gloria_multiplier()
+            local pid = pc.get_player_id()
+            local q = "SELECT COUNT(*) as cnt FROM srv1_hunabku.hunter_player_trials WHERE player_id=" .. pid .. " AND status='in_progress' LIMIT 1"
+            local c, d = mysql_direct_query(q)
+            if c > 0 and d[1] and tonumber(d[1].cnt) > 0 then
+                return 0.5  -- 50% gloria durante la trial
+            end
+            return 1.0  -- 100% gloria normale
+        end
+
         -- Legge il messaggio streak dalla tabella hunter_login_messages
         function get_streak_message(day_number)
             -- Prima cerca il messaggio esatto per quel giorno
@@ -1200,17 +1212,26 @@ quest hunter_level_bridge begin
             
             -- *** EVENTO BONUS (NUOVA TABELLA) ***
             local evt_name, evt_mult, evt_type = hunter_level_bridge.get_active_event()
-            if evt_type == "points" then 
+            if evt_type == "points" then
                 base_pts = math.floor(base_pts * evt_mult)
                 syschat("|cffFFD700[EVENTO ATTIVO]|r Gloria x" .. evt_mult .. "!")
             end
-            
+
+            -- *** RIDUZIONE GLORIA DURANTE TRIAL (PROVA D'ESAME) ***
+            local trial_mult = hunter_level_bridge.get_trial_gloria_multiplier()
+            if trial_mult < 1.0 then
+                local original_pts = base_pts
+                base_pts = math.floor(base_pts * trial_mult)
+                local reduced = original_pts - base_pts
+                syschat("|cffFF6600[PROVA D'ESAME]|r -" .. reduced .. " Gloria (-50% fino a completamento prova)")
+            end
+
             hunter_level_bridge.check_overtake(pid, pname, "daily_points", base_pts, "GIORNALIERA")
             hunter_level_bridge.check_overtake(pid, pname, "weekly_points", base_pts, "SETTIMANALE")
-            
+
             -- Salva punti prima dell'update per check rank up
             local old_total_pts = pc.getqf("hq_total_points") or 0
-            
+
             mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET total_points=total_points+" .. base_pts .. ", spendable_points=spendable_points+" .. base_pts .. ", daily_points=daily_points+" .. base_pts .. ", weekly_points=weekly_points+" .. base_pts .. ", total_kills=total_kills+1, daily_kills=daily_kills+1, weekly_kills=weekly_kills+1 WHERE player_id=" .. pid)
             
             pc.setqf("hq_total_kills", (pc.getqf("hq_total_kills") or 0) + 1)
@@ -2233,23 +2254,23 @@ quest hunter_level_bridge begin
             local tc, td = mysql_direct_query(today_query)
             local today = td[1].today
             
-            -- Anti-loop: controlla se abbiamo già provato ad assegnare oggi
+            -- Anti-loop: controlla se abbiamo giï¿½ provato ad assegnare oggi
             local last_assign_day = pc.getqf("hq_last_assign_day") or 0
             local current_day = tonumber(os.date("%j")) or 0  -- Giorno dell'anno (1-366)
             
             if last_assign_day == current_day then
-                -- Già provato oggi, controlla solo se esistono
+                -- Giï¿½ provato oggi, controlla solo se esistono
                 local c, d = mysql_direct_query("SELECT COUNT(*) as cnt FROM srv1_hunabku.hunter_player_missions WHERE player_id=" .. pid .. " AND assigned_date='" .. today .. "' AND status='active'")
                 if c > 0 and tonumber(d[1].cnt) >= 3 then
-                    return false -- Già assegnate
+                    return false -- Giï¿½ assegnate
                 end
             end
             
-            -- Controlla se ha già 3 missioni ACTIVE oggi
+            -- Controlla se ha giï¿½ 3 missioni ACTIVE oggi
             local c, d = mysql_direct_query("SELECT COUNT(*) as cnt FROM srv1_hunabku.hunter_player_missions WHERE player_id=" .. pid .. " AND assigned_date='" .. today .. "' AND status='active'")
             if c > 0 and tonumber(d[1].cnt) >= 3 then
                 pc.setqf("hq_last_assign_day", current_day)
-                return false -- Già assegnate
+                return false -- Giï¿½ assegnate
             end
             
             -- Marca che abbiamo provato ad assegnare oggi
@@ -2425,7 +2446,7 @@ quest hunter_level_bridge begin
         end
         
         -- Hook: Quando uccidi un mob/boss/metin
-        -- Chiama TUTTI i tipi di missione - la query filtrerà per target_vnum
+        -- Chiama TUTTI i tipi di missione - la query filtrerï¿½ per target_vnum
         function on_mob_kill(mob_vnum)
             -- Aggiorna missioni kill_mob (mob normali)
             hunter_level_bridge.update_mission_progress("kill_mob", 1, mob_vnum)

@@ -131,7 +131,7 @@ quest hunter_gate_trial begin
             
             -- Query con gestione errori
             local q = "SELECT ga.access_id, ga.gate_id, gc.gate_name, gc.color_code, "
-            q = q .. "gc.dungeon_index, gc.duration_minutes, gc.gloria_reward, gc.gloria_penalty, "
+            q = q .. "gc.dungeon_index, gc.boss_vnum, gc.duration_minutes, gc.gloria_reward, gc.gloria_penalty, "
             q = q .. "TIMESTAMPDIFF(SECOND, NOW(), ga.expires_at) as remaining_seconds "
             q = q .. "FROM " .. db .. ".hunter_gate_access ga "
             q = q .. "JOIN " .. db .. ".hunter_gate_config gc ON ga.gate_id = gc.gate_id "
@@ -157,6 +157,7 @@ quest hunter_gate_trial begin
                     gate_name = d[1].gate_name or "Gate Sconosciuto",
                     color_code = d[1].color_code or "RED",
                     dungeon_index = tonumber(d[1].dungeon_index) or 1,
+                    boss_vnum = tonumber(d[1].boss_vnum) or 0,
                     duration_minutes = tonumber(d[1].duration_minutes) or 30,
                     gloria_reward = tonumber(d[1].gloria_reward) or 500,
                     gloria_penalty = tonumber(d[1].gloria_penalty) or 250,
@@ -305,6 +306,7 @@ quest hunter_gate_trial begin
                     pc.setqf("hgt_in_gate", 1)
                     pc.setqf("hgt_gate_id", access.gate_id)
                     pc.setqf("hgt_access_id", access.access_id)
+                    pc.setqf("hgt_gate_boss_vnum", access.boss_vnum)
                     pc.setqf("hgt_gate_start", get_time())
                     pc.setqf("hgt_gate_duration", access.duration_minutes * 60)
                     pc.setqf("hgt_gloria_reward", access.gloria_reward)
@@ -328,7 +330,7 @@ quest hunter_gate_trial begin
                 say("")
                 say("Tempo rimasto: " .. hunter_gate_trial.format_time(access.remaining_seconds))
             elseif sel == 3 then
-                cmdchat("HunterGateTrialOpen")
+                hunter_gate_trial.open_gate_trial_window()
             end
         end
         
@@ -752,7 +754,7 @@ quest hunter_gate_trial begin
         
         function send_trial_status()
             local progress = hunter_gate_trial.get_trial_progress()
-            
+
             if progress then
                 local remaining = progress.remaining_seconds or -1
                 local pkt = progress.trial_id .. "|" ..
@@ -770,7 +772,13 @@ quest hunter_gate_trial begin
                 cmdchat("HunterTrialStatus 0|NONE|E|NONE|-1|0|0|0|0|0|0|0|0|0|0")
             end
         end
-        
+
+        function open_gate_trial_window()
+            hunter_gate_trial.send_gate_status()
+            hunter_gate_trial.send_trial_status()
+            cmdchat("HunterGateTrialOpen")
+        end
+
         function trial_master_interaction()
             if pc.is_gm() then
                 say_title("GM MENU Maestro Prove")
@@ -844,8 +852,7 @@ quest hunter_gate_trial begin
                 end
                 local sel = select("Mostra Progresso UI", "Annulla Prova", "Apri Finestra Hunter", "Chiudi")
                 if sel == 1 then
-                    hunter_gate_trial.send_trial_status()
-                    cmdchat("HunterGateTrialOpen")
+                    hunter_gate_trial.open_gate_trial_window()
                 elseif sel == 2 then
                     say_title("ATTENZIONE")
                     say("")
@@ -862,7 +869,7 @@ quest hunter_gate_trial begin
                         hunter_gate_trial.send_trial_status()
                     end
                 elseif sel == 3 then
-                    cmdchat("HunterGateTrialOpen")
+                    hunter_gate_trial.open_gate_trial_window()
                 end
                 return
             end
@@ -916,11 +923,11 @@ quest hunter_gate_trial begin
             
             say("")
             local sel = select("Inizia la Prova!", "Non sono pronto", "Apri Finestra Hunter")
-            
+
             if sel == 1 then
                 hunter_gate_trial.start_trial()
             elseif sel == 3 then
-                cmdchat("HunterGateTrialOpen")
+                hunter_gate_trial.open_gate_trial_window()
             end
         end
         
@@ -963,8 +970,31 @@ quest hunter_gate_trial begin
         end
         
         when kill begin
+            local vnum = npc.get_race()
+
+            -- CHECK GATE BOSS KILL (AUTO-COMPLETE)
+            local in_gate = pc.getqf("hgt_in_gate") or 0
+            if in_gate == 1 then
+                local gate_boss_vnum = pc.getqf("hgt_gate_boss_vnum") or 0
+                if gate_boss_vnum > 0 and vnum == gate_boss_vnum then
+                    local start_time = pc.getqf("hgt_gate_start") or 0
+                    local duration = pc.getqf("hgt_gate_duration") or 1800
+                    local elapsed = get_time() - start_time
+
+                    if elapsed <= duration then
+                        hunter_gate_trial.speak_color("BOSS DEL GATE UCCISO!", "GOLD")
+                        hunter_gate_trial.complete_gate(true)
+                        return
+                    else
+                        hunter_gate_trial.speak_color("TEMPO SCADUTO! Il gate era gia fallito.", "RED")
+                        hunter_gate_trial.complete_gate(false)
+                        return
+                    end
+                end
+            end
+
+            -- CHECK TRIAL PROGRESS
             if pc.getqf("hgt_trial_active") == 1 then
-                local vnum = npc.get_race()
                 local boss_list = {
                     [4035] = true, [719] = true, [2771] = true, [768] = true,
                     [6790] = true, [6831] = true, [986] = true, [989] = true,
@@ -974,7 +1004,7 @@ quest hunter_gate_trial begin
                     [4700] = true, [4701] = true, [4702] = true, [4703] = true,
                     [4704] = true, [4705] = true, [4706] = true, [4707] = true, [4708] = true,
                 }
-                
+
                 if boss_list[vnum] then
                     hunter_gate_trial.update_trial_progress("boss_kill", vnum, 1)
                 end
