@@ -1159,16 +1159,19 @@ quest hunter_level_bridge begin
         
         when kill with not npc.is_pc() and pc.get_level() >= 5 begin
             local vnum = npc.get_race()
-            
+
             hunter_level_bridge.on_emergency_kill(vnum)
-            
+
+            -- FRACTURE DEFENSE: Traccia mob killati durante difesa
+            hunter_level_bridge.on_defense_mob_kill()
+
             -- MISSION HOOK: Mob ucciso (sempre, per qualsiasi tipo)
             hunter_level_bridge.on_mob_kill(vnum)
 
-            if hunter_level_bridge.is_elite_mob(vnum) then 
+            if hunter_level_bridge.is_elite_mob(vnum) then
                 hunter_level_bridge.process_elite_kill(vnum)
-            else 
-                hunter_level_bridge.process_normal_kill() 
+            else
+                hunter_level_bridge.process_normal_kill()
             end
         end
         
@@ -1180,11 +1183,54 @@ quest hunter_level_bridge begin
                     local required = pc.getqf("hq_emerg_req")
                     pc.setqf("hq_emerg_cur", current)
                     hunter_level_bridge.update_emergency(current)
-                    
+
                     if current >= required then
                         hunter_level_bridge.end_emergency("SUCCESS")
                     end
                 end
+            end
+        end
+
+        -- FRACTURE DEFENSE: Gestisce kill mob durante difesa
+        function on_defense_mob_kill()
+            -- Solo se difesa attiva
+            if pc.getqf("hq_defense_active") ~= 1 then
+                return
+            end
+
+            -- Check posizione: solo mob vicini alla frattura contano
+            local fx = pc.getqf("hq_defense_x") or 0
+            local fy = pc.getqf("hq_defense_y") or 0
+            local mx, my = npc.get_x(), npc.get_y()
+            local dx = mx - fx
+            local dy = my - fy
+            local dist = math.sqrt(dx * dx + dy * dy)
+
+            -- Se il mob è lontano dalla frattura, non conta
+            local max_dist = 15  -- Raggio ondate
+            if dist > max_dist then
+                return
+            end
+
+            -- Incrementa contatore mob killati
+            local killed = pc.getqf("hq_defense_mob_killed") or 0
+            killed = killed + 1
+            pc.setqf("hq_defense_mob_killed", killed)
+
+            local total = pc.getqf("hq_defense_mob_total") or 0
+
+            -- Check se tutti i mob sono stati killati
+            if killed >= total and total > 0 then
+                -- Verifica che il tempo sia ancora valido (< 60s)
+                local start_time = pc.getqf("hq_defense_start") or 0
+                local elapsed = get_time() - start_time
+                local duration = hunter_level_bridge.get_defense_config("defense_duration", 60)
+
+                if elapsed < duration then
+                    -- SUCCESS! Tutti i mob killati entro il tempo
+                    hunter_level_bridge.complete_defense_success()
+                end
+                -- Se elapsed >= duration, il timer lo gestisce (fallimento)
             end
         end
 
@@ -1629,6 +1675,10 @@ quest hunter_level_bridge begin
             pc.setqf("hq_defense_wave", 0)
             pc.setqf("hq_defense_last_check", get_time())
 
+            -- SISTEMA IBRIDO: Contatori mob (deve killare tutti entro 60s)
+            pc.setqf("hq_defense_mob_total", 0)
+            pc.setqf("hq_defense_mob_killed", 0)
+
             -- Invia messaggio inizio difesa
             local msg = hunter_level_bridge.get_text("defense_start") or "DIFENDI LA FRATTURA! Rimani vicino per 60 secondi!"
             hunter_level_bridge.hunter_speak_color(msg, fcolor)
@@ -1681,6 +1731,9 @@ quest hunter_level_bridge begin
                 local fx = pc.getqf("hq_defense_x") or 0
                 local fy = pc.getqf("hq_defense_y") or 0
 
+                -- Conta mob totali da spawnare
+                local total_spawned = 0
+
                 for i = 1, c do
                     local vnum = tonumber(d[i].mob_vnum)
                     local count = tonumber(d[i].mob_count)
@@ -1692,8 +1745,13 @@ quest hunter_level_bridge begin
                         local sx = fx + math.floor(math.cos(rad) * radius)
                         local sy = fy + math.floor(math.sin(rad) * radius)
                         mob.spawn(vnum, sx, sy, 1)
+                        total_spawned = total_spawned + 1
                     end
                 end
+
+                -- Aggiorna contatore totale mob
+                local current_total = pc.getqf("hq_defense_mob_total") or 0
+                pc.setqf("hq_defense_mob_total", current_total + total_spawned)
 
                 local msg = hunter_level_bridge.get_text("defense_wave_spawn", {WAVE = wave_num}) or ("ONDATA " .. wave_num .. "! DIFENDITI!")
                 local fcolor = pc.getqf("hq_defense_color") or "RED"
@@ -1916,9 +1974,20 @@ quest hunter_level_bridge begin
                 end
             end
 
-            -- Check completamento
+            -- Check completamento/timeout (SISTEMA IBRIDO)
             if elapsed >= duration then
-                hunter_level_bridge.complete_defense_success()
+                -- Verifica se ha killato tutti i mob entro 60s
+                local killed = pc.getqf("hq_defense_mob_killed") or 0
+                local total = pc.getqf("hq_defense_mob_total") or 0
+
+                if killed >= total and total > 0 then
+                    -- SUCCESS! Tutti i mob killati entro il tempo
+                    hunter_level_bridge.complete_defense_success()
+                else
+                    -- TIMEOUT! Non ha killato tutti i mob entro 60s
+                    local remaining_mobs = total - killed
+                    hunter_level_bridge.fail_defense("TEMPO SCADUTO! Mob rimasti: " .. remaining_mobs)
+                end
             end
         end
 
@@ -1930,6 +1999,8 @@ quest hunter_level_bridge begin
                 pc.setqf("hq_defense_active", 0)
                 pc.setqf("hq_defense_x", 0)
                 pc.setqf("hq_defense_y", 0)
+                pc.setqf("hq_defense_mob_total", 0)
+                pc.setqf("hq_defense_mob_killed", 0)
                 cleartimer("hq_defense_timer")
             end
 
