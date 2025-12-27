@@ -1198,21 +1198,12 @@ quest hunter_level_bridge begin
                 return
             end
 
-            -- Check posizione: solo mob vicini alla frattura contano
-            local fx = pc.getqf("hq_defense_x") or 0
-            local fy = pc.getqf("hq_defense_y") or 0
-            local mx, my = npc.get_x(), npc.get_y()
-            local dx = mx - fx
-            local dy = my - fy
-            local dist = math.sqrt(dx * dx + dy * dy)
-
-            -- Se il mob è lontano dalla frattura, non conta
-            local max_dist = 15  -- Raggio ondate
-            if dist > max_dist then
-                return
-            end
-
             -- Incrementa contatore mob killati
+            -- NOTA: Non controlliamo la distanza qui perché:
+            -- 1. In "when kill" context, npc.get_x() non funziona (NPC già morto)
+            -- 2. Il player deve comunque stare vicino alla frattura (controllato dal timer)
+            -- 3. La difesa è limitata a 60 secondi
+            -- 4. È improbabile che il player uccida altri mob durante la difesa
             local killed = pc.getqf("hq_defense_mob_killed") or 0
             killed = killed + 1
             pc.setqf("hq_defense_mob_killed", killed)
