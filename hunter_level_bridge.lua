@@ -1187,15 +1187,30 @@ quest hunter_level_bridge begin
             local pname = pc.get_name()
             local base_pts = mob_info.base_points
             
-            local spawn_time = pc.getqf("hq_elite_spawn_time") or 0
-            local elapsed = get_time() - spawn_time
-            -- Speed Kill: tempo massimo configurabile da DB
-            local speedkill_metin = hunter_level_bridge.get_config("speedkill_metin_seconds") or 300
-            local speedkill_boss = hunter_level_bridge.get_config("speedkill_boss_seconds") or 60
-            local time_limit = speedkill_boss
-            if mob_info.type_name == "SUPER_METIN" then time_limit = speedkill_metin end
-            if elapsed > 0 and elapsed <= time_limit then 
-                base_pts = base_pts * 2 
+            -- *** SPEED KILL BONUS (NUOVO SISTEMA) ***
+            -- Check se è attiva una sfida speed kill per questo mob
+            local speedkill_active = pc.getqf("hq_speedkill_active") or 0
+            local speedkill_vnum = pc.getqf("hq_speedkill_vnum") or 0
+
+            if speedkill_active == 1 and speedkill_vnum == vnum then
+                local start_time = pc.getqf("hq_speedkill_start") or 0
+                local duration = pc.getqf("hq_speedkill_duration") or 300
+                local elapsed = get_time() - start_time
+
+                if elapsed <= duration then
+                    -- SUCCESSO! x2 Gloria
+                    base_pts = base_pts * 2
+                    pc.setqf("hq_speedkill_active", 0)
+                    cleartimer("hq_speedkill_timer")
+                    cmdchat("HunterSpeedKillEnd 1")  -- 1 = successo
+                    local msg = hunter_level_bridge.get_text("speedkill_success") or "SPEED KILL! GLORIA x2!"
+                    hunter_level_bridge.hunter_speak_color(msg, "GOLD")
+                else
+                    -- Tempo scaduto
+                    pc.setqf("hq_speedkill_active", 0)
+                    cleartimer("hq_speedkill_timer")
+                    cmdchat("HunterSpeedKillEnd 0")
+                end
             end
             
             local streak_bonus = pc.getqf("hq_streak_bonus") or 0
@@ -1589,18 +1604,126 @@ quest hunter_level_bridge begin
         end
 
         function open_gate(fname, frank, fcolor, pid)
+            -- NUOVO SISTEMA: Inizia la Difesa Frattura!
             npc.purge()
+
+            -- Salva posizione frattura
+            local fx, fy = pc.get_local_x(), pc.get_local_y()
+            pc.setqf("hq_defense_x", fx)
+            pc.setqf("hq_defense_y", fy)
+            pc.setqf("hq_defense_active", 1)
+            pc.setqf("hq_defense_start", get_time())
+            pc.setqf("hq_defense_rank", frank)
+            pc.setqf("hq_defense_color", fcolor)
+            pc.setqf("hq_defense_fname", fname)
+            pc.setqf("hq_defense_wave", 0)
+            pc.setqf("hq_defense_last_check", get_time())
+
+            -- Invia messaggio inizio difesa
+            local msg = hunter_level_bridge.get_text("defense_start") or "DIFENDI LA FRATTURA! Rimani vicino per 60 secondi!"
+            hunter_level_bridge.hunter_speak_color(msg, fcolor)
+            cmdchat("HunterFractureDefenseStart " .. fname .. "|60|" .. fcolor)
+
+            -- Avvia timer difesa
+            cleartimer("hq_defense_timer")
+            loop_timer("hq_defense_timer", 1)
+        end
+        
+        -- ============================================================
+        -- FRACTURE DEFENSE SYSTEM - Funzioni di gestione
+        -- ============================================================
+
+        function get_defense_config(key, default_val)
+            local q = "SELECT config_value FROM srv1_hunabku.hunter_fracture_defense_config WHERE config_key='" .. key .. "'"
+            local c, d = mysql_direct_query(q)
+            if c > 0 and d[1] then
+                return tonumber(d[1].config_value) or default_val
+            end
+            return default_val
+        end
+
+        function check_defense_distance()
+            local fx = pc.getqf("hq_defense_x") or 0
+            local fy = pc.getqf("hq_defense_y") or 0
+            if fx == 0 and fy == 0 then return false end
+
+            local px, py = pc.get_local_x(), pc.get_local_y()
+            local dx = px - fx
+            local dy = py - fy
+            local dist = math.sqrt(dx * dx + dy * dy)
+
+            local max_dist = hunter_level_bridge.get_defense_config("check_distance", 10)
+            return dist <= max_dist
+        end
+
+        function spawn_defense_wave(wave_num, rank_grade)
+            local q = "SELECT mob_vnum, mob_count, spawn_radius FROM srv1_hunabku.hunter_fracture_defense_waves "
+            q = q .. "WHERE rank_grade='" .. rank_grade .. "' AND wave_number=" .. wave_num .. " AND enabled=1"
+            local c, d = mysql_direct_query(q)
+
+            if c == 0 then return end
+
+            local fx = pc.getqf("hq_defense_x") or 0
+            local fy = pc.getqf("hq_defense_y") or 0
+
+            for i = 1, c do
+                local vnum = tonumber(d[i].mob_vnum)
+                local count = tonumber(d[i].mob_count)
+                local radius = tonumber(d[i].spawn_radius) or 7
+
+                for j = 1, count do
+                    local angle = (360 / count) * j
+                    local rad = math.rad(angle)
+                    local sx = fx + math.floor(math.cos(rad) * radius)
+                    local sy = fy + math.floor(math.sin(rad) * radius)
+                    mob.spawn(vnum, sx, sy, 1)
+                end
+            end
+
+            local msg = hunter_level_bridge.get_text("defense_wave_spawn", {WAVE = wave_num}) or ("ONDATA " .. wave_num .. "! DIFENDITI!")
+            local fcolor = pc.getqf("hq_defense_color") or "RED"
+            hunter_level_bridge.hunter_speak_color(msg, fcolor)
+        end
+
+        function complete_defense_success()
+            local fname = pc.getqf("hq_defense_fname") or "Frattura"
+            local frank = pc.getqf("hq_defense_rank") or "E"
+            local fcolor = pc.getqf("hq_defense_color") or "PURPLE"
+            local pid = pc.get_player_id()
+
+            -- Reset flags difesa
+            pc.setqf("hq_defense_active", 0)
+            cleartimer("hq_defense_timer")
+
+            -- Statistiche
             hunter_level_bridge.check_overtake(pid, pc.get_name(), "total_fractures", 1, "ESPLORATORI")
             mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET total_fractures = total_fractures + 1 WHERE player_id=" .. pid)
             pc.setqf("hq_elite_spawn_time", get_time())
             pc.setqf("hq_pending_elite", (pc.getqf("hq_pending_elite") or 0) + 1)
-            
-            -- MISSION HOOK: Frattura sigillata
+
+            -- MISSION HOOK
             hunter_level_bridge.on_fracture_seal()
-            
+
+            -- Messaggio successo
+            local msg = hunter_level_bridge.get_text("defense_success") or "DIFESA COMPLETATA! La frattura si apre..."
+            hunter_level_bridge.hunter_speak_color(msg, fcolor)
+            cmdchat("HunterFractureDefenseComplete 1|" .. fname)
+
+            -- Spawna il premio finale
             hunter_level_bridge.spawn_gate_mob_and_alert(frank, fcolor)
         end
-        
+
+        function fail_defense(reason)
+            local fcolor = pc.getqf("hq_defense_color") or "RED"
+
+            pc.setqf("hq_defense_active", 0)
+            cleartimer("hq_defense_timer")
+
+            local msg = hunter_level_bridge.get_text("defense_failed") or ("DIFESA FALLITA: " .. reason)
+            hunter_level_bridge.hunter_speak_color(msg, "RED")
+            cmdchat("HunterFractureDefenseComplete 0|" .. reason)
+        end
+
         function spawn_gate_mob_and_alert(rank_label, fcolor)
             local c, d = mysql_direct_query("SELECT type_name, probability FROM srv1_hunabku.hunter_quest_spawn_types WHERE enabled=1")
             if c == 0 then return end
@@ -1625,22 +1748,49 @@ quest hunter_level_bridge begin
             if mc > 0 and md[1] then
                 local x, y = pc.get_local_x(), pc.get_local_y()
                 mob.spawn(tonumber(md[1].vnum), x + 5, y + 5, 1)
-                
+
                 -- IBRIDO: Boss/Metin usano il loro colore, Bauli usano colore frattura
                 local mob_color = md[1].rank_color or "PURPLE"
-                
-                if sel_type == "BAULE" then 
+
+                if sel_type == "BAULE" then
                     -- Bauli: usa il colore della frattura (tematico)
                     local msg = hunter_level_bridge.get_text("spawn_chest_detected") or "BAULE DEL TESORO RILEVATO!"
                     hunter_level_bridge.hunter_speak_color(msg, fcolor or "GOLD")
                 else
-                    -- Boss/Metin: usa il colore del mob stesso (basato sulla sua difficolt )
+                    -- Boss/Metin: usa il colore del mob stesso (basato sulla sua difficoltà)
                     local msg = hunter_level_bridge.get_text("spawn_boss_appeared", {NAME = md[1].name}) or ("PERICOLO: " .. md[1].name .. " E' APPARSO!")
                     hunter_level_bridge.hunter_speak_color(msg, mob_color)
-                    
-                    -- *** NUOVO: ALERT BOSS A SCHERMO INTERO (Solo Leveling Style) ***
+
+                    -- *** ALERT BOSS A SCHERMO INTERO (Solo Leveling Style) ***
                     if sel_type == "BOSS" or sel_type == "METIN" then
                         cmdchat("HunterBossAlert " .. string.gsub(md[1].name, " ", "+"))
+                    end
+
+                    -- *** NUOVO: TIMER SPEED KILL (x2 GLORIA SE SOLO) ***
+                    if not party.is_party() then
+                        local speed_time = 300  -- 5 minuti di default
+                        if sel_type == "BOSS" then
+                            speed_time = hunter_level_bridge.get_config("speedkill_boss_seconds") or 60
+                        elseif sel_type == "METIN" then
+                            speed_time = hunter_level_bridge.get_config("speedkill_metin_seconds") or 300
+                        end
+
+                        -- Salva timer speed kill
+                        pc.setqf("hq_speedkill_active", 1)
+                        pc.setqf("hq_speedkill_start", get_time())
+                        pc.setqf("hq_speedkill_duration", speed_time)
+                        pc.setqf("hq_speedkill_vnum", tonumber(md[1].vnum))
+
+                        -- Mostra timer UI
+                        local timer_msg = sel_type == "BOSS" and "BOSS" or "SUPER METIN"
+                        cmdchat("HunterSpeedKillStart " .. timer_msg .. "|" .. speed_time .. "|" .. mob_color)
+
+                        local sk_msg = hunter_level_bridge.get_text("speedkill_challenge") or ("SFIDA SPEED KILL! Uccidi in " .. speed_time .. " secondi per GLORIA x2!")
+                        hunter_level_bridge.hunter_speak_color(sk_msg, "GOLD")
+
+                        -- Avvia timer speed kill
+                        cleartimer("hq_speedkill_timer")
+                        loop_timer("hq_speedkill_timer", 1)
                     end
                     
                     local pname = pc.get_name()
@@ -1655,8 +1805,102 @@ quest hunter_level_bridge begin
         -- ============================================================
         -- 6. INTERFACE & DATA SENDING
         -- ============================================================
-        
-        when letter begin 
+
+        -- Timer Speed Kill (Boss/Metin solo player)
+        when hq_speedkill_timer.timer begin
+            if pc.getqf("hq_speedkill_active") ~= 1 then
+                cleartimer("hq_speedkill_timer")
+                return
+            end
+
+            local start_time = pc.getqf("hq_speedkill_start") or 0
+            local duration = pc.getqf("hq_speedkill_duration") or 300
+            local elapsed = get_time() - start_time
+            local remaining = duration - elapsed
+
+            -- Aggiorna UI
+            cmdchat("HunterSpeedKillTimer " .. math.max(0, remaining))
+
+            -- Se scade il tempo, termina sfida (nessuna penalità, solo niente bonus)
+            if remaining <= 0 then
+                pc.setqf("hq_speedkill_active", 0)
+                cleartimer("hq_speedkill_timer")
+                cmdchat("HunterSpeedKillEnd 0")  -- 0 = fallita
+                local msg = hunter_level_bridge.get_text("speedkill_failed") or "TEMPO SCADUTO! Nessun bonus x2."
+                hunter_level_bridge.hunter_speak_color(msg, "ORANGE")
+            end
+        end
+
+        -- Timer difesa frattura
+        when hq_defense_timer.timer begin
+            if pc.getqf("hq_defense_active") ~= 1 then
+                cleartimer("hq_defense_timer")
+                return
+            end
+
+            local start_time = pc.getqf("hq_defense_start") or 0
+            local elapsed = get_time() - start_time
+            local duration = hunter_level_bridge.get_defense_config("defense_duration", 60)
+            local remaining = duration - elapsed
+
+            -- Aggiorna UI con tempo rimanente
+            cmdchat("HunterFractureDefenseTimer " .. math.max(0, remaining))
+
+            -- Check distanza ogni 2 secondi
+            local last_check = pc.getqf("hq_defense_last_check") or 0
+            local check_interval = hunter_level_bridge.get_defense_config("check_interval", 2)
+
+            if get_time() - last_check >= check_interval then
+                pc.setqf("hq_defense_last_check", get_time())
+
+                -- Check se il player è vicino
+                if not hunter_level_bridge.check_defense_distance() then
+                    hunter_level_bridge.fail_defense("Ti sei allontanato!")
+                    return
+                end
+
+                -- Se party, check tutti i membri
+                if party.is_party() then
+                    local party_req = hunter_level_bridge.get_defense_config("party_all_required", 1)
+                    if party_req == 1 then
+                        local total = party.get_member_count()
+                        local near = party.get_near_count()
+                        if near < total then
+                            hunter_level_bridge.fail_defense("Un membro del party si è allontanato!")
+                            return
+                        end
+                    end
+                end
+            end
+
+            -- Spawn ondate in base al tempo
+            local frank = pc.getqf("hq_defense_rank") or "E"
+            local current_wave = pc.getqf("hq_defense_wave") or 0
+
+            -- Leggi tutte le ondate per questo rank
+            local q = "SELECT wave_number, spawn_time FROM srv1_hunabku.hunter_fracture_defense_waves "
+            q = q .. "WHERE rank_grade='" .. frank .. "' AND enabled=1 ORDER BY wave_number"
+            local c, d = mysql_direct_query(q)
+
+            if c > 0 then
+                for i = 1, c do
+                    local wave_num = tonumber(d[i].wave_number)
+                    local spawn_time = tonumber(d[i].spawn_time)
+
+                    if elapsed >= spawn_time and wave_num > current_wave then
+                        hunter_level_bridge.spawn_defense_wave(wave_num, frank)
+                        pc.setqf("hq_defense_wave", wave_num)
+                    end
+                end
+            end
+
+            -- Check completamento
+            if elapsed >= duration then
+                hunter_level_bridge.complete_defense_success()
+            end
+        end
+
+        when letter begin
             send_letter("Hunter Terminal") 
         end
         
