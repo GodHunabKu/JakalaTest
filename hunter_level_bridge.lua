@@ -564,6 +564,63 @@ quest hunter_level_bridge begin
             syschat(t4)
         end
         
+	when levelup with pc.get_level() == 50 begin
+            -- [FIX] Usa HunterAwakening invece di HunterLevelUpEffect
+            cmdchat("HunterAwakening 50") 
+            timer("hq_lv50_msg1", 2)
+        end
+
+        when hq_lv50_msg1.timer begin
+            syschat("")
+            syschat("|cff00FF00========================================|r")
+            syschat("|cff00FFFF   [SISTEMA] META' CAMMINO RAGGIUNTA|r")
+            syschat("|cffFFFFFF   Hai superato la soglia della mediocrita'.|r")
+            syschat("|cff00FF00========================================|r")
+            hunter_level_bridge.hunter_speak("LIV. 50 RAGGIUNTO. IL VERO POTERE SI AVVICINA.")
+        end
+
+        -- ============================================================
+        -- LIVELLO 100: CENTENARIO
+        -- ============================================================
+        when levelup with pc.get_level() == 100 begin
+            -- [FIX] Usa HunterAwakening
+            cmdchat("HunterAwakening 100")
+            notice_all("|cffFFD700[HUNTER SYSTEM]|r Il Cacciatore " .. pc.get_name() .. " ha raggiunto il LIVELLO 100!")
+            timer("hq_lv100_msg1", 2)
+        end
+
+        when hq_lv100_msg1.timer begin
+            syschat("")
+            syschat("|cffFFD700========================================|r")
+            syschat("|cffFF0000   !!! CENTENARIO !!!|r")
+            syschat("|cffFFAA00   Un secolo di livelli. Un secolo di battaglie.|r")
+            syschat("|cffFFFFFF   Il tuo nome e' ora scolpito nella storia.|r")
+            syschat("|cffFFD700========================================|r")
+            hunter_level_bridge.hunter_speak_color("LIV. 100: SEI DIVENTATO UN PILASTRO DI QUESTO MONDO.", "GOLD")
+        end
+
+        -- ============================================================
+        -- LIVELLO 130: LEGGENDA VIVENTE
+        -- ============================================================
+        when levelup with pc.get_level() == 130 begin
+            -- [FIX] Usa HunterAwakening
+            cmdchat("HunterAwakening 130")
+            notice_all("|cffFF0000[HUNTER SYSTEM]|r ATTENZIONE! " .. pc.get_name() .. " E' ORA UNA LEGGENDA VIVENTE (LV.130)!")
+            timer("hq_lv130_msg1", 2)
+        end
+
+        when hq_lv130_msg1.timer begin
+            syschat("")
+            syschat("|cffFF0000====================================================|r")
+            syschat("|cffFF0000   *** LEGGENDA VIVENTE - MAX POWER ***|r")
+            syschat("|cffFF0000====================================================|r")
+            syschat("|cffFFFFFF   Non c'e' piu' nulla sopra di te.|r")
+            syschat("|cffFFFFFF   Sei l'apice. Sei il predatore supremo.|r")
+            syschat("|cffFF0000   IL SISTEMA SI INCHINA AL TUO POTERE.|r")
+            syschat("|cffFF0000====================================================|r")
+            hunter_level_bridge.hunter_speak_color("LIV. 130. IL SISTEMA TI RICONOSCE COME GOVERNANTE.", "RED")
+        end
+
         when login with pc.get_level() >= 5 begin
             local pid = pc.get_player_id()
             local pname = mysql_escape_string(pc.get_name())
@@ -896,7 +953,7 @@ quest hunter_level_bridge begin
             end
         end
 
-        function check_rank_up(old_points, new_points)
+	function check_rank_up(old_points, new_points)
             local old_rank = hunter_level_bridge.get_rank_index(old_points)
             local new_rank = hunter_level_bridge.get_rank_index(new_points)
             
@@ -905,35 +962,36 @@ quest hunter_level_bridge begin
                 local new_letter = hunter_level_bridge.get_rank_letter(new_rank)
                 local pid = pc.get_player_id()
                 
-                cmdchat("HunterRankUp " .. old_letter .. "|" .. new_letter)
-                pc.setqf("hq_rank_num", new_rank)
+                -- [LOGICA CORRETTA] NON AGGIORNARE IL DB QUI!
+                -- Il Rank nel DB deve essere aggiornato SOLO dalla Quest "Hunter Gate Trial"
                 
-                mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET hunter_rank='" .. new_letter .. "', current_rank='" .. new_letter .. "' WHERE player_id=" .. pid)
+                -- Avvisiamo solo il giocatore che è pronto
+                syschat("")
+                syschat("|cffFFD700==================================================|r")
+                syschat("|cff00FFFF   [HUNTER SYSTEM] SEI PRONTO PER LA PROMOZIONE!|r")
+                syschat("|cffFFFFFF   Hai raggiunto i punti necessari per il rango " .. new_letter .. ".|r")
+                syschat("|cffFFFFFF   Recati dal Maestro delle Prove per l'esame.|r")
+                syschat("|cffFFD700==================================================|r")
                 
-                if new_rank >= 4 then
-                    notice_all("")
-                    local global_msg = hunter_level_bridge.get_text("rank_up_global", {NAME = pc.get_name(), RANK = new_letter}) or ("|cffFFD700[RANK UP]|r |cffFFFFFF" .. pc.get_name() .. "|r e' salito al rango [" .. new_letter .. "-RANK]!")
-                    notice_all(global_msg)
-                    notice_all("")
-                end
-                
-                local msg = hunter_level_bridge.get_text("rank_up_msg", {RANK = new_letter}) or ("RANK UP! Sei ora un " .. new_letter .. "-RANK Hunter!")
-                hunter_level_bridge.hunter_speak(msg)
+                -- Effetto sonoro o visivo leggero per avvisare (opzionale)
+                -- cmdchat("HunterReadyForPromo") 
             end
         end
         
-        function force_update_rank()
+	function force_update_rank()
+            -- Questa funzione ora serve solo a riallineare i flag visivi, 
+            -- NON tocca il rank nel DB che è sacro e gestito dalle Quest.
             local pid = pc.get_player_id()
-            local c, d = mysql_direct_query("SELECT total_points FROM srv1_hunabku.hunter_quest_ranking WHERE player_id=" .. pid)
+            local c, d = mysql_direct_query("SELECT hunter_rank FROM srv1_hunabku.hunter_quest_ranking WHERE player_id=" .. pid)
             if c > 0 and d[1] then
-                local pts = tonumber(d[1].total_points) or 0
-                local rank_idx = hunter_level_bridge.get_rank_index(pts)
-                local rank_letter = hunter_level_bridge.get_rank_letter(rank_idx)
+                local db_rank = d[1].hunter_rank or "E"
                 
-                mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET hunter_rank='" .. rank_letter .. "', current_rank='" .. rank_letter .. "' WHERE player_id=" .. pid)
+                -- Convertiamo la lettera del DB in numero per i colori della chat
+                local ranks_map = {E=0, D=1, C=2, B=3, A=4, S=5, N=6}
+                local rank_idx = ranks_map[db_rank] or 0
+                
                 pc.setqf("hq_rank_num", rank_idx)
-                
-                return rank_letter
+                return db_rank
             end
             return "E"
         end
