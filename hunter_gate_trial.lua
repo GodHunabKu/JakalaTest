@@ -1,24 +1,13 @@
---[[
-============================================================
-HUNTER SYSTEM - GATE DUNGEON & RANK TRIAL
-============================================================
-Versione: 2.5 FIXED
-NPC: 20019 = Guardiano Gate | 20020 = Maestro Prove
-============================================================
---]]
-
 quest hunter_gate_trial begin
     state start begin
 
         function get_config(key)
-            local config = {
-                ["gate_guardian_npc"] = 20019,
-                ["trial_master_npc"] = 20020,
-                ["gate_access_hours"] = 2,
-                ["gate_death_penalty"] = 500,
-                ["db_name"] = "srv1_hunabku",
-            }
-            return config[key]
+            if key == "gate_guardian_npc" then return 20019 end
+            if key == "trial_master_npc" then return 20020 end
+            if key == "gate_access_hours" then return 2 end
+            if key == "gate_death_penalty" then return 500 end
+            if key == "db_name" then return "srv1_hunabku" end
+            return 0
         end
         
         function modulo(a, b)
@@ -26,8 +15,8 @@ quest hunter_gate_trial begin
         end
 
         function format_time(seconds)
-            if not seconds or seconds <= 0 then
-                return "00:00:00"
+            if not seconds or seconds <= 0 then 
+                return "00:00:00" 
             end
             local h = math.floor(seconds / 3600)
             local rem_h = hunter_gate_trial.modulo(seconds, 3600)
@@ -37,8 +26,8 @@ quest hunter_gate_trial begin
         end
         
         function format_time_days(seconds)
-            if not seconds or seconds <= 0 then
-                return "Scaduto"
+            if not seconds or seconds <= 0 then 
+                return "Scaduto" 
             end
             local d = math.floor(seconds / 86400)
             local rem_d = hunter_gate_trial.modulo(seconds, 86400)
@@ -52,20 +41,14 @@ quest hunter_gate_trial begin
             end
         end
         
-        function clean_str(s)
-            if not s then return "" end
-            return string.gsub(tostring(s), " ", "+")
-        end
-        
-        function get_rank_hex(color_code)
-            local colors = {
-                ["E"] = "808080", ["D"] = "00FF00", ["C"] = "00FFFF",
-                ["B"] = "0066FF", ["A"] = "AA00FF", ["S"] = "FF6600", ["N"] = "FF0000",
-                ["GREEN"] = "00FF00", ["BLUE"] = "0099FF", ["CYAN"] = "00FFFF",
-                ["ORANGE"] = "FF6600", ["RED"] = "FF0000", ["GOLD"] = "FFD700",
-                ["PURPLE"] = "9900FF", ["BLACKWHITE"] = "FFFFFF"
-            }
-            return colors[color_code] or "FFFFFF"
+        function clean_str(str)
+            if str == nil then 
+                return "" 
+            end
+            local result = string.gsub(tostring(str), " ", "+")
+            local bad_chars = string.char(34) .. string.char(39) .. string.char(59)
+            result = string.gsub(result, "[" .. bad_chars .. "]", "") 
+            return result
         end
         
         function get_player_rank()
@@ -73,8 +56,8 @@ quest hunter_gate_trial begin
             local db = hunter_gate_trial.get_config("db_name")
             local q = "SELECT hunter_rank FROM " .. db .. ".hunter_quest_ranking WHERE player_id=" .. pid
             local c, d = mysql_direct_query(q)
-            if c > 0 and d[1] then
-                return d[1].hunter_rank or "E"
+            if c > 0 and d[1] then 
+                return d[1].hunter_rank or "E" 
             end
             return "E"
         end
@@ -84,8 +67,8 @@ quest hunter_gate_trial begin
             local db = hunter_gate_trial.get_config("db_name")
             local q = "SELECT total_points FROM " .. db .. ".hunter_quest_ranking WHERE player_id=" .. pid
             local c, d = mysql_direct_query(q)
-            if c > 0 and d[1] then
-                return tonumber(d[1].total_points) or 0
+            if c > 0 and d[1] then 
+                return tonumber(d[1].total_points) or 0 
             end
             return 0
         end
@@ -129,7 +112,6 @@ quest hunter_gate_trial begin
             local pid = pc.get_player_id()
             local db = hunter_gate_trial.get_config("db_name")
             
-            -- Query con gestione errori
             local q = "SELECT ga.access_id, ga.gate_id, gc.gate_name, gc.color_code, "
             q = q .. "gc.dungeon_index, gc.duration_minutes, gc.gloria_reward, gc.gloria_penalty, "
             q = q .. "TIMESTAMPDIFF(SECOND, NOW(), ga.expires_at) as remaining_seconds "
@@ -138,18 +120,9 @@ quest hunter_gate_trial begin
             q = q .. "WHERE ga.player_id = " .. pid .. " "
             q = q .. "AND ga.status = 'pending' AND ga.expires_at > NOW() LIMIT 1"
 
-            local c, d = 0, nil
-            local ok, err = pcall(function()
-                c, d = mysql_direct_query(q)
-            end)
+            local c, d = mysql_direct_query(q)
             
-            -- Se errore SQL, ritorna has_access = false
-            if not ok then
-                syschat("[DEBUG] Errore SQL check_gate_access: " .. tostring(err))
-                return { has_access = false, error = true }
-            end
-            
-            if c and c > 0 and d and d[1] then
+            if c > 0 and d[1] then
                 return {
                     has_access = true,
                     access_id = tonumber(d[1].access_id) or 0,
@@ -180,6 +153,19 @@ quest hunter_gate_trial begin
             end
         end
         
+        function warp_to_village()
+            local empire = pc.get_empire()
+            if empire == 1 then
+                pc.warp(473900, 954600) -- Shinsoo
+            elseif empire == 2 then
+                pc.warp(63200, 166700) -- Chunjo
+            elseif empire == 3 then
+                pc.warp(959600, 269700) -- Jinno
+            else
+                pc.warp(959600, 269700) -- Fallback
+            end
+        end
+
         function guardian_interaction()
             if pc.is_gm() then
                 say_title("GM MENU Guardiano Gate")
@@ -193,6 +179,7 @@ quest hunter_gate_trial begin
                 elseif gm_sel == 3 then
                     pc.setqf("hgt_in_gate", 1)
                     pc.setqf("hgt_gate_id", 1)
+                    pc.setqf("hgt_access_id", 1) 
                     pc.setqf("hgt_gate_start", get_time() - 300)
                     pc.setqf("hgt_gate_duration", 1800)
                     pc.setqf("hgt_gloria_reward", 750)
@@ -202,6 +189,7 @@ quest hunter_gate_trial begin
                 elseif gm_sel == 4 then
                     pc.setqf("hgt_in_gate", 1)
                     pc.setqf("hgt_gate_id", 1)
+                    pc.setqf("hgt_access_id", 1) 
                     pc.setqf("hgt_gate_start", get_time() - 300)
                     pc.setqf("hgt_gate_duration", 1800)
                     pc.setqf("hgt_gloria_reward", 500)
@@ -210,35 +198,19 @@ quest hunter_gate_trial begin
                     return
                 elseif gm_sel == 5 then
                     local db = hunter_gate_trial.get_config("db_name")
-                    mysql_direct_query("INSERT INTO " .. db .. ".hunter_gate_access (player_id, player_name, gate_id, expires_at, status) VALUES (" .. pc.get_player_id() .. ", '" .. pc.get_name() .. "', 1, DATE_ADD(NOW(), INTERVAL 2 HOUR), 'pending') ON DUPLICATE KEY UPDATE expires_at = DATE_ADD(NOW(), INTERVAL 2 HOUR), status = 'pending'")
+                    local pname = mysql_escape_string(pc.get_name())
+                    mysql_direct_query("INSERT INTO " .. db .. ".hunter_gate_access (player_id, player_name, gate_id, expires_at, status) VALUES (" .. pc.get_player_id() .. ", '" .. pname .. "', 1, DATE_ADD(NOW(), INTERVAL 2 HOUR), 'pending') ON DUPLICATE KEY UPDATE expires_at = DATE_ADD(NOW(), INTERVAL 2 HOUR), status = 'pending'")
                     syschat("Gate 1 concesso!")
                     hunter_gate_trial.send_gate_status()
                     return
                 end
-                -- Se gm_sel == 1, continua con interazione normale
             end
             
             local pid = pc.get_player_id()
             local pname = pc.get_name()
             local db = hunter_gate_trial.get_config("db_name")
             
-            -- Prova a ottenere accesso con gestione errori
-            local access = nil
-            local ok, err = pcall(function()
-                access = hunter_gate_trial.check_gate_access()
-            end)
-            
-            -- Se errore o access nil, mostra messaggio sicuro
-            if not ok or not access then
-                say_title("GUARDIANO DEL GATE")
-                say("")
-                say("Il Sistema sta verificando il tuo status...")
-                say("")
-                say("Errore nel controllo accesso.")
-                say("Contatta un GM se il problema persiste.")
-                syschat("[DEBUG] Errore check_gate_access: " .. tostring(err))
-                return
-            end
+            local access = hunter_gate_trial.check_gate_access()
             
             if not access.has_access then
                 say_title("GUARDIANO DEL GATE")
@@ -249,7 +221,6 @@ quest hunter_gate_trial begin
                 say("possono varcare questa soglia.")
                 say("")
                 say("La tua arroganza sara punita...")
-                
                 
                 cmdchat("HunterGateDefeat 500")
                 
@@ -263,10 +234,12 @@ quest hunter_gate_trial begin
                 
                 local qlog = "INSERT INTO " .. db .. ".hunter_gate_history "
                 qlog = qlog .. "(player_id, player_name, gate_id, gate_name, result, gloria_change) "
-                qlog = qlog .. "VALUES (" .. pid .. ", '" .. pname .. "', 0, 'Accesso Negato', 'death', -" .. penalty .. ")"
+                qlog = qlog .. "VALUES (" .. pid .. ", '" .. mysql_escape_string(pname) .. "', 0, 'Accesso Negato', 'death', -" .. penalty .. ")"
                 mysql_direct_query(qlog)
                 
-                pc.kill()
+                -- FIX: pc.kill() removed, replaced with warp
+                syschat("Sei stato respinto dalla forza del Gate!")
+                hunter_gate_trial.warp_to_village()
                 return
             end
             
@@ -283,6 +256,7 @@ quest hunter_gate_trial begin
             say("")
             
             local sel = select("Entra nel Gate", "Non sono pronto", "Apri Finestra Hunter", "Annulla")
+            
             if sel == 1 then
                 say_title("SISTEMA")
                 say("")
@@ -319,6 +293,8 @@ quest hunter_gate_trial begin
                     cmdchat("HunterGateEnter " .. access.gate_id .. "|" .. access.duration_minutes)
                     hunter_gate_trial.speak_color("ACCESSO AL GATE CONCESSO!", access.color_code)
                     syschat("[SISTEMA] Teletrasporto al Gate in corso...")
+                    
+                    -- d.join(access.dungeon_index)
                 end
             elseif sel == 2 then
                 say_title("GUARDIANO")
@@ -328,7 +304,11 @@ quest hunter_gate_trial begin
                 say("")
                 say("Tempo rimasto: " .. hunter_gate_trial.format_time(access.remaining_seconds))
             elseif sel == 3 then
+                hunter_gate_trial.send_gate_status()
+                hunter_gate_trial.send_trial_status()
                 cmdchat("HunterGateTrialOpen")
+            elseif sel == 4 then
+                return
             end
         end
         
@@ -408,7 +388,7 @@ quest hunter_gate_trial begin
             
             local qlog = "INSERT INTO " .. db .. ".hunter_gate_history "
             qlog = qlog .. "(player_id, player_name, gate_id, gate_name, result, gloria_change, duration_seconds) "
-            qlog = qlog .. "VALUES (" .. pid .. ", '" .. pname .. "', " .. gate_id .. ", '" .. gate_name .. "', '" .. result .. "', " .. gloria_change .. ", " .. elapsed .. ")"
+            qlog = qlog .. "VALUES (" .. pid .. ", '" .. mysql_escape_string(pname) .. "', " .. gate_id .. ", '" .. mysql_escape_string(gate_name) .. "', '" .. result .. "', " .. gloria_change .. ", " .. elapsed .. ")"
             mysql_direct_query(qlog)
             
             hunter_gate_trial.send_gate_status()
@@ -862,6 +842,8 @@ quest hunter_gate_trial begin
                         hunter_gate_trial.send_trial_status()
                     end
                 elseif sel == 3 then
+                    hunter_gate_trial.send_gate_status()
+                    hunter_gate_trial.send_trial_status()
                     cmdchat("HunterGateTrialOpen")
                 end
                 return
@@ -920,6 +902,8 @@ quest hunter_gate_trial begin
             if sel == 1 then
                 hunter_gate_trial.start_trial()
             elseif sel == 3 then
+                hunter_gate_trial.send_gate_status()
+                hunter_gate_trial.send_trial_status()
                 cmdchat("HunterGateTrialOpen")
             end
         end
@@ -935,6 +919,34 @@ quest hunter_gate_trial begin
             end
         end
         
+        function check_mob_vnum(vnum)
+            -- Lista boss manuale (per evitare tabella gigante in memory)
+            if vnum == 4035 then return "boss" end
+            if vnum == 719 then return "boss" end
+            if vnum == 2771 then return "boss" end
+            if vnum == 768 then return "boss" end
+            if vnum == 6790 then return "boss" end
+            if vnum == 6831 then return "boss" end
+            if vnum == 986 then return "boss" end
+            if vnum == 989 then return "boss" end
+            if vnum == 4011 then return "boss" end
+            if vnum == 6830 then return "boss" end
+            if vnum == 4385 then return "boss" end
+            
+            -- Lista Metin manuale
+            if vnum == 4700 then return "metin" end
+            if vnum == 4701 then return "metin" end
+            if vnum == 4702 then return "metin" end
+            if vnum == 4703 then return "metin" end
+            if vnum == 4704 then return "metin" end
+            if vnum == 4705 then return "metin" end
+            if vnum == 4706 then return "metin" end
+            if vnum == 4707 then return "metin" end
+            if vnum == 4708 then return "metin" end
+            
+            return nil
+        end
+        
         when 20019.click begin
             hunter_gate_trial.guardian_interaction()
         end
@@ -948,37 +960,31 @@ quest hunter_gate_trial begin
         end
         
         when login with pc.get_level() >= 5 begin
-            cleartimer("hgt_login_check") 
-            timer("hgt_login_check", 3)
+            cleartimer("hgt_update_loop") 
+            loop_timer("hgt_update_loop", 10) 
         end
         
         when levelup begin
             hunter_gate_trial.check_and_send_letter()
         end
         
-        when hgt_login_check.timer begin
+        when hgt_update_loop.timer begin
             hunter_gate_trial.send_gate_status()
             hunter_gate_trial.send_trial_status()
-            hunter_gate_trial.check_and_send_letter()
+            if get_time() > (pc.getqf("hgt_last_letter_check") or 0) + 60 then
+                 pc.setqf("hgt_last_letter_check", get_time())
+                 hunter_gate_trial.check_and_send_letter()
+            end
         end
         
         when kill begin
             if pc.getqf("hgt_trial_active") == 1 then
                 local vnum = npc.get_race()
-                local boss_list = {
-                    [4035] = true, [719] = true, [2771] = true, [768] = true,
-                    [6790] = true, [6831] = true, [986] = true, [989] = true,
-                    [4011] = true, [6830] = true, [4385] = true,
-                }
-                local metin_list = {
-                    [4700] = true, [4701] = true, [4702] = true, [4703] = true,
-                    [4704] = true, [4705] = true, [4706] = true, [4707] = true, [4708] = true,
-                }
+                local mtype = hunter_gate_trial.check_mob_vnum(vnum)
                 
-                if boss_list[vnum] then
+                if mtype == "boss" then
                     hunter_gate_trial.update_trial_progress("boss_kill", vnum, 1)
-                end
-                if metin_list[vnum] then
+                elseif mtype == "metin" then
                     hunter_gate_trial.update_trial_progress("metin_kill", vnum, 1)
                 end
             else
