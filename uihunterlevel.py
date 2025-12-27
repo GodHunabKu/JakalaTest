@@ -2523,6 +2523,28 @@ class HunterLevelWindow(ui.ScriptWindow):
         self.Close()
         return True
 
+    # ========================================================================
+    #  SPEED KILL SYSTEM - Metodi richiesti per Speed Kill Timer
+    # ========================================================================
+    def StartSpeedKill(self, mobType, duration, color):
+        """Avvia speed kill timer"""
+        import chat
+        minutes = duration / 60
+        chat.AppendChat(chat.CHAT_TYPE_INFO, "[SPEED KILL] %s - Uccidi entro %d:%02d per GLORIA x2!" % (mobType, minutes, duration % 60))
+
+    def UpdateSpeedKillTimer(self, remainingSeconds):
+        """Aggiorna timer (chiamato ogni secondo)"""
+        # Non stampiamo nulla per non spammare la chat
+        pass
+
+    def EndSpeedKill(self, isSuccess):
+        """Termina speed kill"""
+        import chat
+        if isSuccess == 1 or isSuccess == "1":
+            chat.AppendChat(chat.CHAT_TYPE_INFO, "[SPEED KILL SUCCESS] GLORIA x2!")
+        else:
+            chat.AppendChat(chat.CHAT_TYPE_INFO, "[SPEED KILL FAILED] Gloria normale")
+
 # ============================================================================
 #  WINDOW MANAGER
 # ============================================================================

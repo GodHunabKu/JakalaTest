@@ -1381,8 +1381,24 @@ quest hunter_level_bridge begin
         end
 
         function trigger_random_emergency()
+            -- SAFETY CHECK: Non spawnare emergency se già in corso altre attività critiche
+            if pc.getqf("hq_defense_active") == 1 then
+                -- Difesa frattura in corso - NON spawnare emergency (conflitto popup)
+                return
+            end
+
+            if pc.getqf("hq_emerg_active") == 1 then
+                -- Emergency già attiva - NON spawnare altra emergency
+                return
+            end
+
+            if pc.getqf("hq_speedkill_active") == 1 then
+                -- Speed kill in corso - NON spawnare emergency (lascia focus sul boss)
+                return
+            end
+
             local lv = pc.get_level()
-            
+
             local q = "SELECT id, name, duration_seconds, target_count, target_vnum, reward_points, reward_item_vnum, reward_item_count, difficulty FROM srv1_hunabku.hunter_quest_emergencies WHERE enabled = 1 AND min_level <= " .. lv .. " AND max_level >= " .. lv .. " ORDER BY RAND() LIMIT 1"
             
             local c, d = mysql_direct_query(q)
@@ -1650,21 +1666,42 @@ quest hunter_level_bridge begin
         end
 
         function open_gate(fname, frank, fcolor, pid)
+            -- SAFETY CHECK: Blocca apertura frattura se emergency attiva
+            if pc.getqf("hq_emerg_active") == 1 then
+                syschat("|cffFF0000[CONFLITTO]|r Completa prima l'Emergency Quest in corso!")
+                return
+            end
+
+            if pc.getqf("hq_defense_active") == 1 then
+                syschat("|cffFF0000[CONFLITTO]|r Stai già difendendo un'altra frattura!")
+                return
+            end
+
             -- NUOVO SISTEMA: Inizia la Difesa Frattura!
             -- SECURITY: Valida rank prima di salvarlo
             frank = hunter_level_bridge.validate_rank(frank)
 
-            -- Salva posizione frattura
+            -- Salva posizione e VID frattura
             local fx, fy = pc.get_local_x(), pc.get_local_y()
+            local fracture_vid = npc.get_vid()  -- SALVA VID per rimuoverla dopo
+
             pc.setqf("hq_defense_x", fx)
             pc.setqf("hq_defense_y", fy)
             pc.setqf("hq_defense_active", 1)
             pc.setqf("hq_defense_start", get_time())
-            pc.setqf("hq_defense_rank", frank)
-            pc.setqf("hq_defense_color", fcolor)
-            pc.setqf("hq_defense_fname", fname)
             pc.setqf("hq_defense_wave", 0)
             pc.setqf("hq_defense_last_check", get_time())
+            pc.setqf("hq_defense_fracture_vid", fracture_vid)
+
+            -- SALVA DATI STRINGA in variabile globale quest (setqf accetta SOLO numeri!)
+            if not hunter_defense_data then
+                hunter_defense_data = {}
+            end
+            hunter_defense_data[pid] = {
+                rank = frank,
+                fname = fname,
+                color = fcolor
+            }
 
             -- SISTEMA IBRIDO: Contatori mob (deve killare tutti entro 60s)
             pc.setqf("hq_defense_mob_total", 0)
@@ -1756,7 +1793,10 @@ quest hunter_level_bridge begin
                 syschat("[DEBUG] Totale mob spawnati: " .. total_spawned .. " | Totale difesa: " .. (current_total + total_spawned))
 
                 local msg = hunter_level_bridge.get_text("defense_wave_spawn", {WAVE = wave_num}) or ("ONDATA " .. wave_num .. "! DIFENDITI!")
-                local fcolor = pc.getqf("hq_defense_color") or "RED"
+                local fcolor = "RED"
+                if hunter_defense_data and hunter_defense_data[pc.get_player_id()] then
+                    fcolor = hunter_defense_data[pc.get_player_id()].color
+                end
                 hunter_level_bridge.hunter_speak_color(msg, fcolor)
             end)
 
@@ -1766,14 +1806,36 @@ quest hunter_level_bridge begin
         end
 
         function complete_defense_success()
-            local fname = pc.getqf("hq_defense_fname") or "Frattura"
-            local frank = pc.getqf("hq_defense_rank") or "E"
-            local fcolor = pc.getqf("hq_defense_color") or "PURPLE"
             local pid = pc.get_player_id()
+
+            -- Recupera dati dalla tabella globale
+            local fname = "Frattura"
+            local frank = "E"
+            local fcolor = "PURPLE"
+            if hunter_defense_data and hunter_defense_data[pid] then
+                fname = hunter_defense_data[pid].fname
+                frank = hunter_defense_data[pid].rank
+                fcolor = hunter_defense_data[pid].color
+            end
 
             -- Reset flags difesa
             pc.setqf("hq_defense_active", 0)
             cleartimer("hq_defense_timer")
+
+            -- CHIUDI EMERGENCY POPUP (timer difesa completato)
+            cmdchat("HunterEmergencyClose success")
+
+            -- RIMUOVI FRATTURA NPC (ora che la difesa è completata)
+            local fracture_vid = pc.getqf("hq_defense_fracture_vid") or 0
+            if fracture_vid > 0 then
+                d.purge(fracture_vid)
+                pc.setqf("hq_defense_fracture_vid", 0)
+            end
+
+            -- Cleanup tabella dati stringa
+            if hunter_defense_data and hunter_defense_data[pid] then
+                hunter_defense_data[pid] = nil
+            end
 
             -- Statistiche
             hunter_level_bridge.check_overtake(pid, pc.get_name(), "total_fractures", 1, "ESPLORATORI")
@@ -1793,11 +1855,30 @@ quest hunter_level_bridge begin
         end
 
         function fail_defense(reason)
-            local fcolor = pc.getqf("hq_defense_color") or "RED"
+            local pid = pc.get_player_id()
+            local fcolor = "RED"
+            if hunter_defense_data and hunter_defense_data[pid] then
+                fcolor = hunter_defense_data[pid].color
+            end
 
             -- Reset flags
             pc.setqf("hq_defense_active", 0)
             cleartimer("hq_defense_timer")
+
+            -- CHIUDI EMERGENCY POPUP (difesa fallita)
+            cmdchat("HunterEmergencyClose failed")
+
+            -- RIMUOVI FRATTURA NPC (difesa fallita)
+            local fracture_vid = pc.getqf("hq_defense_fracture_vid") or 0
+            if fracture_vid > 0 then
+                d.purge(fracture_vid)
+                pc.setqf("hq_defense_fracture_vid", 0)
+            end
+
+            -- Cleanup tabella dati stringa
+            if hunter_defense_data and hunter_defense_data[pid] then
+                hunter_defense_data[pid] = nil
+            end
 
             local msg = hunter_level_bridge.get_text("defense_failed") or ("DIFESA FALLITA: " .. reason)
             hunter_level_bridge.hunter_speak_color(msg, "RED")
@@ -1952,7 +2033,11 @@ quest hunter_level_bridge begin
             end
 
             -- Spawn ondate in base al tempo
-            local frank = pc.getqf("hq_defense_rank") or "E"
+            local pid = pc.get_player_id()
+            local frank = "E"
+            if hunter_defense_data and hunter_defense_data[pid] then
+                frank = hunter_defense_data[pid].rank
+            end
             frank = hunter_level_bridge.validate_rank(frank)  -- SECURITY: Valida rank
             local current_wave = pc.getqf("hq_defense_wave") or 0
 
