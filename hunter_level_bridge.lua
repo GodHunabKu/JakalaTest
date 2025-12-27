@@ -1795,6 +1795,9 @@ quest hunter_level_bridge begin
             pc.setqf("hq_defense_active", 0)
             cleartimer("hq_defense_timer")
 
+            -- CHIUDI EMERGENCY POPUP (timer difesa completato)
+            cmdchat("HunterEmergencyClose success")
+
             -- RIMUOVI FRATTURA NPC (ora che la difesa è completata)
             local fracture_vid = pc.getqf("hq_defense_fracture_vid") or 0
             if fracture_vid > 0 then
@@ -1834,6 +1837,9 @@ quest hunter_level_bridge begin
             -- Reset flags
             pc.setqf("hq_defense_active", 0)
             cleartimer("hq_defense_timer")
+
+            -- CHIUDI EMERGENCY POPUP (difesa fallita)
+            cmdchat("HunterEmergencyClose failed")
 
             -- RIMUOVI FRATTURA NPC (difesa fallita)
             local fracture_vid = pc.getqf("hq_defense_fracture_vid") or 0
