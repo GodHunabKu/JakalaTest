@@ -1069,11 +1069,14 @@ quest hunter_level_bridge begin
             end
         end
         
+        -- PERFORMANCE: Timer automatico DISABILITATO!
+        -- Dati ora vengono inviati SOLO quando il player apre la UI, non ogni 60s
         when hunter_update_timer.timer begin
-            hunter_level_bridge.send_player_data()
-            hunter_level_bridge.send_timers()
-            hunter_level_bridge.send_event()
+            -- SOLO check overtake (leggero), no invio dati pesanti
             hunter_level_bridge.check_if_overtaken()
+            -- send_player_data() ora viene chiamato solo da /hunter_open
+            -- send_timers() ora viene chiamato solo da /hunter_open
+            -- send_event() ora viene chiamato solo da /hunter_open
         end
         
         when hunter_emerg_tmr.timer begin
