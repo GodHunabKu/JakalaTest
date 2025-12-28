@@ -239,7 +239,7 @@ def ParseHunterCommand(cmd, args):
     elif cmd == "HunterEventActive":
         _ParseEventActive(args)
 
-    elif cmd == "OpenHunterUI":
+    elif cmd == "HunterOpenUI":
         # Apri l'interfaccia Hunter quando richiesto dal server (es. da quest letter)
         _OpenHunterUI()
 

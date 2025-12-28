@@ -77,6 +77,9 @@ def RegisterV2Commands(serverCommandList, gameInstance):
         
         # Eventi
         "HunterEventActive",
+
+        # UI
+        "HunterOpenUI",
     ]
     
     # Registra ogni comando per usare il parser unificato v2.0

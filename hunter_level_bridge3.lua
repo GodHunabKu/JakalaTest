@@ -85,7 +85,7 @@ quest hunter_level_bridge3 begin
 
             -- 2. Apri l'interfaccia Hunter
             -- Usa cmdchat per aprire l'UI (verrà gestito dal Python)
-            cmdchat("OpenHunterUI")
+            cmdchat("HunterOpenUI")
 
             -- 3. Mantieni la lettera aperta per click futuri
             send_letter("Hunter System")
