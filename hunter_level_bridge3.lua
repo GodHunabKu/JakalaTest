@@ -28,6 +28,11 @@ quest hunter_level_bridge3 begin
         when logout begin
             if pc.get_level() >= hunter_level_bridge3.GetMinLevel() then
                 if HUNTER and HUNTER.OnLogout then HUNTER.OnLogout(pc.get_player_id()) end
+
+                -- Cleanup timer e flag per evitare "QUEST NOT END RUNNING"
+                clear_server_timer("fracture_check_position", pc.get_player_id())
+                clear_server_timer("fracture_spawn_wave", pc.get_player_id())
+                pc.setqf("fracture_def_active", 0)
             end
         end
         
@@ -327,11 +332,10 @@ quest hunter_level_bridge3 begin
 
                 local color = rank_colors[rank] or "FFFFFF"
 
-                -- Messaggi epici stile Solo Leveling
+                -- Messaggi epici stile Solo Leveling (senza wait per evitare quest hang)
                 syschat(string.format("|cff%s====================================================|r", color))
                 syschat(string.format("|cff%s            *** HUNTER SYSTEM v36.0 ***|r", color))
                 syschat(string.format("|cff%s====================================================|r", color))
-                wait(500)
                 syschat(string.format("|cffFFFFFF   Cacciatore: %s|r", name))
                 syschat(string.format("|cff%s   Rank: [%s-RANK]|r", color, rank))
 
@@ -346,8 +350,6 @@ quest hunter_level_bridge3 begin
                     N = "Hai trasceso i limiti umani."
                 }
                 syschat(string.format("|cff888888   '%s'|r", rank_quotes[rank] or ""))
-
-                wait(500)
                 syschat("|cffFFD700----------------------------------------------------|r")
                 syschat(string.format("|cffFFFFFF   Gloria Totale: %d|r", glory))
 
