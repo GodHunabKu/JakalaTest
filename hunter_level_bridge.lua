@@ -97,7 +97,7 @@ quest hunter_level_bridge begin
         -- PERFORMANCE: CACHE DEFENSE WAVES (NO QUERY OGNI SECONDO!)
         function load_defense_waves_cache(rank_grade)
             -- SECURITY: Valida rank
-            rank_grade = hunter_level_bridge.validate_rank(rank_grade)
+            rank_grade = validate_rank(rank_grade)
 
             -- Inizializza cache se non esiste
             if not _G.hunter_defense_waves_cache then
@@ -270,7 +270,7 @@ quest hunter_level_bridge begin
             local remaining_days = days
             while remaining_days >= 365 do
                 local leap = 0
-                if hunter_level_bridge.is_leap_year(year) then leap = 1 end
+                if is_leap_year(year) then leap = 1 end
                 local days_in_year = 365 + leap
                 if remaining_days >= days_in_year then
                     remaining_days = remaining_days - days_in_year
@@ -280,7 +280,7 @@ quest hunter_level_bridge begin
                 end
             end
             local month_days = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
-            if hunter_level_bridge.is_leap_year(year) then
+            if is_leap_year(year) then
                 month_days[2] = 29
             end
             local month = 1
@@ -306,12 +306,12 @@ quest hunter_level_bridge begin
         end
         
         function get_rank_index(points)
-            local N = tonumber(hunter_level_bridge.get_config("rank_threshold_N")) or 1500000
-            local S = tonumber(hunter_level_bridge.get_config("rank_threshold_S")) or 500000
-            local A = tonumber(hunter_level_bridge.get_config("rank_threshold_A")) or 150000
-            local B = tonumber(hunter_level_bridge.get_config("rank_threshold_B")) or 50000
-            local C = tonumber(hunter_level_bridge.get_config("rank_threshold_C")) or 10000
-            local D = tonumber(hunter_level_bridge.get_config("rank_threshold_D")) or 2000
+            local N = tonumber(get_config("rank_threshold_N")) or 1500000
+            local S = tonumber(get_config("rank_threshold_S")) or 500000
+            local A = tonumber(get_config("rank_threshold_A")) or 150000
+            local B = tonumber(get_config("rank_threshold_B")) or 50000
+            local C = tonumber(get_config("rank_threshold_C")) or 10000
+            local D = tonumber(get_config("rank_threshold_D")) or 2000
 
             if points >= N then return 6
             elseif points >= S then return 5
@@ -330,19 +330,19 @@ quest hunter_level_bridge begin
                 local c, d = mysql_direct_query("SELECT total_points FROM srv1_hunabku.hunter_quest_ranking WHERE player_id=" .. pid)
                 if c > 0 and d[1] then
                     local pts = tonumber(d[1].total_points) or 0
-                    rank_num = hunter_level_bridge.get_rank_index(pts)
+                    rank_num = get_rank_index(pts)
                     pc.setqf("hq_rank_num", rank_num)
                 else
                     rank_num = 0
                 end
             end
-            local rank_key = hunter_level_bridge.get_rank_letter(rank_num)
-            cmdchat("HunterSystemSpeak " .. rank_key .. "|" .. hunter_level_bridge.clean_str(msg))
+            local rank_key = get_rank_letter(rank_num)
+            cmdchat("HunterSystemSpeak " .. rank_key .. "|" .. clean_str(msg))
         end
         
         function hunter_speak_color(msg, color_code)
             if msg == nil then return end
-            cmdchat("HunterSystemSpeak " .. (color_code or "BLUE") .. "|" .. hunter_level_bridge.clean_str(msg))
+            cmdchat("HunterSystemSpeak " .. (color_code or "BLUE") .. "|" .. clean_str(msg))
         end
         
         function start_emergency(title, seconds, mob_vnum, count)
@@ -352,7 +352,7 @@ quest hunter_level_bridge begin
             pc.setqf("hq_emerg_cur", 0)
             pc.setqf("hq_emerg_expire", get_time() + seconds)
             
-            cmdchat("HunterEmergency " .. hunter_level_bridge.clean_str(title) .. "|" .. seconds .. "|" .. mob_vnum .. "|" .. count)
+            cmdchat("HunterEmergency " .. clean_str(title) .. "|" .. seconds .. "|" .. mob_vnum .. "|" .. count)
             
             cleartimer("hunter_emerg_tmr")
             loop_timer("hunter_emerg_tmr", 1)
@@ -381,16 +381,16 @@ quest hunter_level_bridge begin
                 
                 if reward_vnum > 0 and reward_count > 0 then
                     pc.give_item2(reward_vnum, reward_count)
-                    local msg = hunter_level_bridge.get_text("emergency_bonus_item", {ITEM = hunter_level_bridge.item_name(reward_vnum), COUNT = reward_count}) or ("BONUS: " .. hunter_level_bridge.item_name(reward_vnum) .. " x" .. reward_count)
-                    hunter_level_bridge.hunter_speak(msg)
+                    local msg = get_text("emergency_bonus_item", {ITEM = item_name(reward_vnum), COUNT = reward_count}) or ("BONUS: " .. item_name(reward_vnum) .. " x" .. reward_count)
+                    hunter_speak(msg)
                 end
                 
-                local msg = hunter_level_bridge.get_text("emergency_complete", {POINTS = bonus_pts}) or ("MISSIONE COMPLETATA! +" .. bonus_pts .. " GLORIA")
-                hunter_level_bridge.hunter_speak(msg)
-                hunter_level_bridge.send_player_data()
+                local msg = get_text("emergency_complete", {POINTS = bonus_pts}) or ("MISSIONE COMPLETATA! +" .. bonus_pts .. " GLORIA")
+                hunter_speak(msg)
+                send_player_data()
             else
-                local msg = hunter_level_bridge.get_text("emergency_failed") or "MISSIONE FALLITA."
-                hunter_level_bridge.hunter_speak(msg)
+                local msg = get_text("emergency_failed") or "MISSIONE FALLITA."
+                hunter_speak(msg)
             end
             
             pc.setqf("hq_emerg_reward_pts", 0)
@@ -399,14 +399,14 @@ quest hunter_level_bridge begin
         end
 
         function notify_rival(name, points, label)
-            cmdchat("HunterRivalAlert " .. hunter_level_bridge.clean_str(name) .. "|" .. points .. "|" .. hunter_level_bridge.clean_str(label))
+            cmdchat("HunterRivalAlert " .. clean_str(name) .. "|" .. points .. "|" .. clean_str(label))
         end
 
         function ask_choice_color(qid, text, opt1, opt2, opt3, color_code)
-            local cmd = "HunterWhatIf " .. qid .. "|" .. hunter_level_bridge.clean_str(text) .. "|" .. hunter_level_bridge.clean_str(opt1) .. "|" .. hunter_level_bridge.clean_str(opt2)
+            local cmd = "HunterWhatIf " .. qid .. "|" .. clean_str(text) .. "|" .. clean_str(opt1) .. "|" .. clean_str(opt2)
             local o3_str = ""
             if opt3 and opt3 ~= "" then
-                o3_str = hunter_level_bridge.clean_str(opt3)
+                o3_str = clean_str(opt3)
             end
             cmd = cmd .. "|" .. o3_str
             cmd = cmd .. "|" .. color_code
@@ -491,7 +491,7 @@ quest hunter_level_bridge begin
         
         function get_fracture_voice(color_code, has_points)
             local key = "fracture_voice_" .. (has_points and "ok_" or "no_") .. color_code
-            local txt = hunter_level_bridge.get_text(key)
+            local txt = get_text(key)
             if txt then return txt end
             if has_points then
                 return "Il portale si apre davanti a te..."
@@ -505,7 +505,7 @@ quest hunter_level_bridge begin
         end
         
         function get_active_event()
-            local event = hunter_level_bridge.get_current_scheduled_event()
+            local event = get_current_scheduled_event()
             
             if event then
                 local name = event.event_name or "Evento"
@@ -581,7 +581,7 @@ quest hunter_level_bridge begin
         function is_elite_mob(vnum)
             -- Assicura che la cache sia caricata
             if not _G.hunter_elite_cache or not next(_G.hunter_elite_cache) then
-                hunter_level_bridge.load_elite_cache()
+                load_elite_cache()
             end
 
             -- Check in RAM (VELOCE!)
@@ -592,7 +592,7 @@ quest hunter_level_bridge begin
         function get_mob_info(vnum)
             -- Assicura che la cache sia caricata
             if not _G.hunter_elite_data or not next(_G.hunter_elite_data) then
-                hunter_level_bridge.load_elite_cache()
+                load_elite_cache()
             end
 
             -- Ritorna dati dalla cache
@@ -604,16 +604,16 @@ quest hunter_level_bridge begin
         -- ============================================================
         
         when levelup with pc.get_level() == 5 begin
-            cmdchat("HunterAwakening " .. hunter_level_bridge.clean_str(pc.get_name()))
+            cmdchat("HunterAwakening " .. clean_str(pc.get_name()))
             timer("hq_lv5_msg1", 2)
             timer("hq_lv5_msg2", 5)
             timer("hq_lv5_msg3", 8)
         end
         
         when hq_lv5_msg1.timer begin
-            local t1 = hunter_level_bridge.get_text_colored("lv5_line1a") or "|cffFF0000========================================|r"
-            local t2 = hunter_level_bridge.get_text_colored("lv5_line1b") or "|cffFF0000   ! ! ! ANOMALIA RILEVATA ! ! !|r"
-            local t3 = hunter_level_bridge.get_text_colored("lv5_line1c") or "|cffFF0000========================================|r"
+            local t1 = get_text_colored("lv5_line1a") or "|cffFF0000========================================|r"
+            local t2 = get_text_colored("lv5_line1b") or "|cffFF0000   ! ! ! ANOMALIA RILEVATA ! ! !|r"
+            local t3 = get_text_colored("lv5_line1c") or "|cffFF0000========================================|r"
             syschat(t1)
             syschat(t2)
             syschat(t3)
@@ -621,16 +621,16 @@ quest hunter_level_bridge begin
         
         when hq_lv5_msg2.timer begin
             syschat("")
-            local t1 = hunter_level_bridge.get_text_colored("lv5_line2a") or "|cff888888   Il Sistema ti ha notato...|r"
-            local t2 = hunter_level_bridge.get_text_colored("lv5_line2b") or "|cff888888   Qualcosa si sta risvegliando.|r"
+            local t1 = get_text_colored("lv5_line2a") or "|cff888888   Il Sistema ti ha notato...|r"
+            local t2 = get_text_colored("lv5_line2b") or "|cff888888   Qualcosa si sta risvegliando.|r"
             syschat(t1)
             syschat(t2)
         end
         
         when hq_lv5_msg3.timer begin
             syschat("")
-            local t1 = hunter_level_bridge.get_text_colored("lv5_line3a") or "|cffFFD700   Raggiungi il livello 30...|r"
-            local t2 = hunter_level_bridge.get_text_colored("lv5_line3b") or "|cffFFD700   ...e scoprirai la verita.|r"
+            local t1 = get_text_colored("lv5_line3a") or "|cffFFD700   Raggiungi il livello 30...|r"
+            local t2 = get_text_colored("lv5_line3b") or "|cffFFD700   ...e scoprirai la verita.|r"
             syschat(t1)
             syschat(t2)
             syschat("")
@@ -644,7 +644,7 @@ quest hunter_level_bridge begin
                 mysql_direct_query("INSERT INTO srv1_hunabku.hunter_quest_ranking (player_id, player_name, total_points, spendable_points) VALUES (" .. pid .. ", '" .. pname .. "', 0, 0)")
             end
             
-            cmdchat("HunterActivation " .. hunter_level_bridge.clean_str(pc.get_name()))
+            cmdchat("HunterActivation " .. clean_str(pc.get_name()))
             timer("hq_lv30_msg1", 2)
             timer("hq_lv30_msg2", 5)
             timer("hq_lv30_msg3", 8)
@@ -652,9 +652,9 @@ quest hunter_level_bridge begin
         end
         
         when hq_lv30_msg1.timer begin
-            local t1 = hunter_level_bridge.get_text_colored("lv30_line1a") or "|cff0099FF========================================|r"
-            local t2 = hunter_level_bridge.get_text_colored("lv30_line1b") or "|cff0099FF       [ S Y S T E M ]|r"
-            local t3 = hunter_level_bridge.get_text_colored("lv30_line1c") or "|cff0099FF========================================|r"
+            local t1 = get_text_colored("lv30_line1a") or "|cff0099FF========================================|r"
+            local t2 = get_text_colored("lv30_line1b") or "|cff0099FF       [ S Y S T E M ]|r"
+            local t3 = get_text_colored("lv30_line1c") or "|cff0099FF========================================|r"
             syschat(t1)
             syschat(t2)
             syschat(t3)
@@ -662,17 +662,17 @@ quest hunter_level_bridge begin
         
         when hq_lv30_msg2.timer begin
             syschat("")
-            local t1 = hunter_level_bridge.get_text_colored("lv30_line2a") or "|cffFFD700   HUNTER SYSTEM ATTIVATO|r"
-            local t2 = hunter_level_bridge.get_text("lv30_line2b", {NAME = pc.get_name()}) or ("   Benvenuto, " .. pc.get_name())
+            local t1 = get_text_colored("lv30_line2a") or "|cffFFD700   HUNTER SYSTEM ATTIVATO|r"
+            local t2 = get_text("lv30_line2b", {NAME = pc.get_name()}) or ("   Benvenuto, " .. pc.get_name())
             syschat(t1)
             syschat("|cffFFFFFF" .. t2 .. "|r")
         end
         
         when hq_lv30_msg3.timer begin
             syschat("")
-            local t1 = hunter_level_bridge.get_text_colored("lv30_line3a") or "|cff00FF00   >> Da oggi lotterai per la Gloria!|r"
-            local t2 = hunter_level_bridge.get_text_colored("lv30_line3b") or "|cff00FF00   >> Fratture, Classifiche, Tesori...|r"
-            local t3 = hunter_level_bridge.get_text_colored("lv30_line3c") or "|cff00FF00   >> Ti attendono.|r"
+            local t1 = get_text_colored("lv30_line3a") or "|cff00FF00   >> Da oggi lotterai per la Gloria!|r"
+            local t2 = get_text_colored("lv30_line3b") or "|cff00FF00   >> Fratture, Classifiche, Tesori...|r"
+            local t3 = get_text_colored("lv30_line3c") or "|cff00FF00   >> Ti attendono.|r"
             syschat(t1)
             syschat(t2)
             syschat(t3)
@@ -680,10 +680,10 @@ quest hunter_level_bridge begin
         
         when hq_lv30_msg4.timer begin
             syschat("")
-            local t1 = hunter_level_bridge.get_text_colored("lv30_line4a") or "|cffFF6600   A R I S E|r"
-            local t2 = hunter_level_bridge.get_text_colored("lv30_line4b") or "|cffFFFFFF   Il tuo viaggio come Hunter inizia ORA.|r"
-            local t3 = hunter_level_bridge.get_text_colored("lv30_line4c") or "|cff00FFFF   [Y] - Apri Hunter Terminal|r"
-            local t4 = hunter_level_bridge.get_text_colored("lv30_line1c") or "|cff0099FF========================================|r"
+            local t1 = get_text_colored("lv30_line4a") or "|cffFF6600   A R I S E|r"
+            local t2 = get_text_colored("lv30_line4b") or "|cffFFFFFF   Il tuo viaggio come Hunter inizia ORA.|r"
+            local t3 = get_text_colored("lv30_line4c") or "|cff00FFFF   [Y] - Apri Hunter Terminal|r"
+            local t4 = get_text_colored("lv30_line1c") or "|cff0099FF========================================|r"
             syschat(t1)
             syschat(t2)
             syschat("")
@@ -706,38 +706,38 @@ quest hunter_level_bridge begin
                 total_pts = tonumber(res[1].total_points) or 0
             end
             
-            local rank_num = hunter_level_bridge.get_rank_index(total_pts)
+            local rank_num = get_rank_index(total_pts)
             pc.setqf("hq_rank_num", rank_num)
             pc.setqf("hq_welcome_pts", total_pts)
             
             local last_logout = pc.getqf("hq_last_logout") or 0
             local current_time = get_time()
             local offline_seconds = current_time - last_logout
-            local welcome_threshold = hunter_level_bridge.get_config("welcome_offline_seconds") or 120
+            local welcome_threshold = get_config("welcome_offline_seconds") or 120
             local show_welcome = (offline_seconds >= welcome_threshold)
             
-            hunter_level_bridge.check_login_streak()
-            hunter_level_bridge.check_pending_rewards()
-            hunter_level_bridge.assign_daily_missions()
-            hunter_level_bridge.send_today_events(false)
-            hunter_level_bridge.check_active_event_notify()
+            check_login_streak()
+            check_pending_rewards()
+            assign_daily_missions()
+            send_today_events(false)
+            check_active_event_notify()
             
             if pc.getqf("hq_intro") == 0 then 
                 pc.setqf("hq_intro", 1)
-                hunter_level_bridge.show_awakening_sequence(pname)
+                show_awakening_sequence(pname)
             elseif show_welcome then
                 cmdchat("HunterSystemInit")
                 timer("hq_welcome_msg", 4)
             end
             
             cleartimer("hunter_update_timer")
-            local timer_update = hunter_level_bridge.get_config("timer_update_stats") or 60
+            local timer_update = get_config("timer_update_stats") or 60
             loop_timer("hunter_update_timer", timer_update)
             cleartimer("hunter_tips_timer")
-            local timer_tips = hunter_level_bridge.get_config("timer_tips_random") or 90
+            local timer_tips = get_config("timer_tips_random") or 90
             loop_timer("hunter_tips_timer", timer_tips)
             cleartimer("hunter_reset_check")
-            local timer_reset = hunter_level_bridge.get_config("timer_reset_check") or 60
+            local timer_reset = get_config("timer_reset_check") or 60
             loop_timer("hunter_reset_check", timer_reset)
             
             pc.setqf("hq_emerg_active", 0)
@@ -747,7 +747,7 @@ quest hunter_level_bridge begin
             local pid = pc.get_player_id()
 
             -- PERFORMANCE: Salva accumulatori ranking PRIMA del logout (CRITICO!)
-            hunter_level_bridge.flush_ranking_updates()
+            flush_ranking_updates()
 
             -- Salva tempo logout
             pc.setqf("hq_last_logout", get_time())
@@ -766,11 +766,11 @@ quest hunter_level_bridge begin
         
         when hq_welcome_msg.timer begin
             local pts = pc.getqf("hq_welcome_pts") or 0
-            hunter_level_bridge.show_rank_welcome(pc.get_name(), pts)
+            show_rank_welcome(pc.get_name(), pts)
         end
         
         function show_awakening_sequence(name)
-            cmdchat("HunterAwakening " .. hunter_level_bridge.clean_str(name))
+            cmdchat("HunterAwakening " .. clean_str(name))
             timer("hq_awaken_1", 1)
             timer("hq_awaken_2", 3)
             timer("hq_awaken_3", 5)
@@ -779,60 +779,60 @@ quest hunter_level_bridge begin
         end
         
         when hq_awaken_1.timer begin
-            local speak = hunter_level_bridge.get_text("awaken1_speak") or "[SYSTEM] SCANSIONE BIOLOGICA IN CORSO..."
-            cmdchat("HunterSystemSpeak E|" .. hunter_level_bridge.clean_str(speak))
-            local t1 = hunter_level_bridge.get_text_colored("awaken1_line1") or "|cff00FFFF========================================|r"
-            local t2 = hunter_level_bridge.get_text_colored("awaken1_line2") or "|cffFFFFFF        ...ANALISI IN CORSO...|r"
-            local t3 = hunter_level_bridge.get_text_colored("awaken1_line3") or "|cff00FFFF========================================|r"
+            local speak = get_text("awaken1_speak") or "[SYSTEM] SCANSIONE BIOLOGICA IN CORSO..."
+            cmdchat("HunterSystemSpeak E|" .. clean_str(speak))
+            local t1 = get_text_colored("awaken1_line1") or "|cff00FFFF========================================|r"
+            local t2 = get_text_colored("awaken1_line2") or "|cffFFFFFF        ...ANALISI IN CORSO...|r"
+            local t3 = get_text_colored("awaken1_line3") or "|cff00FFFF========================================|r"
             syschat(t1)
             syschat(t2)
             syschat(t3)
         end
         
         when hq_awaken_2.timer begin
-            local speak = hunter_level_bridge.get_text("awaken2_speak") or "[SYSTEM] COMPATIBILITA CONFERMATA."
-            cmdchat("HunterSystemSpeak E|" .. hunter_level_bridge.clean_str(speak))
+            local speak = get_text("awaken2_speak") or "[SYSTEM] COMPATIBILITA CONFERMATA."
+            cmdchat("HunterSystemSpeak E|" .. clean_str(speak))
             syschat("")
-            local t1 = hunter_level_bridge.get_text_colored("awaken2_line1") or "|cff00FF00   >> COMPATIBILITA: 100 pct <<|r"
-            local t2 = hunter_level_bridge.get_text_colored("awaken2_line2") or "|cff00FF00   >> REQUISITI: SODDISFATTI <<|r"
+            local t1 = get_text_colored("awaken2_line1") or "|cff00FF00   >> COMPATIBILITA: 100 pct <<|r"
+            local t2 = get_text_colored("awaken2_line2") or "|cff00FF00   >> REQUISITI: SODDISFATTI <<|r"
             syschat(t1)
             syschat(t2)
         end
         
         when hq_awaken_3.timer begin
-            local speak = hunter_level_bridge.get_text("awaken3_speak") or "[SYSTEM] NUOVO CACCIATORE REGISTRATO."
-            cmdchat("HunterSystemSpeak E|" .. hunter_level_bridge.clean_str(speak))
+            local speak = get_text("awaken3_speak") or "[SYSTEM] NUOVO CACCIATORE REGISTRATO."
+            cmdchat("HunterSystemSpeak E|" .. clean_str(speak))
             syschat("")
-            local t1 = hunter_level_bridge.get_text("awaken3_line1", {NAME = pc.get_name()}) or ("   NOME: " .. pc.get_name())
-            local t2 = hunter_level_bridge.get_text_colored("awaken3_line2") or "|cff808080   RANGO INIZIALE: [E-RANK]|r"
+            local t1 = get_text("awaken3_line1", {NAME = pc.get_name()}) or ("   NOME: " .. pc.get_name())
+            local t2 = get_text_colored("awaken3_line2") or "|cff808080   RANGO INIZIALE: [E-RANK]|r"
             syschat("|cffFFD700" .. t1 .. "|r")
             syschat(t2)
         end
         
         when hq_awaken_4.timer begin
             syschat("")
-            local t1 = hunter_level_bridge.get_text_colored("awaken4_line1") or "|cffFF0000========================================|r"
-            local t2 = hunter_level_bridge.get_text_colored("awaken4_line2") or "|cffFF6600   !! RISVEGLIO COMPLETATO !!|r"
-            local t3 = hunter_level_bridge.get_text_colored("awaken4_line3") or "|cffFF0000========================================|r"
+            local t1 = get_text_colored("awaken4_line1") or "|cffFF0000========================================|r"
+            local t2 = get_text_colored("awaken4_line2") or "|cffFF6600   !! RISVEGLIO COMPLETATO !!|r"
+            local t3 = get_text_colored("awaken4_line3") or "|cffFF0000========================================|r"
             syschat(t1)
             syschat(t2)
             syschat(t3)
-            local speak = hunter_level_bridge.get_text("awaken4_speak", {NAME = pc.get_name()}) or ("RISVEGLIO COMPLETATO. BENVENUTO, " .. pc.get_name() .. ".")
-            cmdchat("HunterSystemSpeak E|" .. hunter_level_bridge.clean_str(speak))
+            local speak = get_text("awaken4_speak", {NAME = pc.get_name()}) or ("RISVEGLIO COMPLETATO. BENVENUTO, " .. pc.get_name() .. ".")
+            cmdchat("HunterSystemSpeak E|" .. clean_str(speak))
         end
         
         when hq_awaken_5.timer begin
             syschat("")
-            local t1 = hunter_level_bridge.get_text_colored("awaken5_line1") or "|cffFFD700====================================================|r"
-            local t2 = hunter_level_bridge.get_text_colored("awaken5_line2") or "|cff00FFFF        *** HUNTER SYSTEM v36.0 ATTIVATO ***|r"
-            local t3 = hunter_level_bridge.get_text_colored("awaken5_line3") or "|cffFFD700====================================================|r"
-            local t4 = hunter_level_bridge.get_text_colored("awaken5_line4") or "|cffFFFFFF   Il Sistema ti ha scelto. Da questo momento:|r"
-            local t5 = hunter_level_bridge.get_text_colored("awaken5_line5") or "|cff00FF00   >> Ogni nemico cadra sotto la tua lama|r"
-            local t6 = hunter_level_bridge.get_text_colored("awaken5_line6") or "|cff00FF00   >> Ogni vittoria sara registrata|r"
-            local t7 = hunter_level_bridge.get_text_colored("awaken5_line7") or "|cff00FF00   >> Ogni rank sara conquistato|r"
-            local t8 = hunter_level_bridge.get_text_colored("awaken5_line8") or "|cffFFAA00   'Inizia con un solo passo...'|r"
-            local t9 = hunter_level_bridge.get_text_colored("awaken5_line9") or "|cffFFAA00   'Finisci come una Leggenda.'|r"
-            local t10 = hunter_level_bridge.get_text_colored("awaken5_line10") or "|cff00FF00   [Y] - Apri Hunter Terminal|r"
+            local t1 = get_text_colored("awaken5_line1") or "|cffFFD700====================================================|r"
+            local t2 = get_text_colored("awaken5_line2") or "|cff00FFFF        *** HUNTER SYSTEM v36.0 ATTIVATO ***|r"
+            local t3 = get_text_colored("awaken5_line3") or "|cffFFD700====================================================|r"
+            local t4 = get_text_colored("awaken5_line4") or "|cffFFFFFF   Il Sistema ti ha scelto. Da questo momento:|r"
+            local t5 = get_text_colored("awaken5_line5") or "|cff00FF00   >> Ogni nemico cadra sotto la tua lama|r"
+            local t6 = get_text_colored("awaken5_line6") or "|cff00FF00   >> Ogni vittoria sara registrata|r"
+            local t7 = get_text_colored("awaken5_line7") or "|cff00FF00   >> Ogni rank sara conquistato|r"
+            local t8 = get_text_colored("awaken5_line8") or "|cffFFAA00   'Inizia con un solo passo...'|r"
+            local t9 = get_text_colored("awaken5_line9") or "|cffFFAA00   'Finisci come una Leggenda.'|r"
+            local t10 = get_text_colored("awaken5_line10") or "|cff00FF00   [Y] - Apri Hunter Terminal|r"
             syschat(t1)
             syschat(t2)
             syschat(t3)
@@ -850,9 +850,9 @@ quest hunter_level_bridge begin
         end
         
         function show_rank_welcome(name, points)
-            local rank_key = hunter_level_bridge.get_rank_key(points)
-            local rank_data = hunter_level_bridge.get_rank_data(rank_key)
-            cmdchat("HunterWelcome " .. rank_key .. "|" .. hunter_level_bridge.clean_str(name) .. "|" .. points)
+            local rank_key = get_rank_key(points)
+            local rank_data = get_rank_data(rank_key)
+            cmdchat("HunterWelcome " .. rank_key .. "|" .. clean_str(name) .. "|" .. points)
             syschat("")
             syschat(rank_data.border)
             syschat(rank_data.title_line)
@@ -869,12 +869,12 @@ quest hunter_level_bridge begin
         end
         
         function get_rank_key(points)
-            local N = tonumber(hunter_level_bridge.get_config("rank_threshold_N")) or 1500000
-            local S = tonumber(hunter_level_bridge.get_config("rank_threshold_S")) or 500000
-            local A = tonumber(hunter_level_bridge.get_config("rank_threshold_A")) or 150000
-            local B = tonumber(hunter_level_bridge.get_config("rank_threshold_B")) or 50000
-            local C = tonumber(hunter_level_bridge.get_config("rank_threshold_C")) or 10000
-            local D = tonumber(hunter_level_bridge.get_config("rank_threshold_D")) or 2000
+            local N = tonumber(get_config("rank_threshold_N")) or 1500000
+            local S = tonumber(get_config("rank_threshold_S")) or 500000
+            local A = tonumber(get_config("rank_threshold_A")) or 150000
+            local B = tonumber(get_config("rank_threshold_B")) or 50000
+            local C = tonumber(get_config("rank_threshold_C")) or 10000
+            local D = tonumber(get_config("rank_threshold_D")) or 2000
 
             if points >= N then return "N"
             elseif points >= S then return "S"
@@ -886,13 +886,13 @@ quest hunter_level_bridge begin
         end
 
         function get_rank_data(rank_key)
-            local border = hunter_level_bridge.get_text_colored("welcome_" .. rank_key .. "_border")
-            local title = hunter_level_bridge.get_text_colored("welcome_" .. rank_key .. "_title")
-            local line1 = hunter_level_bridge.get_text_colored("welcome_" .. rank_key .. "_line1")
-            local line2 = hunter_level_bridge.get_text_colored("welcome_" .. rank_key .. "_line2")
-            local line3 = hunter_level_bridge.get_text_colored("welcome_" .. rank_key .. "_line3")
-            local stats = hunter_level_bridge.get_text_colored("welcome_" .. rank_key .. "_stats")
-            local quote = hunter_level_bridge.get_text_colored("welcome_" .. rank_key .. "_quote")
+            local border = get_text_colored("welcome_" .. rank_key .. "_border")
+            local title = get_text_colored("welcome_" .. rank_key .. "_title")
+            local line1 = get_text_colored("welcome_" .. rank_key .. "_line1")
+            local line2 = get_text_colored("welcome_" .. rank_key .. "_line2")
+            local line3 = get_text_colored("welcome_" .. rank_key .. "_line3")
+            local stats = get_text_colored("welcome_" .. rank_key .. "_stats")
+            local quote = get_text_colored("welcome_" .. rank_key .. "_quote")
             
             local fallback = {
                 ["E"] = {
@@ -920,12 +920,12 @@ quest hunter_level_bridge begin
         
         when hunter_reset_check.timer begin
             local ts = get_time()
-            local hour = hunter_level_bridge.get_hour_from_ts(ts)
-            local min = hunter_level_bridge.get_min_from_ts(ts)
-            local dow = hunter_level_bridge.get_dow_from_ts(ts)
+            local hour = get_hour_from_ts(ts)
+            local min = get_min_from_ts(ts)
+            local dow = get_dow_from_ts(ts)
             
             if hour >= 22 then
-                hunter_level_bridge.check_missions_reminder()
+                check_missions_reminder()
             end
             
             if hour == 0 and min == 0 then
@@ -933,8 +933,8 @@ quest hunter_level_bridge begin
                 local today = math.floor(get_time() / 86400)
                 if last_daily < today then
                     game.set_event_flag("hunter_last_daily_reset", today)
-                    hunter_level_bridge.announce_daily_winners()
-                    hunter_level_bridge.process_daily_reset()
+                    announce_daily_winners()
+                    process_daily_reset()
                 end
                 
                 if dow == 1 then
@@ -942,8 +942,8 @@ quest hunter_level_bridge begin
                     local this_week = math.floor(get_time() / 604800)
                     if last_weekly < this_week then
                         game.set_event_flag("hunter_last_weekly_reset", this_week)
-                        hunter_level_bridge.announce_weekly_winners()
-                        hunter_level_bridge.process_weekly_reset()
+                        announce_weekly_winners()
+                        process_weekly_reset()
                     end
                 end
             end
@@ -953,7 +953,7 @@ quest hunter_level_bridge begin
         -- Dati ora vengono inviati SOLO quando il player apre la UI, non ogni 60s
         when hunter_update_timer.timer begin
             -- SOLO check overtake (leggero), no invio dati pesanti
-            hunter_level_bridge.check_if_overtaken()
+            check_if_overtaken()
             -- send_player_data() ora viene chiamato solo da /hunter_open
             -- send_timers() ora viene chiamato solo da /hunter_open
             -- send_event() ora viene chiamato solo da /hunter_open
@@ -963,7 +963,7 @@ quest hunter_level_bridge begin
             if pc.getqf("hq_emerg_active") == 1 then
                 local expire = pc.getqf("hq_emerg_expire") or 0
                 if get_time() > expire then
-                    hunter_level_bridge.end_emergency("FAIL")
+                    end_emergency("FAIL")
                 end
             else
                 cleartimer("hunter_emerg_tmr")
@@ -992,12 +992,12 @@ quest hunter_level_bridge begin
             pc.setqf("hq_login_streak", streak)
             pc.setqf("hq_last_login_day", today)
             
-            local days_tier3 = tonumber(hunter_level_bridge.get_config("streak_days_tier3")) or 30
-            local bonus_tier3 = tonumber(hunter_level_bridge.get_config("streak_bonus_30days")) or 20
-            local days_tier2 = tonumber(hunter_level_bridge.get_config("streak_days_tier2")) or 7
-            local bonus_tier2 = tonumber(hunter_level_bridge.get_config("streak_bonus_7days")) or 10
-            local days_tier1 = tonumber(hunter_level_bridge.get_config("streak_days_tier1")) or 3
-            local bonus_tier1 = tonumber(hunter_level_bridge.get_config("streak_bonus_3days")) or 5
+            local days_tier3 = tonumber(get_config("streak_days_tier3")) or 30
+            local bonus_tier3 = tonumber(get_config("streak_bonus_30days")) or 20
+            local days_tier2 = tonumber(get_config("streak_days_tier2")) or 7
+            local bonus_tier2 = tonumber(get_config("streak_bonus_7days")) or 10
+            local days_tier1 = tonumber(get_config("streak_days_tier1")) or 3
+            local bonus_tier1 = tonumber(get_config("streak_bonus_3days")) or 5
 
             local bonus = 0
             if streak >= days_tier3 then
@@ -1009,11 +1009,11 @@ quest hunter_level_bridge begin
             end
             pc.setqf("hq_streak_bonus", bonus)
             if streak > 1 then
-                local db_msg = hunter_level_bridge.get_streak_message(streak)
+                local db_msg = get_streak_message(streak)
                 if db_msg then
-                    hunter_level_bridge.hunter_speak(db_msg)
+                    hunter_speak(db_msg)
                 else
-                    hunter_level_bridge.hunter_speak("STREAK GIORNALIERA: " .. streak .. " GIORNI. BONUS: " .. bonus .. " pct")
+                    hunter_speak("STREAK GIORNALIERA: " .. streak .. " GIORNI. BONUS: " .. bonus .. " pct")
                 end
             end
         end
@@ -1023,8 +1023,8 @@ quest hunter_level_bridge begin
             local c, d = mysql_direct_query("SELECT pending_daily_reward, pending_weekly_reward FROM srv1_hunabku.hunter_quest_ranking WHERE player_id=" .. pid)
             if c > 0 and d[1] then
                 if (tonumber(d[1].pending_daily_reward) or 0) > 0 or (tonumber(d[1].pending_weekly_reward) or 0) > 0 then
-                    local msg = hunter_level_bridge.get_text("pending_rewards") or "RICOMPENSE IN ATTESA. CONTROLLA IL TERMINALE."
-                    hunter_level_bridge.hunter_speak(msg)
+                    local msg = get_text("pending_rewards") or "RICOMPENSE IN ATTESA. CONTROLLA IL TERMINALE."
+                    hunter_speak(msg)
                 end
             end
         end
@@ -1036,48 +1036,48 @@ quest hunter_level_bridge begin
                 local by_name = d[1].overtaken_by
                 local diff = tonumber(d[1].overtaken_diff) or 0
                 local label = d[1].overtaken_label or "Gloria"
-                cmdchat("HunterRivalAlert " .. hunter_level_bridge.clean_str(by_name) .. "|" .. diff .. "|" .. hunter_level_bridge.clean_str(label) .. "|SUPERATO")
+                cmdchat("HunterRivalAlert " .. clean_str(by_name) .. "|" .. diff .. "|" .. clean_str(label) .. "|SUPERATO")
                 mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET overtaken_by=NULL, overtaken_diff=0, overtaken_label=NULL WHERE player_id=" .. pid)
             end
         end
 
         function check_rank_up(old_points, new_points)
-            local old_rank = hunter_level_bridge.get_rank_index(old_points)
-            local new_rank = hunter_level_bridge.get_rank_index(new_points)
+            local old_rank = get_rank_index(old_points)
+            local new_rank = get_rank_index(new_points)
             
             if new_rank > old_rank then
-                local new_letter = hunter_level_bridge.get_rank_letter(new_rank)
+                local new_letter = get_rank_letter(new_rank)
                 local pid = pc.get_player_id()
                 
-                cmdchat("HunterRankUp " .. hunter_level_bridge.get_rank_letter(old_rank) .. "|" .. new_letter)
+                cmdchat("HunterRankUp " .. get_rank_letter(old_rank) .. "|" .. new_letter)
                 pc.setqf("hq_rank_num", new_rank)
 
                 -- PERFORMANCE: Salva tutti i punti accumulati PRIMA del rank up!
-                hunter_level_bridge.flush_ranking_updates()
+                flush_ranking_updates()
 
                 -- *** FIX: Aggiorna anche il rank nel DATABASE ***
                 mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET hunter_rank='" .. new_letter .. "', current_rank='" .. new_letter .. "' WHERE player_id=" .. pid)
                 
                 if new_rank >= 4 then
                     notice_all("")
-                    local global_msg = hunter_level_bridge.get_text("rank_up_global", {NAME = pc.get_name(), RANK = new_letter}) or ("|cffFFD700[RANK UP]|r |cffFFFFFF" .. pc.get_name() .. "|r e' salito al rango [" .. new_letter .. "-RANK]!")
+                    local global_msg = get_text("rank_up_global", {NAME = pc.get_name(), RANK = new_letter}) or ("|cffFFD700[RANK UP]|r |cffFFFFFF" .. pc.get_name() .. "|r e' salito al rango [" .. new_letter .. "-RANK]!")
                     notice_all(global_msg)
                     notice_all("")
                 end
                 
-                local msg = hunter_level_bridge.get_text("rank_up_msg", {RANK = new_letter}) or ("RANK UP! Sei ora un " .. new_letter .. "-RANK Hunter!")
-                hunter_level_bridge.hunter_speak(msg)
+                local msg = get_text("rank_up_msg", {RANK = new_letter}) or ("RANK UP! Sei ora un " .. new_letter .. "-RANK Hunter!")
+                hunter_speak(msg)
             end
         end
         
         function check_overtake(pid, pname, col_name, added_val, label_nice)
             local RIVAL_RANGES = {
-                ["daily_points"]    = tonumber(hunter_level_bridge.get_config("rival_range_daily")) or 500,
-                ["weekly_points"]   = tonumber(hunter_level_bridge.get_config("rival_range_weekly")) or 2000,
-                ["total_metins"]    = tonumber(hunter_level_bridge.get_config("rival_range_metins")) or 50,
-                ["total_chests"]    = tonumber(hunter_level_bridge.get_config("rival_range_chests")) or 50,
-                ["total_fractures"] = tonumber(hunter_level_bridge.get_config("rival_range_fractures")) or 20,
-                ["total_points"]    = tonumber(hunter_level_bridge.get_config("rival_range_total")) or 50000,
+                ["daily_points"]    = tonumber(get_config("rival_range_daily")) or 500,
+                ["weekly_points"]   = tonumber(get_config("rival_range_weekly")) or 2000,
+                ["total_metins"]    = tonumber(get_config("rival_range_metins")) or 50,
+                ["total_chests"]    = tonumber(get_config("rival_range_chests")) or 50,
+                ["total_fractures"] = tonumber(get_config("rival_range_fractures")) or 20,
+                ["total_points"]    = tonumber(get_config("rival_range_total")) or 50000,
             }
             local limit = RIVAL_RANGES[col_name] or 50000
             local q_me = "SELECT " .. col_name .. " FROM srv1_hunabku.hunter_quest_ranking WHERE player_id=" .. pid
@@ -1091,7 +1091,7 @@ quest hunter_level_bridge begin
             if ca > 0 and da[1] then
                 local diff = tonumber(da[1].score) - new_score
                 if diff > 0 and diff < limit then
-                    hunter_level_bridge.notify_rival(da[1].player_name, diff, label_nice)
+                    notify_rival(da[1].player_name, diff, label_nice)
                 end
             end
             
@@ -1109,7 +1109,7 @@ quest hunter_level_bridge begin
                     local new_pos = 99
                     if cp > 0 and dp[1] then new_pos = tonumber(dp[1].pos) + 1 end
                     if col_name == "daily_points" or col_name == "weekly_points" then
-                        cmdchat("HunterOvertake " .. hunter_level_bridge.clean_str(overtaken_name) .. "|" .. new_pos)
+                        cmdchat("HunterOvertake " .. clean_str(overtaken_name) .. "|" .. new_pos)
                     end
                 end
             end
@@ -1121,13 +1121,13 @@ quest hunter_level_bridge begin
         
         when kill with not npc.is_pc() and pc.get_level() >= 5 begin
             local vnum = npc.get_race()
-            hunter_level_bridge.on_emergency_kill(vnum)
-            hunter_level_bridge.on_defense_mob_kill()
-            hunter_level_bridge.on_mob_kill(vnum)
-            if hunter_level_bridge.is_elite_mob(vnum) then
-                hunter_level_bridge.process_elite_kill(vnum)
+            on_emergency_kill(vnum)
+            on_defense_mob_kill()
+            on_mob_kill(vnum)
+            if is_elite_mob(vnum) then
+                process_elite_kill(vnum)
             else
-                hunter_level_bridge.process_normal_kill()
+                process_normal_kill()
             end
         end
         
@@ -1138,10 +1138,10 @@ quest hunter_level_bridge begin
                     local current = pc.getqf("hq_emerg_cur") + 1
                     local required = pc.getqf("hq_emerg_req")
                     pc.setqf("hq_emerg_cur", current)
-                    hunter_level_bridge.update_emergency(current)
+                    update_emergency(current)
 
                     if current >= required then
-                        hunter_level_bridge.end_emergency("SUCCESS")
+                        end_emergency("SUCCESS")
                     end
                 end
             end
@@ -1157,15 +1157,15 @@ quest hunter_level_bridge begin
             if killed >= total and total > 0 then
                 local start_time = pc.getqf("hq_defense_start") or 0
                 local elapsed = get_time() - start_time
-                local duration = hunter_level_bridge.get_defense_config("defense_duration", 60)
+                local duration = get_defense_config("defense_duration", 60)
                 if elapsed < duration then
-                    hunter_level_bridge.complete_defense_success()
+                    complete_defense_success()
                 end
             end
         end
 
         function process_elite_kill(vnum)
-            local mob_info = hunter_level_bridge.get_mob_info(vnum)
+            local mob_info = get_mob_info(vnum)
             if not mob_info then return end
             
             local pid = pc.get_player_id()
@@ -1185,8 +1185,8 @@ quest hunter_level_bridge begin
                     pc.setqf("hq_speedkill_active", 0)
                     cleartimer("hq_speedkill_timer")
                     cmdchat("HunterSpeedKillEnd 1")
-                    local msg = hunter_level_bridge.get_text("speedkill_success") or "SPEED KILL! GLORIA x2!"
-                    hunter_level_bridge.hunter_speak_color(msg, "GOLD")
+                    local msg = get_text("speedkill_success") or "SPEED KILL! GLORIA x2!"
+                    hunter_speak_color(msg, "GOLD")
                 else
                     pc.setqf("hq_speedkill_active", 0)
                     cleartimer("hq_speedkill_timer")
@@ -1200,18 +1200,18 @@ quest hunter_level_bridge begin
             end
             
             local player_pts = pc.getqf("hq_total_points") or 0
-            local rank_bonus = hunter_level_bridge.get_rank_bonus(player_pts)
+            local rank_bonus = get_rank_bonus(player_pts)
             if rank_bonus > 0 then
                 base_pts = base_pts + math.floor(base_pts * rank_bonus / 100)
             end
             
-            local evt_name, evt_mult, evt_type = hunter_level_bridge.get_active_event()
+            local evt_name, evt_mult, evt_type = get_active_event()
             if evt_type == "points" then
                 base_pts = math.floor(base_pts * evt_mult)
                 syschat("|cffFFD700[EVENTO ATTIVO]|r Gloria x" .. evt_mult .. "!")
             end
 
-            local trial_mult = hunter_level_bridge.get_trial_gloria_multiplier()
+            local trial_mult = get_trial_gloria_multiplier()
             if trial_mult < 1.0 then
                 local original_pts = base_pts
                 base_pts = math.floor(base_pts * trial_mult)
@@ -1219,35 +1219,35 @@ quest hunter_level_bridge begin
                 syschat("|cffFF6600[PROVA D'ESAME]|r -" .. reduced .. " Gloria (-50% fino a completamento prova)")
             end
 
-            hunter_level_bridge.check_overtake(pid, pname, "daily_points", base_pts, "GIORNALIERA")
-            hunter_level_bridge.check_overtake(pid, pname, "weekly_points", base_pts, "SETTIMANALE")
+            check_overtake(pid, pname, "daily_points", base_pts, "GIORNALIERA")
+            check_overtake(pid, pname, "weekly_points", base_pts, "SETTIMANALE")
 
             local old_total_pts = pc.getqf("hq_total_points") or 0
 
             -- PERFORMANCE: Accumula in quest flags invece di UPDATE immediato!
-            hunter_level_bridge.add_pending_points(base_pts, base_pts, base_pts)
-            hunter_level_bridge.add_pending_kill()
+            add_pending_points(base_pts, base_pts, base_pts)
+            add_pending_kill()
 
             pc.setqf("hq_total_kills", (pc.getqf("hq_total_kills") or 0) + 1)
             local new_total_pts = old_total_pts + base_pts
             pc.setqf("hq_total_points", new_total_pts)
 
             -- Check se il giocatore è salito di rank
-            hunter_level_bridge.check_rank_up(old_total_pts, new_total_pts)
+            check_rank_up(old_total_pts, new_total_pts)
 
             if mob_info.type_name == "SUPER_METIN" then
-                hunter_level_bridge.check_overtake(pid, pname, "total_metins", 1, "METIN")
+                check_overtake(pid, pname, "total_metins", 1, "METIN")
                 -- PERFORMANCE: Accumula invece di UPDATE immediato
                 pc.setqf("hq_pending_metins", (pc.getqf("hq_pending_metins") or 0) + 1)
                 -- MISSION HOOK: Metin ucciso
-                hunter_level_bridge.on_metin_kill(vnum)
+                on_metin_kill(vnum)
             elseif mob_info.type_name == "BAULE" then
-                hunter_level_bridge.check_overtake(pid, pname, "total_chests", 1, "BAULI")
+                check_overtake(pid, pname, "total_chests", 1, "BAULI")
                 -- PERFORMANCE: Accumula invece di UPDATE immediato
                 pc.setqf("hq_pending_chests", (pc.getqf("hq_pending_chests") or 0) + 1)
-                hunter_level_bridge.give_chest_reward()
+                give_chest_reward()
             elseif mob_info.type_name == "BOSS" then
-                hunter_level_bridge.on_boss_kill(vnum)
+                on_boss_kill(vnum)
             end
             
             local pending = pc.getqf("hq_pending_elite") or 0
@@ -1255,11 +1255,11 @@ quest hunter_level_bridge begin
                 pc.setqf("hq_pending_elite", pending - 1) 
             end
             
-            local msg = hunter_level_bridge.get_text("target_eliminated", {NAME = mob_info.name, POINTS = base_pts}) or ("BERSAGLIO ELIMINATO: " .. mob_info.name .. " | +" .. base_pts .. " GLORIA")
-            hunter_level_bridge.hunter_speak_color(msg, mob_info.rank_color or "BLUE")
+            local msg = get_text("target_eliminated", {NAME = mob_info.name, POINTS = base_pts}) or ("BERSAGLIO ELIMINATO: " .. mob_info.name .. " | +" .. base_pts .. " GLORIA")
+            hunter_speak_color(msg, mob_info.rank_color or "BLUE")
             
-            hunter_level_bridge.check_achievements()
-            hunter_level_bridge.send_player_data()
+            check_achievements()
+            send_player_data()
         end
         
         function process_normal_kill()
@@ -1271,10 +1271,10 @@ quest hunter_level_bridge begin
                 end
             end
 
-            local threshold = hunter_level_bridge.get_config("spawn_threshold_normal")
+            local threshold = get_config("spawn_threshold_normal")
             if threshold <= 0 then threshold = 1000 end 
 
-            local evt_name, evt_mult, evt_type = hunter_level_bridge.get_active_event()
+            local evt_name, evt_mult, evt_type = get_active_event()
             if evt_type == "threshold" then 
                 threshold = math.floor(threshold * evt_mult)
             elseif evt_type == "chance" then
@@ -1290,15 +1290,15 @@ quest hunter_level_bridge begin
             if kills >= threshold then 
                 pc.setqf("hq_normal_kills", 0)
                 
-                local emerg_chance = hunter_level_bridge.get_config("emergency_chance_percent")
+                local emerg_chance = get_config("emergency_chance_percent")
                 if emerg_chance <= 0 then emerg_chance = 35 end 
                 
                 local roll = number(1, 100)
                 
                 if roll <= emerg_chance then
-                    hunter_level_bridge.trigger_random_emergency()
+                    trigger_random_emergency()
                 else
-                    hunter_level_bridge.spawn_fracture() 
+                    spawn_fracture() 
                 end
             end
         end
@@ -1321,13 +1321,13 @@ quest hunter_level_bridge begin
                 pc.setqf("hq_emerg_reward_vnum", tonumber(mission.reward_item_vnum) or 0)
                 pc.setqf("hq_emerg_reward_count", tonumber(mission.reward_item_count) or 0)
                 
-                hunter_level_bridge.start_emergency(mission.name, tonumber(mission.duration_seconds), tonumber(mission.target_vnum), tonumber(mission.target_count))
+                start_emergency(mission.name, tonumber(mission.duration_seconds), tonumber(mission.target_vnum), tonumber(mission.target_count))
                 
                 local diff_color = {EASY = "|cff00FF00", MEDIUM = "|cffFFFF00", HARD = "|cffFF8800", EXTREME = "|cffFF0000"}
                 local dc = diff_color[mission.difficulty] or "|cffFFFFFF"
                 syschat(dc .. "[" .. mission.difficulty .. "]|r Missione: " .. mission.name)
             else
-                hunter_level_bridge.start_emergency("Orda Improvvisa", 60, 0, 20)
+                start_emergency("Orda Improvvisa", 60, 0, 20)
             end
         end
         
@@ -1336,11 +1336,11 @@ quest hunter_level_bridge begin
             if c > 0 and d[1] then
                 local v, q, b = tonumber(d[1].item_vnum), tonumber(d[1].item_quantity), tonumber(d[1].bonus_points) or 0
                 pc.give_item2(v, q)
-                local msg = hunter_level_bridge.get_text("chest_opened", {ITEM = hunter_level_bridge.item_name(v)}) or ("BAULE APERTO: OTTENUTO " .. hunter_level_bridge.item_name(v))
-                hunter_level_bridge.hunter_speak(msg)
+                local msg = get_text("chest_opened", {ITEM = item_name(v)}) or ("BAULE APERTO: OTTENUTO " .. item_name(v))
+                hunter_speak(msg)
                 if b > 0 then
                     mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET total_points=total_points+"..b..", spendable_points=spendable_points+"..b.." WHERE player_id="..pc.get_player_id())
-                    local bonus_msg = hunter_level_bridge.get_text("chest_bonus", {POINTS = b}) or ("Incredibile! Il baule conteneva anche " .. b .. " Gloria!")
+                    local bonus_msg = get_text("chest_bonus", {POINTS = b}) or ("Incredibile! Il baule conteneva anche " .. b .. " Gloria!")
                     syschat("|cffFFD700[BONUS]|r " .. bonus_msg)
                 end
             end
@@ -1361,8 +1361,8 @@ quest hunter_level_bridge begin
                 end
             end
             if u > 0 then 
-                local msg = hunter_level_bridge.get_text("achievements_unlocked", {COUNT = u}) or ("TRAGUARDI SBLOCCATI: " .. u)
-                hunter_level_bridge.hunter_speak(msg)
+                local msg = get_text("achievements_unlocked", {COUNT = u}) or ("TRAGUARDI SBLOCCATI: " .. u)
+                hunter_speak(msg)
             end
         end
         
@@ -1371,7 +1371,7 @@ quest hunter_level_bridge begin
             if c == 0 then return end
             
             local roll = number(1, 100)
-            local evt_name = hunter_level_bridge.get_active_event()
+            local evt_name = get_active_event()
             if evt_name == "RED+MOON" then 
                 roll = number(50, 100) 
             end
@@ -1388,8 +1388,8 @@ quest hunter_level_bridge begin
             
             local x, y = pc.get_local_x(), pc.get_local_y()
             mob.spawn(sel_vnum, x + 3, y + 3, 1)
-            local msg = hunter_level_bridge.get_text("fracture_detected", {RANK = sel_rank}) or ("ATTENZIONE: FRATTURA " .. sel_rank .. " RILEVATA.")
-            hunter_level_bridge.hunter_speak_color(msg, sel_color)
+            local msg = get_text("fracture_detected", {RANK = sel_rank}) or ("ATTENZIONE: FRATTURA " .. sel_rank .. " RILEVATA.")
+            hunter_speak_color(msg, sel_color)
         end
 
         -- ============================================================
@@ -1406,7 +1406,7 @@ quest hunter_level_bridge begin
             if owner_pid > 0 then
                 if owner_pid == pid then
                     -- IL VINCITORE LA APRE ORA
-                    hunter_level_bridge.finalize_gate_opening(vid)
+                    finalize_gate_opening(vid)
                 else
                     syschat("|cffFF0000[SISTEMA]|r Questa frattura e' stata conquistata da un altro Hunter!")
                 end
@@ -1444,22 +1444,22 @@ quest hunter_level_bridge begin
             pc.setqf("hq_temp_gate_vnum", vnum)
             pc.setqf("hq_temp_gate_freq", freq)
             pc.setqf("hq_temp_player_pts", player_pts)
-            hunter_level_bridge.set_temp_gate_data(pid, {
+            set_temp_gate_data(pid, {
                 fname = fname,
                 frank = frank,
                 fcolor = fcolor
             })
             
-            local whatif_chance = hunter_level_bridge.get_config("whatif_chance_percent") or 50
+            local whatif_chance = get_config("whatif_chance_percent") or 50
             if number(1, 100) <= whatif_chance then
                 -- === WHAT-IF SCENARIO (90%) ===
-                local voice_ok = hunter_level_bridge.get_fracture_voice(fcolor, true)
-                local voice_no = hunter_level_bridge.get_fracture_voice(fcolor, false)
-                local seal_bonus = hunter_level_bridge.get_config("seal_fracture_bonus") or 200
-                local opt1_ok = hunter_level_bridge.get_text("whatif_opt1_ok") or ">> ATTRAVERSA IL PORTALE"
-                local opt1_force = hunter_level_bridge.get_text("whatif_opt1_force") or ">> FORZA [Party 4+]"
-                local opt2 = hunter_level_bridge.get_text("whatif_opt2_seal", {POINTS = seal_bonus}) or ("|| SIGILLA [+" .. seal_bonus .. " Gloria]")
-                local opt3 = hunter_level_bridge.get_text("whatif_opt3_retreat") or "<< INDIETREGGIA"
+                local voice_ok = get_fracture_voice(fcolor, true)
+                local voice_no = get_fracture_voice(fcolor, false)
+                local seal_bonus = get_config("seal_fracture_bonus") or 200
+                local opt1_ok = get_text("whatif_opt1_ok") or ">> ATTRAVERSA IL PORTALE"
+                local opt1_force = get_text("whatif_opt1_force") or ">> FORZA [Party 4+]"
+                local opt2 = get_text("whatif_opt2_seal", {POINTS = seal_bonus}) or ("|| SIGILLA [+" .. seal_bonus .. " Gloria]")
+                local opt3 = get_text("whatif_opt3_retreat") or "<< INDIETREGGIA"
                 
                 local question_text = ""
                 local opt1 = ""
@@ -1473,28 +1473,28 @@ quest hunter_level_bridge begin
                     opt1 = opt1_force
                 end
                 
-                hunter_level_bridge.ask_choice_color("gate_main", question_text, opt1, opt2, opt3, fcolor)
+                ask_choice_color("gate_main", question_text, opt1, opt2, opt3, fcolor)
             else
                 -- === CLASSIC QUEST SCENARIO (50 pct) ===
                 say_title("? " .. fname .. " ?")
                 say("")
-                say(hunter_level_bridge.get_text("classic_gate_intro") or "Questo portale emana un'energia instabile.")
+                say(get_text("classic_gate_intro") or "Questo portale emana un'energia instabile.")
                 say("")
                 if player_pts >= freq then
-                    say(hunter_level_bridge.get_text("classic_gate_worthy") or "Il tuo Rango Hunter e' sufficiente.")
-                    say(hunter_level_bridge.get_text("classic_gate_ask") or "Vuoi spezzare il sigillo ed entrare?")
+                    say(get_text("classic_gate_worthy") or "Il tuo Rango Hunter e' sufficiente.")
+                    say(get_text("classic_gate_ask") or "Vuoi spezzare il sigillo ed entrare?")
                     say("")
                     if select("Apri Gate", "Chiudi") == 1 then
-                        hunter_level_bridge.open_gate(fname, frank, fcolor, pid)
+                        open_gate(fname, frank, fcolor, pid)
                     end
                 else
-                    say(hunter_level_bridge.get_text("classic_gate_not_worthy") or "Non possiedi abbastanza Gloria.")
+                    say(get_text("classic_gate_not_worthy") or "Non possiedi abbastanza Gloria.")
                     say("Gloria Richiesta: " .. freq)
                     say("")
                     if party.is_party() and party.get_near_count() >= 4 then
                         say_reward("Il tuo Party (4+) puo' forzarlo!")
                         if select("Forza Gate", "Chiudi") == 1 then
-                            hunter_level_bridge.open_gate(fname, frank, fcolor, pid)
+                            open_gate(fname, frank, fcolor, pid)
                         end
                     else
                         select("Chiudi")
@@ -1520,44 +1520,44 @@ quest hunter_level_bridge begin
                 local player_pts = pc.getqf("hq_temp_player_pts") or 0
                 local pid = pc.get_player_id()
                 
-                local temp_data = hunter_level_bridge.get_temp_gate_data(pid)
+                local temp_data = get_temp_gate_data(pid)
                 local fname = temp_data.fname or "Frattura"
                 local frank = temp_data.frank or "E-Rank"
                 local fcolor = temp_data.fcolor or "PURPLE"
                 
                 if choice == 1 then
                     if player_pts >= freq then
-                        local msg = hunter_level_bridge.get_text("whatif_seal_break") or "IL SIGILLO SI SPEZZA. PREPARATI."
-                        hunter_level_bridge.hunter_speak_color(msg, fcolor)
-                        hunter_level_bridge.open_gate(fname, frank, fcolor, pid)
+                        local msg = get_text("whatif_seal_break") or "IL SIGILLO SI SPEZZA. PREPARATI."
+                        hunter_speak_color(msg, fcolor)
+                        open_gate(fname, frank, fcolor, pid)
                     else
                         if party.is_party() and party.get_near_count() >= 4 then
-                            local msg = hunter_level_bridge.get_text("whatif_party_force") or "IL PARTY FORZA IL SIGILLO!"
-                            hunter_level_bridge.hunter_speak_color(msg, fcolor)
-                            hunter_level_bridge.open_gate(fname, frank, fcolor, pid)
-                            local raid_msg = hunter_level_bridge.get_text("classic_raid_announce", {PLAYER = pc.get_name(), RANK = frank}) or ("|cffFF0000[RAID]|r Il Party di " .. pc.get_name() .. " ha forzato un Gate " .. frank .. "!")
+                            local msg = get_text("whatif_party_force") or "IL PARTY FORZA IL SIGILLO!"
+                            hunter_speak_color(msg, fcolor)
+                            open_gate(fname, frank, fcolor, pid)
+                            local raid_msg = get_text("classic_raid_announce", {PLAYER = pc.get_name(), RANK = frank}) or ("|cffFF0000[RAID]|r Il Party di " .. pc.get_name() .. " ha forzato un Gate " .. frank .. "!")
                             notice_all(raid_msg)
                         else
-                            local msg = hunter_level_bridge.get_text("whatif_need_party") or "ERRORE: SERVONO 4 MEMBRI VICINI."
-                            hunter_level_bridge.hunter_speak_color(msg, fcolor)
+                            local msg = get_text("whatif_need_party") or "ERRORE: SERVONO 4 MEMBRI VICINI."
+                            hunter_speak_color(msg, fcolor)
                         end
                     end
                 elseif choice == 2 then
                     npc.purge()
-                    local bonus = hunter_level_bridge.get_config("seal_fracture_bonus") or 200
+                    local bonus = get_config("seal_fracture_bonus") or 200
                     mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET total_points=total_points+" .. bonus .. ", spendable_points=spendable_points+" .. bonus .. " WHERE player_id=" .. pid)
-                    local msg = hunter_level_bridge.get_text("whatif_sealed", {POINTS = bonus}) or ("FRATTURA SIGILLATA. +" .. bonus .. " GLORIA")
-                    hunter_level_bridge.hunter_speak_color(msg, fcolor)
-                    hunter_level_bridge.send_player_data()
+                    local msg = get_text("whatif_sealed", {POINTS = bonus}) or ("FRATTURA SIGILLATA. +" .. bonus .. " GLORIA")
+                    hunter_speak_color(msg, fcolor)
+                    send_player_data()
                 elseif choice == 3 then
-                    local msg = hunter_level_bridge.get_text("whatif_retreat") or "TI ALLONTANI DALLA FRATTURA."
-                    hunter_level_bridge.hunter_speak_color(msg, fcolor)
+                    local msg = get_text("whatif_retreat") or "TI ALLONTANI DALLA FRATTURA."
+                    hunter_speak_color(msg, fcolor)
                 end
                 
                 pc.setqf("hq_temp_gate_vnum", 0)
                 pc.setqf("hq_temp_gate_freq", 0)
                 pc.setqf("hq_temp_player_pts", 0)
-                hunter_level_bridge.set_temp_gate_data(pid, nil)
+                set_temp_gate_data(pid, nil)
             end
         end
 
@@ -1577,7 +1577,7 @@ quest hunter_level_bridge begin
             game.set_event_flag("hq_gate_time_"..fracture_vid, get_time() + 90) -- 60s quest + 30s buffer
 
             -- PERFORMANCE: Carica cache waves per questo rank (1 query invece di 60+!)
-            hunter_level_bridge.load_defense_waves_cache(frank)
+            load_defense_waves_cache(frank)
 
             -- Salva posizione e VID frattura
             local fx, fy = pc.get_local_x(), pc.get_local_y()
@@ -1597,10 +1597,10 @@ quest hunter_level_bridge begin
             pc.setqf("hq_defense_mob_killed", 0)
 
             local defense_title = "DIFESA " .. fname
-            cmdchat("HunterEmergency " .. hunter_level_bridge.clean_str(defense_title) .. "|60|0|0")
+            cmdchat("HunterEmergency " .. clean_str(defense_title) .. "|60|0|0")
 
-            local msg = hunter_level_bridge.get_text("defense_start") or "DIFENDI LA FRATTURA! Rimani vicino per 60 secondi!"
-            hunter_level_bridge.hunter_speak_color(msg, fcolor)
+            local msg = get_text("defense_start") or "DIFENDI LA FRATTURA! Rimani vicino per 60 secondi!"
+            hunter_speak_color(msg, fcolor)
 
             cleartimer("hq_defense_timer")
             loop_timer("hq_defense_timer", 1)
@@ -1623,14 +1623,14 @@ quest hunter_level_bridge begin
             local dx = px - fx
             local dy = py - fy
             local dist = math.sqrt(dx * dx + dy * dy)
-            local max_dist = hunter_level_bridge.get_defense_config("check_distance", 10)
+            local max_dist = get_defense_config("check_distance", 10)
             return dist <= max_dist
         end
 
         function spawn_defense_wave(wave_num, rank_grade)
             local ok, err = pcall(function()
                 -- SECURITY: Valida rank
-                rank_grade = hunter_level_bridge.validate_rank(rank_grade)
+                rank_grade = validate_rank(rank_grade)
 
                 -- PERFORMANCE: Leggi dalla cache invece che dal DB!
                 if not _G.hunter_defense_waves_cache or not _G.hunter_defense_waves_cache[rank_grade] then
@@ -1669,12 +1669,12 @@ quest hunter_level_bridge begin
                 end
                 local current_total = pc.getqf("hq_defense_mob_total") or 0
                 pc.setqf("hq_defense_mob_total", current_total + total_spawned)
-                local msg = hunter_level_bridge.get_text("defense_wave_spawn", {WAVE = wave_num}) or ("ONDATA " .. wave_num .. "! DIFENDITI!")
+                local msg = get_text("defense_wave_spawn", {WAVE = wave_num}) or ("ONDATA " .. wave_num .. "! DIFENDITI!")
                 local fcolor = "RED"
                 if hunter_defense_data and hunter_defense_data[pc.get_player_id()] then
                     fcolor = hunter_defense_data[pc.get_player_id()].color
                 end
-                hunter_level_bridge.hunter_speak_color(msg, fcolor)
+                hunter_speak_color(msg, fcolor)
             end)
         end
 
@@ -1699,15 +1699,15 @@ quest hunter_level_bridge begin
                 game.set_event_flag("hq_gate_conq_"..fracture_vid, pid) -- Imposta Conquistata
             end
 
-            hunter_level_bridge.check_overtake(pid, pc.get_name(), "total_fractures", 1, "ESPLORATORI")
+            check_overtake(pid, pc.get_name(), "total_fractures", 1, "ESPLORATORI")
             -- PERFORMANCE: Accumula invece di UPDATE immediato
             pc.setqf("hq_pending_fractures", (pc.getqf("hq_pending_fractures") or 0) + 1)
             pc.setqf("hq_elite_spawn_time", get_time())
             pc.setqf("hq_pending_elite", (pc.getqf("hq_pending_elite") or 0) + 1)
-            hunter_level_bridge.on_fracture_seal()
+            on_fracture_seal()
 
-            local msg = hunter_level_bridge.get_text("defense_success_click") or "FRATTURA CONQUISTATA! Toccala per aprirla!"
-            hunter_level_bridge.hunter_speak_color(msg, fcolor)
+            local msg = get_text("defense_success_click") or "FRATTURA CONQUISTATA! Toccala per aprirla!"
+            hunter_speak_color(msg, fcolor)
             cmdchat("HunterSystemSpeak " .. fcolor .. "|TOCCA IL PORTALE!")
         end
 
@@ -1735,8 +1735,8 @@ quest hunter_level_bridge begin
                 hunter_defense_data[pid] = nil
             end
 
-            local msg = hunter_level_bridge.get_text("defense_failed") or ("DIFESA FALLITA: " .. reason)
-            hunter_level_bridge.hunter_speak_color(msg, "RED")
+            local msg = get_text("defense_failed") or ("DIFESA FALLITA: " .. reason)
+            hunter_speak_color(msg, "RED")
         end
 
         function spawn_gate_mob_and_alert(rank_label, fcolor)
@@ -1766,11 +1766,11 @@ quest hunter_level_bridge begin
                 local mob_color = md[1].rank_color or "PURPLE"
 
                 if sel_type == "BAULE" then
-                    local msg = hunter_level_bridge.get_text("spawn_chest_detected") or "BAULE DEL TESORO RILEVATO!"
-                    hunter_level_bridge.hunter_speak_color(msg, fcolor or "GOLD")
+                    local msg = get_text("spawn_chest_detected") or "BAULE DEL TESORO RILEVATO!"
+                    hunter_speak_color(msg, fcolor or "GOLD")
                 else
-                    local msg = hunter_level_bridge.get_text("spawn_boss_appeared", {NAME = md[1].name}) or ("PERICOLO: " .. md[1].name .. " E' APPARSO!")
-                    hunter_level_bridge.hunter_speak_color(msg, mob_color)
+                    local msg = get_text("spawn_boss_appeared", {NAME = md[1].name}) or ("PERICOLO: " .. md[1].name .. " E' APPARSO!")
+                    hunter_speak_color(msg, mob_color)
 
                     if sel_type == "BOSS" or sel_type == "METIN" then
                         cmdchat("HunterBossAlert " .. string.gsub(md[1].name, " ", "+"))
@@ -1779,9 +1779,9 @@ quest hunter_level_bridge begin
                     if not party.is_party() then
                         local speed_time = 300
                         if sel_type == "BOSS" then
-                            speed_time = hunter_level_bridge.get_config("speedkill_boss_seconds") or 60
+                            speed_time = get_config("speedkill_boss_seconds") or 60
                         elseif sel_type == "METIN" then
-                            speed_time = hunter_level_bridge.get_config("speedkill_metin_seconds") or 300
+                            speed_time = get_config("speedkill_metin_seconds") or 300
                         end
 
                         pc.setqf("hq_speedkill_active", 1)
@@ -1792,17 +1792,17 @@ quest hunter_level_bridge begin
                         local timer_msg = sel_type == "BOSS" and "BOSS" or "SUPER METIN"
                         cmdchat("HunterSpeedKillStart " .. timer_msg .. "|" .. speed_time .. "|" .. mob_color)
 
-                        local sk_msg = hunter_level_bridge.get_text("speedkill_challenge") or ("SFIDA SPEED KILL! Uccidi in " .. speed_time .. " secondi per GLORIA x2!")
-                        hunter_level_bridge.hunter_speak_color(sk_msg, "GOLD")
+                        local sk_msg = get_text("speedkill_challenge") or ("SFIDA SPEED KILL! Uccidi in " .. speed_time .. " secondi per GLORIA x2!")
+                        hunter_speak_color(sk_msg, "GOLD")
 
                         cleartimer("hq_speedkill_timer")
                         loop_timer("hq_speedkill_timer", 1)
                     end
                     
                     local pname = pc.get_name()
-                    local alert_1 = hunter_level_bridge.get_text("spawn_alert_seal_broken", {PLAYER = pname}) or ("|cffFF4444[HUNTER ALERT]|r Il Cacciatore |cffFFD700" .. pname .. "|r ha spezzato il sigillo!")
+                    local alert_1 = get_text("spawn_alert_seal_broken", {PLAYER = pname}) or ("|cffFF4444[HUNTER ALERT]|r Il Cacciatore |cffFFD700" .. pname .. "|r ha spezzato il sigillo!")
                     notice_all(alert_1)
-                    local alert_2 = hunter_level_bridge.get_text("spawn_alert_location", {NAME = md[1].name, RANK = rank_label, X = x, Y = y}) or ("Un |cffFF0000" .. md[1].name .. "|r (" .. rank_label .. ") e' apparso a (" .. x .. ", " .. y .. ")!")
+                    local alert_2 = get_text("spawn_alert_location", {NAME = md[1].name, RANK = rank_label, X = x, Y = y}) or ("Un |cffFF0000" .. md[1].name .. "|r (" .. rank_label .. ") e' apparso a (" .. x .. ", " .. y .. ")!")
                     notice_all(alert_2)
                 end
             end
@@ -1823,7 +1823,7 @@ quest hunter_level_bridge begin
             game.set_event_flag("hq_gate_conq_"..vid, 0)
             pc.setqf("hq_defense_fracture_vid", 0)
             
-            hunter_level_bridge.spawn_gate_mob_and_alert(frank, fcolor)
+            spawn_gate_mob_and_alert(frank, fcolor)
             npc.purge() 
             
             pc.setqf("hq_elite_spawn_time", get_time())
@@ -1847,15 +1847,15 @@ quest hunter_level_bridge begin
                 pc.setqf("hq_speedkill_active", 0)
                 cleartimer("hq_speedkill_timer")
                 cmdchat("HunterSpeedKillEnd 0")
-                local msg = hunter_level_bridge.get_text("speedkill_failed") or "TEMPO SCADUTO! Nessun bonus x2."
-                hunter_level_bridge.hunter_speak_color(msg, "ORANGE")
+                local msg = get_text("speedkill_failed") or "TEMPO SCADUTO! Nessun bonus x2."
+                hunter_speak_color(msg, "ORANGE")
             end
         end
 
         -- PERFORMANCE: Timer salvataggio periodico ranking (ogni 5 minuti)
         when hq_ranking_flush_timer.timer begin
             -- Flush accumulatori ranking su DB
-            hunter_level_bridge.flush_ranking_updates()
+            flush_ranking_updates()
         end
 
         -- Timer difesa frattura
@@ -1867,24 +1867,24 @@ quest hunter_level_bridge begin
 
             local start_time = pc.getqf("hq_defense_start") or 0
             local elapsed = get_time() - start_time
-            local duration = hunter_level_bridge.get_defense_config("defense_duration", 60)
+            local duration = get_defense_config("defense_duration", 60)
             
             local last_check = pc.getqf("hq_defense_last_check") or 0
-            local check_interval = hunter_level_bridge.get_defense_config("check_interval", 2)
+            local check_interval = get_defense_config("check_interval", 2)
 
             if get_time() - last_check >= check_interval then
                 pc.setqf("hq_defense_last_check", get_time())
-                if not hunter_level_bridge.check_defense_distance() then
-                    hunter_level_bridge.fail_defense("Ti sei allontanato!")
+                if not check_defense_distance() then
+                    fail_defense("Ti sei allontanato!")
                     return
                 end
                 if party.is_party() then
-                    local party_req = hunter_level_bridge.get_defense_config("party_all_required", 1)
+                    local party_req = get_defense_config("party_all_required", 1)
                     if party_req == 1 then
                         local total = party.get_member_count()
                         local near = party.get_near_count()
                         if near < total then
-                            hunter_level_bridge.fail_defense("Un membro del party si è allontanato!")
+                            fail_defense("Un membro del party si è allontanato!")
                             return
                         end
                     end
@@ -1897,7 +1897,7 @@ quest hunter_level_bridge begin
             if hunter_defense_data and hunter_defense_data[pid] then
                 frank = hunter_defense_data[pid].rank
             end
-            frank = hunter_level_bridge.validate_rank(frank)
+            frank = validate_rank(frank)
             local current_wave = pc.getqf("hq_defense_wave") or 0
 
             -- PERFORMANCE: Leggi dalla cache invece che dal DB (NO QUERY OGNI SECONDO!)
@@ -1909,7 +1909,7 @@ quest hunter_level_bridge begin
                     local spawn_time = wave_data.spawn_time
 
                     if elapsed >= spawn_time and wave_num > current_wave then
-                        hunter_level_bridge.spawn_defense_wave(wave_num, frank)
+                        spawn_defense_wave(wave_num, frank)
                         pc.setqf("hq_defense_wave", wave_num)
                     end
                 end
@@ -1920,10 +1920,10 @@ quest hunter_level_bridge begin
                 local total = pc.getqf("hq_defense_mob_total") or 0
 
                 if killed >= total and total > 0 then
-                    hunter_level_bridge.complete_defense_success()
+                    complete_defense_success()
                 else
                     local remaining_mobs = total - killed
-                    hunter_level_bridge.fail_defense("TEMPO SCADUTO! Mob rimasti: " .. remaining_mobs)
+                    fail_defense("TEMPO SCADUTO! Mob rimasti: " .. remaining_mobs)
                 end
             end
         end
@@ -1932,7 +1932,7 @@ quest hunter_level_bridge begin
             send_letter("Hunter Terminal")
 
             -- PERFORMANCE: Carica cache mob elite (una query all'avvio invece di N query ai kill)
-            hunter_level_bridge.load_elite_cache()
+            load_elite_cache()
 
             -- PERFORMANCE: Avvia timer salvataggio periodico ranking (ogni 5 minuti)
             cleartimer("hq_ranking_flush_timer")
@@ -1958,27 +1958,27 @@ quest hunter_level_bridge begin
             local buy_id = tonumber(game.get_event_flag("hunter_buy_id_"..pid)) or 0
             if buy_id > 0 then 
                 game.set_event_flag("hunter_buy_id_"..pid, 0)
-                hunter_level_bridge.shop_buy_confirm(buy_id)
+                shop_buy_confirm(buy_id)
                 return 
             end
             local clm_id = tonumber(game.get_event_flag("hunter_claim_id_"..pid)) or 0
             if clm_id > 0 then 
                 game.set_event_flag("hunter_claim_id_"..pid, 0)
-                hunter_level_bridge.achiev_claim(clm_id)
+                achiev_claim(clm_id)
                 return 
             end
             local smart_btn = tonumber(game.get_event_flag("hunter_claim_btn_"..pid)) or 0
             if smart_btn > 0 then 
                 game.set_event_flag("hunter_claim_btn_"..pid, 0)
-                hunter_level_bridge.smart_claim_reward()
+                smart_claim_reward()
                 return 
             end
             cmdchat("HunterOpenWindow")
-            hunter_level_bridge.send_all_data()
+            send_all_data()
         end
         
         when chat."/hunter_request_data" begin 
-            hunter_level_bridge.send_all_data() 
+            send_all_data() 
         end
         
         when chat."/hunter_refresh_rank" begin
@@ -1986,24 +1986,24 @@ quest hunter_level_bridge begin
             local c, d = mysql_direct_query("SELECT total_points FROM srv1_hunabku.hunter_quest_ranking WHERE player_id=" .. pid)
             if c > 0 and d[1] then
                 local pts = tonumber(d[1].total_points) or 0
-                local rank_num = hunter_level_bridge.get_rank_index(pts)
+                local rank_num = get_rank_index(pts)
                 pc.setqf("hq_rank_num", rank_num)
-                local rank_key = hunter_level_bridge.get_rank_letter(rank_num)
+                local rank_key = get_rank_letter(rank_num)
                 syschat("[HUNTER] Rank aggiornato: " .. rank_key .. " (" .. pts .. " Gloria)")
             end
         end
         
         when chat."/htest_msg" with pc.is_gm() begin 
-            hunter_level_bridge.hunter_speak("TEST MESSAGGIO SISTEMA V36") 
+            hunter_speak("TEST MESSAGGIO SISTEMA V36") 
         end
         when chat."/htest_emerg" with pc.is_gm() begin 
-            hunter_level_bridge.trigger_random_emergency() 
+            trigger_random_emergency() 
         end
         when chat."/htest_whatif" with pc.is_gm() begin 
-            hunter_level_bridge.ask_choice_color("gm_test", "Test GM: Scegli", "Opzione A", "Opzione B", "Opzione C", "GOLD")
+            ask_choice_color("gm_test", "Test GM: Scegli", "Opzione A", "Opzione B", "Opzione C", "GOLD")
         end
         when chat."/htest_rival" with pc.is_gm() begin 
-            hunter_level_bridge.notify_rival("TestRival", 99999) 
+            notify_rival("TestRival", 99999) 
         end
         when chat."/htest_boss" with pc.is_gm() begin 
             cmdchat("HunterBossAlert Demone+della+Frattura") 
@@ -2012,10 +2012,10 @@ quest hunter_level_bridge begin
             cmdchat("HunterSystemInit") 
         end
         when chat."/htest_awaken" with pc.is_gm() begin 
-            cmdchat("HunterAwakening " .. hunter_level_bridge.clean_str(pc.get_name())) 
+            cmdchat("HunterAwakening " .. clean_str(pc.get_name())) 
         end
         when chat."/htest_activate" with pc.is_gm() begin 
-            cmdchat("HunterActivation " .. hunter_level_bridge.clean_str(pc.get_name())) 
+            cmdchat("HunterActivation " .. clean_str(pc.get_name())) 
         end
         when chat."/htest_rankup" with pc.is_gm() begin 
             cmdchat("HunterRankUp E|D") 
@@ -2025,22 +2025,22 @@ quest hunter_level_bridge begin
         end
 
         function send_all_data()
-            hunter_level_bridge.send_player_data()
-            hunter_level_bridge.send_ranking("daily")
-            hunter_level_bridge.send_ranking("weekly")
-            hunter_level_bridge.send_ranking("total")
-            hunter_level_bridge.send_ranking_kills("daily")
-            hunter_level_bridge.send_ranking_kills("weekly")
-            hunter_level_bridge.send_ranking_kills("total")
-            hunter_level_bridge.send_ranking_special("fractures")
-            hunter_level_bridge.send_ranking_special("chests")
-            hunter_level_bridge.send_ranking_special("metins")
-            hunter_level_bridge.send_shop()
-            hunter_level_bridge.send_achievements()
-            hunter_level_bridge.send_calendar()
-            hunter_level_bridge.send_timers()
-            hunter_level_bridge.send_event()
-            hunter_level_bridge.send_fractures()
+            send_player_data()
+            send_ranking("daily")
+            send_ranking("weekly")
+            send_ranking("total")
+            send_ranking_kills("daily")
+            send_ranking_kills("weekly")
+            send_ranking_kills("total")
+            send_ranking_special("fractures")
+            send_ranking_special("chests")
+            send_ranking_special("metins")
+            send_shop()
+            send_achievements()
+            send_calendar()
+            send_timers()
+            send_event()
+            send_fractures()
         end
         
         function send_player_data()
@@ -2051,7 +2051,7 @@ quest hunter_level_bridge begin
                 local dp, wp = tonumber(d[1].daily_points) or 0, tonumber(d[1].weekly_points) or 0
                 local pos_d, pos_w = 0, 0
                 
-                local new_rank_num = hunter_level_bridge.get_rank_index(total_pts)
+                local new_rank_num = get_rank_index(total_pts)
                 pc.setqf("hq_rank_num", new_rank_num)
                 
                 if dp > 0 then
@@ -2063,7 +2063,7 @@ quest hunter_level_bridge begin
                     if cw > 0 and dw[1] then pos_w = (tonumber(dw[1].pos) or 0) + 1 end
                 end
                 
-                local pkt = hunter_level_bridge.clean_str(pc.get_name()) .. "|" .. 
+                local pkt = clean_str(pc.get_name()) .. "|" .. 
                     total_pts .. "|" .. 
                     (tonumber(d[1].spendable_points) or 0) .. "|" ..
                     dp .. "|" .. wp .. "|" .. 
@@ -2094,7 +2094,7 @@ quest hunter_level_bridge begin
             local str = ""
             if c > 0 then 
                 for i=1,c do 
-                    str = str .. hunter_level_bridge.clean_str(d[i].player_name) .. "," .. d[i].pts .. "," .. d[i].kills .. ";" 
+                    str = str .. clean_str(d[i].player_name) .. "," .. d[i].pts .. "," .. d[i].kills .. ";" 
                 end 
             end
             local result = "EMPTY"
@@ -2114,7 +2114,7 @@ quest hunter_level_bridge begin
             local str = ""
             if c > 0 then 
                 for i=1,c do 
-                    str = str .. hunter_level_bridge.clean_str(d[i].player_name) .. "," .. d[i].val .. "," .. d[i].total_points .. ";" 
+                    str = str .. clean_str(d[i].player_name) .. "," .. d[i].val .. "," .. d[i].total_points .. ";" 
                 end 
             end
             cmdchat(cmd .. " " .. (str == "" and "EMPTY" or str))
@@ -2132,7 +2132,7 @@ quest hunter_level_bridge begin
             local str = ""
             if c > 0 then 
                 for i=1,c do 
-                    str = str .. hunter_level_bridge.clean_str(d[i].player_name) .. "," .. d[i].val .. "," .. d[i].total_points .. ";" 
+                    str = str .. clean_str(d[i].player_name) .. "," .. d[i].val .. "," .. d[i].total_points .. ";" 
                 end 
             end
             cmdchat(cmd .. " " .. (str == "" and "EMPTY" or str))
@@ -2143,7 +2143,7 @@ quest hunter_level_bridge begin
             local str = ""
             if c > 0 then 
                 for i=1,c do 
-                    str = str .. d[i].id .. "," .. d[i].item_vnum .. "," .. d[i].item_count .. "," .. d[i].price_points .. "," .. hunter_level_bridge.clean_str(d[i].description) .. ";" 
+                    str = str .. d[i].id .. "," .. d[i].item_vnum .. "," .. d[i].item_count .. "," .. d[i].price_points .. "," .. clean_str(d[i].description) .. ";" 
                 end 
             end
             local result = "EMPTY"
@@ -2163,7 +2163,7 @@ quest hunter_level_bridge begin
                     local unl = 0
                     if prg >= req then unl = 1 end
                     local clm = pc.getqf("hq_ach_clm_" .. aid) or 0
-                    str = str .. aid .. "," .. hunter_level_bridge.clean_str(d[i].name) .. "," .. at .. "," .. req .. "," .. prg .. "," .. unl .. "," .. clm .. ";"
+                    str = str .. aid .. "," .. clean_str(d[i].name) .. "," .. at .. "," .. req .. "," .. prg .. "," .. unl .. "," .. clm .. ";"
                 end
             end
             local result = "EMPTY"
@@ -2178,7 +2178,7 @@ quest hunter_level_bridge begin
                 for i=1,c do
                     local day_idx = tonumber(d[i].day_index) or 1
                     day_idx = day_idx - 1
-                    str = str .. day_idx .. "," .. hunter_level_bridge.clean_str(d[i].event_name) .. "," .. d[i].start_hour .. "," .. d[i].end_hour .. ";" 
+                    str = str .. day_idx .. "," .. clean_str(d[i].event_name) .. "," .. d[i].start_hour .. "," .. d[i].end_hour .. ";" 
                 end 
             end
             local result = "EMPTY"
@@ -2188,12 +2188,12 @@ quest hunter_level_bridge begin
         
         function send_timers()
             local ts = get_time()
-            local hour = hunter_level_bridge.get_hour_from_ts(ts)
-            local min = hunter_level_bridge.get_min_from_ts(ts)
-            local sec = hunter_level_bridge.get_sec_from_ts(ts)
+            local hour = get_hour_from_ts(ts)
+            local min = get_min_from_ts(ts)
+            local sec = get_sec_from_ts(ts)
             local seconds_today = (hour * 3600) + (min * 60) + sec
             local daily = 86400 - seconds_today
-            local wday = hunter_level_bridge.get_day_db_from_ts(ts)
+            local wday = get_day_db_from_ts(ts)
             local days_to_mon = 8 - wday
             if days_to_mon == 8 then days_to_mon = 7 end
             local weekly = (days_to_mon * 86400) - seconds_today
@@ -2201,7 +2201,7 @@ quest hunter_level_bridge begin
         end
         
         function send_event()
-            local event = hunter_level_bridge.get_current_scheduled_event()
+            local event = get_current_scheduled_event()
             local result = "NONE"
             
             if event then
@@ -2223,8 +2223,8 @@ quest hunter_level_bridge begin
                 local remaining_minutes = end_total - current_total
                 local remaining_seconds = remaining_minutes * 60
                 
-                result = hunter_level_bridge.clean_str(name) .. "|" .. 
-                         hunter_level_bridge.clean_str(desc) .. "|" .. 
+                result = clean_str(name) .. "|" .. 
+                         clean_str(desc) .. "|" .. 
                          etype .. "|" .. 
                          math.floor(remaining_seconds) .. "|" .. 
                          reward .. "|" .. 
@@ -2238,7 +2238,7 @@ quest hunter_level_bridge begin
             local str = ""
             if c > 0 then 
                 for i=1,c do 
-                    str = str .. hunter_level_bridge.clean_str(d[i].name) .. "," .. d[i].req_points .. ";" 
+                    str = str .. clean_str(d[i].name) .. "," .. d[i].req_points .. ";" 
                 end 
             end
             local result = "EMPTY"
@@ -2263,7 +2263,7 @@ quest hunter_level_bridge begin
             
             say_title("|cffFFD700ACHIEVEMENT: " .. name .. "|r")
             say("Requisito: " .. req .. (atype==1 and " Kills" or " Gloria"))
-            say("Ricompensa: x" .. count .. " " .. hunter_level_bridge.item_name(vnum))
+            say("Ricompensa: x" .. count .. " " .. item_name(vnum))
             say_item_vnum(vnum)
             say("")
             if is_claimed then 
@@ -2276,8 +2276,8 @@ quest hunter_level_bridge begin
                 if select("Riscuoti Premio", "Chiudi") == 1 then
                     pc.setqf("hq_ach_clm_"..id, 1)
                     pc.give_item2(vnum, count)
-                    hunter_level_bridge.hunter_speak("OGGETTO RICEVUTO: " .. hunter_level_bridge.item_name(vnum))
-                    hunter_level_bridge.send_achievements()
+                    hunter_speak("OGGETTO RICEVUTO: " .. item_name(vnum))
+                    send_achievements()
                 end
             end
         end
@@ -2324,12 +2324,12 @@ quest hunter_level_bridge begin
             if s == table.getn(opts) then return end
             
             if pd > 0 and pw > 0 and s == table.getn(opts)-1 then
-                hunter_level_bridge.give_pending_reward("daily", pd)
-                hunter_level_bridge.give_pending_reward("weekly", pw)
+                give_pending_reward("daily", pd)
+                give_pending_reward("weekly", pw)
             elseif rdata[s] then
-                hunter_level_bridge.give_pending_reward(rdata[s].t, rdata[s].p)
+                give_pending_reward(rdata[s].t, rdata[s].p)
             end
-            hunter_level_bridge.send_player_data()
+            send_player_data()
         end
         
         function give_pending_reward(rtype, pos)
@@ -2339,8 +2339,8 @@ quest hunter_level_bridge begin
                 pc.give_item2(tonumber(rd[1].item_vnum), tonumber(rd[1].item_quantity))
                 mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET " .. (rtype=="weekly" and "pending_weekly_reward" or "pending_daily_reward") .. " = 0 WHERE player_id=" .. pid)
                 local pname = pc.get_name()
-                local rtype_label = rtype == "daily" and (hunter_level_bridge.get_text("reward_type_daily") or "Giornaliera") or (hunter_level_bridge.get_text("reward_type_weekly") or "Settimanale")
-                local msg = hunter_level_bridge.get_text("reward_claimed", {PLAYER = pname, TYPE = rtype_label}) or ("|cffFFD700[HUNTER]|r " .. pname .. " ha riscosso il premio Top Classifica " .. rtype_label .. "!")
+                local rtype_label = rtype == "daily" and (get_text("reward_type_daily") or "Giornaliera") or (get_text("reward_type_weekly") or "Settimanale")
+                local msg = get_text("reward_claimed", {PLAYER = pname, TYPE = rtype_label}) or ("|cffFFD700[HUNTER]|r " .. pname .. " ha riscosso il premio Top Classifica " .. rtype_label .. "!")
                 notice_all(msg)
             end
         end
@@ -2349,10 +2349,10 @@ quest hunter_level_bridge begin
             local pid = pc.get_player_id()
             local c, d = mysql_direct_query("SELECT item_vnum, item_count, price_points, description FROM srv1_hunabku.hunter_quest_shop WHERE id=" .. id)
             if c > 0 and d[1] then
-                local title = hunter_level_bridge.get_text("shop_title") or "MERCANTE HUNTER"
-                local ask = hunter_level_bridge.get_text("shop_ask") or "Vuoi acquistare questo oggetto?"
-                local opt_confirm = hunter_level_bridge.get_text("shop_opt_confirm") or "Conferma Acquisto"
-                local opt_cancel = hunter_level_bridge.get_text("shop_opt_cancel") or "Annulla"
+                local title = get_text("shop_title") or "MERCANTE HUNTER"
+                local ask = get_text("shop_ask") or "Vuoi acquistare questo oggetto?"
+                local opt_confirm = get_text("shop_opt_confirm") or "Conferma Acquisto"
+                local opt_cancel = get_text("shop_opt_cancel") or "Annulla"
                 
                 say_title(title)
                 say(ask)
@@ -2365,30 +2365,30 @@ quest hunter_level_bridge begin
                     if wallet >= tonumber(d[1].price_points) then
                         mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET spendable_points = spendable_points - " .. d[1].price_points .. " WHERE player_id=" .. pid)
                         pc.give_item2(tonumber(d[1].item_vnum), tonumber(d[1].item_count))
-                        local msg = hunter_level_bridge.get_text("shop_success", {POINTS = d[1].price_points}) or ("TRANSAZIONE COMPLETATA. -" .. d[1].price_points .. " CREDITI")
-                        hunter_level_bridge.hunter_speak(msg)
-                        hunter_level_bridge.send_player_data()
+                        local msg = get_text("shop_success", {POINTS = d[1].price_points}) or ("TRANSAZIONE COMPLETATA. -" .. d[1].price_points .. " CREDITI")
+                        hunter_speak(msg)
+                        send_player_data()
                     else
-                        local msg = hunter_level_bridge.get_text("shop_error_funds") or "ERRORE: CREDITI INSUFFICIENTI."
-                        hunter_level_bridge.hunter_speak(msg)
+                        local msg = get_text("shop_error_funds") or "ERRORE: CREDITI INSUFFICIENTI."
+                        hunter_speak(msg)
                     end
                 end
             end
         end
         
         when chat."/hunter_reset_daily" with pc.is_gm() begin 
-            hunter_level_bridge.process_daily_reset() 
+            process_daily_reset() 
         end
         when chat."/hunter_reset_weekly" with pc.is_gm() begin 
-            hunter_level_bridge.process_weekly_reset() 
+            process_weekly_reset() 
         end
         
         function announce_daily_winners()
             local q = "SELECT player_name, daily_points FROM srv1_hunabku.hunter_quest_ranking WHERE daily_points > 0 ORDER BY daily_points DESC LIMIT 3"
             local c, d = mysql_direct_query(q)
             if c > 0 then
-                local sep_daily = hunter_level_bridge.get_text("winners_sep_daily") or "|cffFFD700======================================|r"
-                local title_daily = hunter_level_bridge.get_text("winners_title_daily") or "|cffFFD700[HUNTER SYSTEM]|r |cff00FFFF* VINCITORI CLASSIFICA GIORNALIERA *|r"
+                local sep_daily = get_text("winners_sep_daily") or "|cffFFD700======================================|r"
+                local title_daily = get_text("winners_title_daily") or "|cffFFD700[HUNTER SYSTEM]|r |cff00FFFF* VINCITORI CLASSIFICA GIORNALIERA *|r"
                 notice_all("")
                 notice_all(sep_daily)
                 notice_all(title_daily)
@@ -2408,14 +2408,14 @@ quest hunter_level_bridge begin
                     if i > 1 then msg = msg .. ", " end
                     msg = msg .. d[i].player_name .. " (" .. d[i].daily_points .. ")"
                 end
-                hunter_level_bridge.hunter_speak(msg)
+                hunter_speak(msg)
             end
 
             local qk = "SELECT player_name, daily_kills FROM srv1_hunabku.hunter_quest_ranking WHERE daily_kills > 0 ORDER BY daily_kills DESC LIMIT 3"
             local ck, dk = mysql_direct_query(qk)
             if ck > 0 then
-                local sep_kill = hunter_level_bridge.get_text("winners_sep_kill") or "|cffFF8800======================================|r"
-                local title_kill = hunter_level_bridge.get_text("winners_title_kill") or "|cffFF8800[HUNTER SYSTEM]|r |cffFF8800* VINCITORI CLASSIFICA KILL GIORNALIERA *|r"
+                local sep_kill = get_text("winners_sep_kill") or "|cffFF8800======================================|r"
+                local title_kill = get_text("winners_title_kill") or "|cffFF8800[HUNTER SYSTEM]|r |cffFF8800* VINCITORI CLASSIFICA KILL GIORNALIERA *|r"
                 notice_all("")
                 notice_all(sep_kill)
                 notice_all(title_kill)
@@ -2435,7 +2435,7 @@ quest hunter_level_bridge begin
                     if i > 1 then msgk = msgk .. ", " end
                     msgk = msgk .. dk[i].player_name .. " (" .. dk[i].daily_kills .. ")"
                 end
-                hunter_level_bridge.hunter_speak(msgk)
+                hunter_speak(msgk)
             end
         end
         
@@ -2443,8 +2443,8 @@ quest hunter_level_bridge begin
             local q = "SELECT player_name, weekly_points FROM srv1_hunabku.hunter_quest_ranking WHERE weekly_points > 0 ORDER BY weekly_points DESC LIMIT 3"
             local c, d = mysql_direct_query(q)
             if c > 0 then
-                local sep_weekly = hunter_level_bridge.get_text("winners_sep_weekly") or "|cffFF6600======================================|r"
-                local title_weekly = hunter_level_bridge.get_text("winners_title_weekly") or "|cffFF6600[HUNTER SYSTEM]|r |cffFFD700** VINCITORI CLASSIFICA SETTIMANALE **|r"
+                local sep_weekly = get_text("winners_sep_weekly") or "|cffFF6600======================================|r"
+                local title_weekly = get_text("winners_title_weekly") or "|cffFF6600[HUNTER SYSTEM]|r |cffFFD700** VINCITORI CLASSIFICA SETTIMANALE **|r"
                 notice_all("")
                 notice_all(sep_weekly)
                 notice_all(title_weekly)
@@ -2463,16 +2463,16 @@ quest hunter_level_bridge begin
         end
         
         function process_daily_reset()
-            hunter_level_bridge.assign_rank_prizes("daily")
+            assign_rank_prizes("daily")
             mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET daily_points = 0, daily_kills = 0")
-            local msg = hunter_level_bridge.get_text("reset_daily") or "|cffFFD700[HUNTER SYSTEM]|r Classifica Giornaliera Resettata! La corsa al potere ricomincia."
+            local msg = get_text("reset_daily") or "|cffFFD700[HUNTER SYSTEM]|r Classifica Giornaliera Resettata! La corsa al potere ricomincia."
             notice_all(msg)
         end
         
         function process_weekly_reset()
-            hunter_level_bridge.assign_rank_prizes("weekly")
+            assign_rank_prizes("weekly")
             mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET weekly_points = 0, weekly_kills = 0")
-            local msg = hunter_level_bridge.get_text("reset_weekly") or "|cffFF6600[HUNTER SYSTEM]|r Classifica Settimanale Resettata! I premi sono stati distribuiti."
+            local msg = get_text("reset_weekly") or "|cffFF6600[HUNTER SYSTEM]|r Classifica Settimanale Resettata! I premi sono stati distribuiti."
             notice_all(msg)
         end
         
@@ -2516,8 +2516,8 @@ quest hunter_level_bridge begin
             local rc, rd = mysql_direct_query("SELECT total_points FROM srv1_hunabku.hunter_quest_ranking WHERE player_id=" .. pid)
             local pts = 0
             if rc > 0 and rd[1] then pts = tonumber(rd[1].total_points) or 0 end
-            local rank_idx = hunter_level_bridge.get_rank_index(pts)
-            local rank_letter = hunter_level_bridge.get_rank_letter(rank_idx)
+            local rank_idx = get_rank_index(pts)
+            local rank_letter = get_rank_letter(rank_idx)
             
             mysql_direct_query("CALL srv1_hunabku.sp_assign_daily_missions(" .. pid .. ", '" .. rank_letter .. "', '" .. pname .. "')")
             
@@ -2526,7 +2526,7 @@ quest hunter_level_bridge begin
             if vc > 0 and vd[1] then inserted_count = tonumber(vd[1].cnt) or 0 end
             
             if inserted_count >= 3 then
-                hunter_level_bridge.send_daily_missions()
+                send_daily_missions()
                 timer("hq_missions_notify", 6)
                 return true
             else
@@ -2536,15 +2536,15 @@ quest hunter_level_bridge begin
         end
         
         when hq_missions_notify.timer begin
-            local msg1 = hunter_level_bridge.get_text("missions_assigned") or "3 NUOVE MISSIONI GIORNALIERE ASSEGNATE!"
-            hunter_level_bridge.hunter_speak_color(msg1, "CYAN")
+            local msg1 = get_text("missions_assigned") or "3 NUOVE MISSIONI GIORNALIERE ASSEGNATE!"
+            hunter_speak_color(msg1, "CYAN")
             syschat("|cff00FFFF>> Apri il Terminale Hunter per vederle <<|r")
             syschat("|cffFFAA00   Completale tutte per bonus Gloria x1.5!|r")
         end
         
         function send_daily_missions()
             local pid = pc.get_player_id()
-            local today = hunter_level_bridge.get_today_date()
+            local today = get_today_date()
             local q = "SELECT pm.id, pm.mission_slot, md.mission_name, md.mission_type, pm.current_progress, pm.target_count, pm.status, pm.reward_glory, pm.penalty_glory, md.time_limit_minutes FROM srv1_hunabku.hunter_player_missions pm LEFT JOIN srv1_hunabku.hunter_mission_definitions md ON pm.mission_def_id = md.mission_id WHERE pm.player_id=" .. pid .. " AND pm.assigned_date='" .. today .. "' ORDER BY pm.mission_slot"
             local c, d = mysql_direct_query(q)
             
@@ -2559,7 +2559,7 @@ quest hunter_level_bridge begin
                         remaining = time_limit * 60
                     end
                     local pkt = tostring(tonumber(m.id) or 0) .. "|" ..
-                        hunter_level_bridge.clean_str(m.mission_name or "Missione") .. "|" ..
+                        clean_str(m.mission_name or "Missione") .. "|" ..
                         (m.mission_type or "kill_mob") .. "|" ..
                         tostring(tonumber(m.current_progress) or 0) .. "|" ..
                         tostring(tonumber(m.target_count) or 10) .. "|" ..
@@ -2586,7 +2586,7 @@ quest hunter_level_bridge begin
                     mysql_direct_query("UPDATE srv1_hunabku.hunter_player_missions SET current_progress=" .. new_progress .. " WHERE id=" .. mid)
                     cmdchat("HunterMissionProgress " .. mid .. "|" .. new_progress .. "|" .. target)
                     if new_progress >= target then
-                        hunter_level_bridge.complete_mission(mid)
+                        complete_mission(mid)
                     end
                 end
             end
@@ -2594,7 +2594,7 @@ quest hunter_level_bridge begin
         
         function complete_mission(mission_id)
             local pid = pc.get_player_id()
-            local today = hunter_level_bridge.get_today_date()
+            local today = get_today_date()
             local c, d = mysql_direct_query("SELECT pm.reward_glory, pm.status, md.mission_name FROM srv1_hunabku.hunter_player_missions pm LEFT JOIN srv1_hunabku.hunter_mission_definitions md ON pm.mission_def_id = md.mission_id WHERE pm.id=" .. mission_id .. " AND pm.player_id=" .. pid)
             if c == 0 or d[1].status ~= "active" then return end
             
@@ -2613,16 +2613,16 @@ quest hunter_level_bridge begin
             syschat("|cffFFD700  +" .. reward .. " Gloria!|r |cffAAAAAA(" .. completed_count .. "/3 complete)|r")
             syschat("|cff00FF00========================================|r")
             
-            hunter_level_bridge.hunter_speak("MISSIONE COMPLETATA! +" .. reward .. " GLORIA")
-            cmdchat("HunterMissionComplete " .. mission_id .. "|" .. hunter_level_bridge.clean_str(name) .. "|" .. reward)
+            hunter_speak("MISSIONE COMPLETATA! +" .. reward .. " GLORIA")
+            cmdchat("HunterMissionComplete " .. mission_id .. "|" .. clean_str(name) .. "|" .. reward)
             
-            hunter_level_bridge.check_all_missions_complete()
-            hunter_level_bridge.send_player_data()
+            check_all_missions_complete()
+            send_player_data()
         end
         
         function check_all_missions_complete()
             local pid = pc.get_player_id()
-            local today = hunter_level_bridge.get_today_date()
+            local today = get_today_date()
             local c, d = mysql_direct_query("SELECT COUNT(*) as total, SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END) as completed FROM srv1_hunabku.hunter_player_missions WHERE player_id=" .. pid .. " AND assigned_date='" .. today .. "'")
             
             if c > 0 and d[1] then
@@ -2636,8 +2636,8 @@ quest hunter_level_bridge begin
                         if bonus > 0 then
                             mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET total_points = total_points + " .. bonus .. ", spendable_points = spendable_points + " .. bonus .. " WHERE player_id=" .. pid)
                             
-                            local msg = hunter_level_bridge.get_text("mission_all_complete") or "TUTTE LE MISSIONI COMPLETE! BONUS x1.5!"
-                            hunter_level_bridge.hunter_speak_color(msg, "GOLD")
+                            local msg = get_text("mission_all_complete") or "TUTTE LE MISSIONI COMPLETE! BONUS x1.5!"
+                            hunter_speak_color(msg, "GOLD")
                             cmdchat("HunterAllMissionsComplete " .. bonus)
                         end
                     end
@@ -2646,29 +2646,29 @@ quest hunter_level_bridge begin
         end
         
         function on_mob_kill(mob_vnum)
-            hunter_level_bridge.update_mission_progress("kill_mob", 1, mob_vnum)
-            hunter_level_bridge.update_mission_progress("kill_boss", 1, mob_vnum)
-            hunter_level_bridge.update_mission_progress("kill_metin", 1, mob_vnum)
-            hunter_level_bridge.update_mission_progress("speedkill", 1, mob_vnum)
+            update_mission_progress("kill_mob", 1, mob_vnum)
+            update_mission_progress("kill_boss", 1, mob_vnum)
+            update_mission_progress("kill_metin", 1, mob_vnum)
+            update_mission_progress("speedkill", 1, mob_vnum)
         end
         
         function on_boss_kill(boss_vnum)
-            hunter_level_bridge.update_mission_progress("kill_boss", 1, boss_vnum)
+            update_mission_progress("kill_boss", 1, boss_vnum)
         end
         
         function on_metin_kill(metin_vnum)
-            hunter_level_bridge.update_mission_progress("kill_metin", 1, metin_vnum)
+            update_mission_progress("kill_metin", 1, metin_vnum)
         end
         
         function on_fracture_seal()
-            hunter_level_bridge.update_mission_progress("seal_fracture", 1, 0)
+            update_mission_progress("seal_fracture", 1, 0)
         end
         
         function check_missions_reminder()
             local pid = pc.get_player_id()
-            local today = hunter_level_bridge.get_today_date()
+            local today = get_today_date()
             local ts = get_time()
-            local current_hour = hunter_level_bridge.get_hour_from_ts(ts)
+            local current_hour = get_hour_from_ts(ts)
             
             if current_hour < 22 then return end
             
@@ -2730,12 +2730,12 @@ quest hunter_level_bridge begin
                         status = "ended"
                     end
                     
-                    local start_time = hunter_level_bridge.format_time(start_hour, start_minute)
-                    local end_time = hunter_level_bridge.format_time(end_hour, end_minute)
+                    local start_time = format_time(start_hour, start_minute)
+                    local end_time = format_time(end_hour, end_minute)
                     local reward_str = "+" .. (e.reward_glory_base or 50) .. "+Gloria"
                     
                     local pkt = tostring(tonumber(e.id) or 0) .. "~" ..
-                        hunter_level_bridge.clean_str(e.event_name or "Evento") .. "~" ..
+                        clean_str(e.event_name or "Evento") .. "~" ..
                         start_time .. "~" ..
                         end_time .. "~" ..
                         (e.event_type or "glory_rush") .. "~" ..
@@ -2761,7 +2761,7 @@ quest hunter_level_bridge begin
         end
         
         function check_active_event_notify()
-            local event = hunter_level_bridge.get_current_scheduled_event()
+            local event = get_current_scheduled_event()
             if event then
                 local name = event.event_name or "Evento"
                 local etype = event.event_type or "glory_rush"
@@ -2772,8 +2772,8 @@ quest hunter_level_bridge begin
                 local duration = tonumber(event.duration_minutes) or 30
                 
                 local ts = get_time()
-                local current_hour = hunter_level_bridge.get_hour_from_ts(ts)
-                local current_minute = hunter_level_bridge.get_min_from_ts(ts)
+                local current_hour = get_hour_from_ts(ts)
+                local current_minute = get_min_from_ts(ts)
                 local current_total = current_hour * 60 + current_minute
                 local start_total = tonumber(event.start_hour) * 60 + tonumber(event.start_minute)
                 local end_total = start_total + duration
@@ -2784,7 +2784,7 @@ quest hunter_level_bridge begin
                 pc.setqf("hq_event_winner", winner_reward)
                 
                 timer("hq_event_notify", 8)
-                cmdchat("HunterEventStatus " .. hunter_level_bridge.clean_str(name) .. "|" .. remaining * 60 .. "|" .. etype)
+                cmdchat("HunterEventStatus " .. clean_str(name) .. "|" .. remaining * 60 .. "|" .. etype)
             end
         end
         
@@ -2799,14 +2799,14 @@ quest hunter_level_bridge begin
             syschat("|cffFFD700  Vinci: +" .. winner .. " Gloria!|r")
             syschat("|cffAAAAAA  Tempo rimanente: " .. remaining .. " minuti|r")
             syschat("|cffFFAA00========================================|r")
-            hunter_level_bridge.hunter_speak_color("EVENTO ATTIVO! PARTECIPA ORA!", "GOLD")
+            hunter_speak_color("EVENTO ATTIVO! PARTECIPA ORA!", "GOLD")
         end
         
         function join_event(event_id)
             local pid = pc.get_player_id()
             local c, d = mysql_direct_query("SELECT event_name, event_type, reward_glory_base, reward_glory_winner, min_rank, color_scheme FROM srv1_hunabku.hunter_scheduled_events WHERE id=" .. event_id)
             if c == 0 then
-                hunter_level_bridge.hunter_speak("Evento non trovato.")
+                hunter_speak("Evento non trovato.")
                 return
             end
             
@@ -2820,11 +2820,11 @@ quest hunter_level_bridge begin
             local rc, rd = mysql_direct_query("SELECT total_points FROM srv1_hunabku.hunter_quest_ranking WHERE player_id=" .. pid)
             local pts = 0
             if rc > 0 and rd[1] then pts = tonumber(rd[1].total_points) or 0 end
-            local player_rank_num = hunter_level_bridge.get_rank_index(pts)
-            local required_rank_num = hunter_level_bridge.get_rank_index_by_letter(min_rank)
+            local player_rank_num = get_rank_index(pts)
+            local required_rank_num = get_rank_index_by_letter(min_rank)
             
             if player_rank_num < required_rank_num then
-                hunter_level_bridge.hunter_speak_color("Rank insufficiente! Richiesto: " .. min_rank .. "-Rank", "RED")
+                hunter_speak_color("Rank insufficiente! Richiesto: " .. min_rank .. "-Rank", "RED")
                 return
             end
             
@@ -2837,10 +2837,10 @@ quest hunter_level_bridge begin
                 msg = msg .. " (Bonus Gloria ATTIVO!)"
             end
             
-            hunter_level_bridge.hunter_speak_color(msg, color)
-            cmdchat("HunterEventJoined " .. event_id .. "|" .. hunter_level_bridge.clean_str(event_name) .. "|" .. glory_base)
+            hunter_speak_color(msg, color)
+            cmdchat("HunterEventJoined " .. event_id .. "|" .. clean_str(event_name) .. "|" .. glory_base)
             
-            hunter_level_bridge.send_player_data()
+            send_player_data()
         end
         
         function get_rank_index_by_letter(letter)
@@ -2849,23 +2849,23 @@ quest hunter_level_bridge begin
         end
         
         when chat."/hunter_missions" begin
-            hunter_level_bridge.assign_daily_missions()
-            hunter_level_bridge.send_daily_missions()
+            assign_daily_missions()
+            send_daily_missions()
             cmdchat("HunterMissionsOpen")
         end
         
         when chat."/hunter_events" begin
-            hunter_level_bridge.send_today_events(true)
+            send_today_events(true)
         end
         
         when chat."/hunter_events_silent" begin
-            hunter_level_bridge.send_today_events(false)
+            send_today_events(false)
         end
         
         when chat."/hunter_join_event" begin
             local event_id = tonumber(string.gsub(input, "/hunter_join_event ", "")) or 0
             if event_id > 0 then
-                hunter_level_bridge.join_event(event_id)
+                join_event(event_id)
             end
         end
         
