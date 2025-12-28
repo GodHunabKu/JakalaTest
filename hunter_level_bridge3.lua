@@ -95,7 +95,56 @@ quest hunter_level_bridge3 begin
                 syschat("Devi essere almeno livello " .. hunter_level_bridge3.GetMinLevel() .. ".")
                 return
             end
-            if HUNTER and HUNTER.SendPlayerData then HUNTER.SendPlayerData(pc.get_player_id()) end
+
+            -- Recupera dati dal database MySQL
+            local player_id = pc.get_player_id()
+            -- Ordine query allineato a game.py __HunterPlayerData:
+            -- name|total_points|spendable_points|daily_points|weekly_points|total_kills|daily_kills|weekly_kills|
+            -- login_streak|total_fractures|total_chests|total_metins|total_bosses|daily_pos|weekly_pos
+            local query = string.format(
+                "SELECT player_name, total_glory, spendable_credits, daily_glory, weekly_glory, " ..
+                "total_kills, daily_kills, weekly_kills, login_streak, " ..
+                "total_fractures, total_chests, total_metins, total_bosses, " ..
+                "daily_position, weekly_position " ..
+                "FROM hunter_players WHERE player_id = %d", player_id
+            )
+
+            local result = mysql_query(query)
+
+            if result and result[1] then
+                local row = result[1]
+
+                -- Calcola streak bonus basato su login_streak
+                local login_streak = tonumber(row[9]) or 0
+                local streak_bonus = 0
+                if login_streak >= 30 then streak_bonus = 20
+                elseif login_streak >= 14 then streak_bonus = 15
+                elseif login_streak >= 7 then streak_bonus = 10
+                elseif login_streak >= 3 then streak_bonus = 5
+                end
+
+                -- Formato game.py: name|total_points|spendable_points|daily_points|weekly_points|
+                --                  total_kills|daily_kills|weekly_kills|login_streak|streak_bonus|
+                --                  total_fractures|total_chests|total_metins|pending_daily_reward|
+                --                  pending_weekly_reward|daily_pos|weekly_pos
+                local data_str = row[1] .. "|" .. row[2] .. "|" .. row[3] .. "|" .. row[4] .. "|" .. row[5] .. "|" ..
+                                 row[6] .. "|" .. row[7] .. "|" .. row[8] .. "|" .. row[9] .. "|" .. streak_bonus .. "|" ..
+                                 row[10] .. "|" .. row[11] .. "|" .. row[12] .. "|" .. row[13] .. "|0|" ..
+                                 row[14] .. "|" .. row[15]
+
+                cmdchat("HunterPlayerData " .. data_str)
+            else
+                -- Player non trovato nel database, crea record nuovo
+                local player_name = pc.get_name()
+                local insert_query = string.format(
+                    "INSERT INTO hunter_players (player_id, player_name) VALUES (%d, '%s')",
+                    player_id, player_name
+                )
+                mysql_query(insert_query)
+
+                -- Invia dati iniziali (tutto a 0) - 17 campi allineati a game.py
+                cmdchat("HunterPlayerData " .. player_name .. "|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0")
+            end
         end
         
         -- Nota come qui sotto ora uso hunter_level_bridge3
