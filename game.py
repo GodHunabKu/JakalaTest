@@ -2428,6 +2428,7 @@ class GameWindow(ui.ScriptWindow):
 		serverCommandList["HunterActiveEvent"]   = self.__HunterActiveEvent
 		serverCommandList["HunterTimers"]        = self.__HunterTimers
 		serverCommandList["HunterOpenWindow"]    = self.__HunterOpenWindow
+		serverCommandList["HunterOpenUI"]        = self.__HunterOpenUI
 		serverCommandList["HunterMessage"]       = self.__HunterMessage
 		serverCommandList["HunterFractures"]     = self.__HunterFractures
 
@@ -3465,6 +3466,10 @@ class GameWindow(ui.ScriptWindow):
 			pass
 
 	def __HunterOpenWindow(self):
+		uihunterlevel.OpenHunterLevelWindow()
+
+	def __HunterOpenUI(self):
+		"""Apre Hunter UI (chiamato da quest letter)"""
 		uihunterlevel.OpenHunterLevelWindow()
 
 	def __HunterMessage(self, msgStr):
