@@ -208,12 +208,14 @@ quest hunter_level_bridge3 begin
                 local entries = {}
                 for i = 1, count do
                     local row = result[i]
-                    -- Format: item_id,item_vnum,item_count,price_credits,min_rank
+                    -- Format corretto per game.py: id,vnum,count,price,name
+                    -- Il nome viene generato client-side, ma serve placeholder
+                    local item_name = "Hunter+Item+" .. (tonumber(row.item_vnum) or 0)
                     local entry = (tonumber(row.item_id) or 0) .. "," ..
                                   (tonumber(row.item_vnum) or 0) .. "," ..
                                   (tonumber(row.item_count) or 1) .. "," ..
                                   (tonumber(row.price_credits) or 0) .. "," ..
-                                  (row.min_rank or "E")
+                                  item_name
                     table.insert(entries, entry)
                 end
                 cmdchat("HunterShopItems " .. table.concat(entries, ";"))
@@ -260,20 +262,22 @@ quest hunter_level_bridge3 begin
                     end
 
                     -- Check if unlocked
+                    local unlocked = 0
+                    local claimed = 0
                     if current_progress >= requirement then
-                        status = "unlocked"
+                        unlocked = 1
                     end
 
-                    -- Format: id|name|type|requirement|current_progress|reward_vnum|reward_count|status
-                    local name_clean = string.gsub(row.name or "Achievement", " ", "_")
-                    local entry = (tonumber(row.id) or 0) .. "|" ..
-                                  name_clean .. "|" ..
-                                  ach_type .. "|" ..
-                                  requirement .. "|" ..
-                                  current_progress .. "|" ..
-                                  (tonumber(row.reward_vnum) or 0) .. "|" ..
-                                  (tonumber(row.reward_count) or 0) .. "|" ..
-                                  status
+                    -- Format corretto per game.py: id,name,type,requirement,progress,unlocked,claimed
+                    -- Separatore campi = "," | Separatore entries = ";"
+                    local name_clean = string.gsub(row.name or "Achievement", " ", "+")
+                    local entry = (tonumber(row.id) or 0) .. "," ..
+                                  name_clean .. "," ..
+                                  ach_type .. "," ..
+                                  requirement .. "," ..
+                                  current_progress .. "," ..
+                                  unlocked .. "," ..
+                                  claimed
                     table.insert(entries, entry)
                 end
                 cmdchat("HunterAchievements " .. table.concat(entries, ";"))
@@ -313,24 +317,50 @@ quest hunter_level_bridge3 begin
 
                 local color = rank_colors[rank] or "FFFFFF"
 
-                -- Invia messaggio di benvenuto base
-                syschat(string.format("|cff%s========================================|r", color))
-                syschat(string.format("|cff%s[HUNTER SYSTEM] Benvenuto, %s|r", color, name))
-                syschat(string.format("|cff%s[RANK %s] Gloria: %d|r", color, rank, glory))
+                -- Messaggi epici stile Solo Leveling
+                syschat(string.format("|cff%s====================================================|r", color))
+                syschat(string.format("|cff%s            *** HUNTER SYSTEM v36.0 ***|r", color))
+                syschat(string.format("|cff%s====================================================|r", color))
+                wait(500)
+                syschat(string.format("|cffFFFFFF   Cacciatore: %s|r", name))
+                syschat(string.format("|cff%s   Rank: [%s-RANK]|r", color, rank))
 
-                -- Streak bonus message
+                -- Rank-based motivational quote
+                local rank_quotes = {
+                    E = "Ogni leggenda inizia da qui.",
+                    D = "Stai emergendo dall'oscurita.",
+                    C = "Il tuo nome inizia a circolare.",
+                    B = "Pochi raggiungono questo livello.",
+                    A = "Sei tra l'elite dei Cacciatori.",
+                    S = "Il Sistema riconosce la tua supremazia.",
+                    N = "Hai trasceso i limiti umani."
+                }
+                syschat(string.format("|cff888888   '%s'|r", rank_quotes[rank] or ""))
+
+                wait(500)
+                syschat("|cffFFD700----------------------------------------------------|r")
+                syschat(string.format("|cffFFFFFF   Gloria Totale: %d|r", glory))
+
+                -- Streak bonus message con messaggi più epici
                 if streak >= 30 then
-                    syschat("|cffFFD700[STREAK x30] BONUS MASSIMO +20% Gloria!|r")
-                    cmdchat("HunterSystemSpeak [STREAK_MASTER]_30_giorni_consecutivi!_Leggenda_vivente.")
+                    syschat("|cffFF0000   !! STREAK x30 GIORNI !!|r")
+                    syschat("|cffFFD700   BONUS MASSIMO: +20% Gloria|r")
+                    syschat("|cffFFFFFF   'Una dedizione senza precedenti.'|r")
+                    cmdchat("HunterSystemSpeak [IMMORTALE]_30_giorni_consecutivi!_Leggenda_vivente.")
                 elseif streak >= 14 then
-                    syschat("|cffFF9900[STREAK x14] BONUS +15% Gloria!|r")
-                    cmdchat("HunterSystemSpeak [STREAK]_14_giorni_di_dedizione._Impressionante.")
+                    syschat("|cffFF9900   STREAK x14 GIORNI|r")
+                    syschat("|cffFFFFFF   Bonus: +15% Gloria|r")
+                    cmdchat("HunterSystemSpeak [STREAK]_14_giorni._Il_Sistema_e_impressionato.")
                 elseif streak >= 7 then
-                    syschat("|cff00FF00[STREAK x7] BONUS +10% Gloria!|r")
-                    cmdchat("HunterSystemSpeak [STREAK]_7_giorni!_Il_Sistema_ti_osserva.")
+                    syschat("|cff00FF00   STREAK x7 GIORNI|r")
+                    syschat("|cffFFFFFF   Bonus: +10% Gloria|r")
+                    cmdchat("HunterSystemSpeak [STREAK]_7_giorni!_Determinazione_assoluta.")
                 elseif streak >= 3 then
-                    syschat("|cff0099FF[STREAK x3] BONUS +5% Gloria|r")
-                    cmdchat("HunterSystemSpeak Streak_di_3_giorni._Continua_cosi!")
+                    syschat("|cff0099FF   STREAK x3 GIORNI|r")
+                    syschat("|cffFFFFFF   Bonus: +5% Gloria|r")
+                    cmdchat("HunterSystemSpeak Streak_attivo!_Continua_cosi.")
+                else
+                    syschat("|cffFFFFFF   Streak: " .. streak .. " giorni|r")
                 end
 
                 -- Query login message from database based on streak
@@ -342,11 +372,18 @@ quest hunter_level_bridge3 begin
                 if msg_count > 0 and msg_result[1] then
                     local message = msg_result[1].message_text or ""
                     message = string.gsub(message, "_", " ")
-                    syschat("|cffFFFFFF" .. message .. "|r")
+                    syschat(string.format("|cff%s   >> %s|r", color, message))
                 end
 
-                syschat(string.format("|cff%s========================================|r", color))
-                syschat("|cff00FFFF[Y] - Apri Hunter Terminal|r")
+                syschat("|cffFFD700----------------------------------------------------|r")
+                syschat("|cffFFFFFF   Il Sistema monitora ogni tua azione.|r")
+                syschat("|cffFFFFFF   Ogni nemico abbattuto ti avvicina alla gloria.|r")
+                syschat(string.format("|cff%s====================================================|r", color))
+                syschat("|cff00FFFF   [Y] - Apri Hunter Terminal|r")
+                syschat(string.format("|cff%s====================================================|r", color))
+
+                -- Message speak finale
+                cmdchat("HunterSystemSpeak Bentornato,_" .. name .. "._Il_Sistema_ti_osserva.")
             end
         end
 
@@ -462,23 +499,187 @@ quest hunter_level_bridge3 begin
         end
 
         function start_fracture_defense(rank, fracture_vnum)
-            -- Placeholder per sistema difesa completo
-            -- Questo richiederebbe:
-            -- 1. Timer per verificare posizione player
-            -- 2. Spawn waves da database hunter_fracture_defense_waves
-            -- 3. Verifica distanza dalla frattura
-            -- 4. Ricompensa finale
-
             local pid = pc.get_player_id()
 
-            syschat("[HUNTER] Sistema difesa frattura avviato!")
-            syschat("[HUNTER] Funzionalita complete in sviluppo:")
-            syschat("  - Spawn automatico ondate mob")
-            syschat("  - Verifica posizione ogni 2 secondi")
-            syschat("  - Ricompensa gloria al completamento")
+            -- Salva posizione frattura e informazioni difesa
+            pc.setqf("fracture_def_active", 1)
+            pc.setqf("fracture_def_rank", string.byte(rank))  -- Salva come numero ASCII
+            pc.setqf("fracture_def_start", get_time())
+            pc.setqf("fracture_def_x", npc.get_x())
+            pc.setqf("fracture_def_y", npc.get_y())
+            pc.setqf("fracture_def_wave", 0)
+            pc.setqf("fracture_def_killed", 0)
 
-            -- Per ora, invia un messaggio di placeholder
-            cmdchat("HunterSystemSpeak Sistema_difesa_fratture_in_sviluppo.")
+            -- Query configurazione difesa
+            local cfg_query = "SELECT config_value FROM hunter_fracture_defense_config WHERE config_key IN ('defense_duration', 'check_distance', 'spawn_start_delay')"
+            local cfg_count, cfg_result = mysql_direct_query(cfg_query)
+
+            local defense_duration = 60
+            local check_distance = 10
+            local spawn_delay = 5
+
+            if cfg_count > 0 then
+                defense_duration = tonumber(cfg_result[1].config_value) or 60
+                if cfg_count > 1 then
+                    check_distance = tonumber(cfg_result[2].config_value) or 10
+                end
+                if cfg_count > 2 then
+                    spawn_delay = tonumber(cfg_result[3].config_value) or 5
+                end
+            end
+
+            pc.setqf("fracture_def_duration", defense_duration)
+            pc.setqf("fracture_def_distance", check_distance)
+
+            -- Messaggi iniziali stile Solo Leveling
+            syschat("|cffFFD700========================================|r")
+            syschat("|cffFF0000[SISTEMA] DIFESA FRATTURA INIZIATA|r")
+            syschat("|cffFFD700========================================|r")
+            syschat("|cffFFFFFFDurata: " .. defense_duration .. " secondi|r")
+            syschat("|cffFFFFFFDistanza massima: " .. check_distance .. " metri|r")
+            syschat("|cffFF6600Prima ondata in " .. spawn_delay .. " secondi...|r")
+            cmdchat("HunterSystemSpeak [DIFESA_INIZIATA]_Proteggere_la_frattura!")
+
+            -- Avvia timer verifica posizione (ogni 2 secondi)
+            server.timer("fracture_check_position", 2)
+
+            -- Avvia timer prima ondata
+            server.timer("fracture_spawn_wave", spawn_delay)
+        end
+
+        -- Timer verifica posizione player
+        when fracture_check_position.timer begin
+            if pc.getqf("fracture_def_active") == 0 then
+                return  -- Difesa non attiva
+            end
+
+            local frac_x = pc.getqf("fracture_def_x")
+            local frac_y = pc.getqf("fracture_def_y")
+            local player_x = pc.get_local_x()
+            local player_y = pc.get_local_y()
+            local max_dist = pc.getqf("fracture_def_distance") * 100  -- Converti in unità gioco
+
+            -- Calcola distanza
+            local dx = player_x - frac_x
+            local dy = player_y - frac_y
+            local distance = math.sqrt(dx * dx + dy * dy)
+
+            if distance > max_dist then
+                -- Player troppo lontano - difesa fallita
+                syschat("|cffFF0000[DIFESA FALLITA] Ti sei allontanato troppo!|r")
+                cmdchat("HunterSystemSpeak DIFESA_FALLITA!_Sei_fuggito_dalla_battaglia.")
+                pc.setqf("fracture_def_active", 0)
+                return
+            end
+
+            -- Verifica se il tempo è scaduto
+            local start_time = pc.getqf("fracture_def_start")
+            local duration = pc.getqf("fracture_def_duration")
+            local elapsed = get_time() - start_time
+
+            if elapsed >= duration then
+                -- Difesa completata!
+                hunter_level_bridge3.complete_fracture_defense()
+                return
+            end
+
+            -- Continua il timer
+            server.timer("fracture_check_position", 2)
+        end
+
+        -- Timer spawn waves
+        when fracture_spawn_wave.timer begin
+            if pc.getqf("fracture_def_active") == 0 then
+                return  -- Difesa non attiva
+            end
+
+            local current_wave = pc.getqf("fracture_def_wave") + 1
+            local rank_ascii = pc.getqf("fracture_def_rank")
+            local rank = string.char(rank_ascii)
+
+            -- Query ondata corrente
+            local query = string.format(
+                "SELECT mob_vnum, mob_count, spawn_radius, spawn_time FROM hunter_fracture_defense_waves WHERE rank_grade = '%s' AND wave_number = %d AND enabled = 1",
+                rank, current_wave
+            )
+            local count, result = mysql_direct_query(query)
+
+            if count > 0 and result[1] then
+                local wave = result[1]
+                local mob_vnum = tonumber(wave.mob_vnum) or 101
+                local mob_count = tonumber(wave.mob_count) or 5
+                local radius = tonumber(wave.spawn_radius) or 7
+                local next_spawn_time = 15  -- Default 15 secondi tra ondate
+
+                -- Ottieni prossimo spawn time se c'è un'altra ondata
+                local next_query = string.format(
+                    "SELECT spawn_time FROM hunter_fracture_defense_waves WHERE rank_grade = '%s' AND wave_number = %d AND enabled = 1",
+                    rank, current_wave + 1
+                )
+                local next_count, next_result = mysql_direct_query(next_query)
+                if next_count > 0 and next_result[1] then
+                    next_spawn_time = tonumber(next_result[1].spawn_time) - tonumber(wave.spawn_time)
+                end
+
+                -- Spawn mob intorno al player
+                syschat("|cffFF6600[ONDATA " .. current_wave .. "] Spawning " .. mob_count .. " nemici!|r")
+                cmdchat("HunterSystemSpeak ONDATA_" .. current_wave .. "!_Eliminali_tutti!")
+
+                for i = 1, mob_count do
+                    local angle = (math.pi * 2 / mob_count) * i
+                    local spawn_x = pc.get_local_x() + math.cos(angle) * radius * 100
+                    local spawn_y = pc.get_local_y() + math.sin(angle) * radius * 100
+                    mob.spawn(mob_vnum, spawn_x, spawn_y, 0, 1, 0)
+                end
+
+                pc.setqf("fracture_def_wave", current_wave)
+
+                -- Schedula prossima ondata se esiste
+                if next_count > 0 then
+                    server.timer("fracture_spawn_wave", next_spawn_time)
+                end
+            end
+        end
+
+        function complete_fracture_defense()
+            local rank_ascii = pc.getqf("fracture_def_rank")
+            local rank = string.char(rank_ascii)
+
+            -- Reset flag
+            pc.setqf("fracture_def_active", 0)
+
+            -- Calcola ricompensa in base al rank
+            local glory_rewards = {
+                E = 300,
+                D = 500,
+                C = 800,
+                B = 1200,
+                A = 2000,
+                S = 3500,
+                N = 5000
+            }
+
+            local glory_reward = glory_rewards[rank] or 300
+
+            -- Aggiorna database
+            local pid = pc.get_player_id()
+            local update_query = string.format(
+                "UPDATE hunter_players SET total_glory = total_glory + %d, daily_glory = daily_glory + %d, weekly_glory = weekly_glory + %d, total_fractures = total_fractures + 1 WHERE player_id = %d",
+                glory_reward, glory_reward, glory_reward, pid
+            )
+            mysql_direct_query(update_query)
+
+            -- Messaggi vittoria stile Solo Leveling
+            syschat("|cffFFD700========================================|r")
+            syschat("|cff00FF00[DIFESA COMPLETATA]|r")
+            syschat("|cffFFD700========================================|r")
+            syschat("|cffFFFFFFFrattura Rank " .. rank .. " sigillata!|r")
+            syschat("|cffFFD700++" .. glory_reward .. " GLORIA|r")
+            syschat("|cffFFD700========================================|r")
+            cmdchat("HunterSystemSpeak FRATTURA_SIGILLATA!_+" .. glory_reward .. "_Gloria!")
+
+            -- Reinvia dati aggiornati al client
+            hunter_level_bridge3.send_player_data()
         end
 
         -- ============================================================
