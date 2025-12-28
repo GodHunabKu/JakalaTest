@@ -151,6 +151,74 @@ quest hunter_level_bridge3 begin
             end
         end
 
+        function send_all_data()
+            -- Invia tutti i dati necessari per popolare l'intera UI
+            hunter_level_bridge3.send_player_data()
+            hunter_level_bridge3.send_ranking("daily")
+            hunter_level_bridge3.send_ranking("weekly")
+            hunter_level_bridge3.send_ranking("total")
+            hunter_level_bridge3.send_shop()
+            hunter_level_bridge3.send_achievements()
+        end
+
+        function send_ranking(rtype)
+            local col = "total_glory"
+            local cmd = "HunterRankingTotal"
+
+            if rtype == "daily" then
+                col = "daily_glory"
+                cmd = "HunterRankingDaily"
+            elseif rtype == "weekly" then
+                col = "weekly_glory"
+                cmd = "HunterRankingWeekly"
+            end
+
+            local query = string.format(
+                "SELECT player_name, %s as glory FROM hunter_players WHERE %s > 0 ORDER BY %s DESC LIMIT 10",
+                col, col, col
+            )
+
+            local count, result = mysql_direct_query(query)
+            local data_str = ""
+
+            if count > 0 then
+                for i = 1, count do
+                    local row = result[i]
+                    if data_str ~= "" then data_str = data_str .. ";" end
+                    data_str = data_str .. (row.player_name or "Unknown") .. "," .. (tonumber(row.glory) or 0) .. ",0"
+                end
+            end
+
+            if data_str == "" then
+                cmdchat(cmd .. " EMPTY")
+            else
+                cmdchat(cmd .. " " .. data_str)
+            end
+        end
+
+        function send_shop()
+            -- Placeholder: invia lista vuota per ora
+            -- Puoi popolare hunter_shop table nel DB se vuoi oggetti vendibili
+            cmdchat("HunterShopItems EMPTY")
+        end
+
+        function send_achievements()
+            -- Placeholder: invia lista vuota per ora
+            -- Puoi popolare hunter_achievements table nel DB
+            cmdchat("HunterAchievements EMPTY")
+        end
+
+        -- ============================================================
+        -- CLICK FRATTURE (when 16060.click ecc.)
+        -- ============================================================
+
+        when 16060.click or 16061.click or 16062.click or 16063.click or 16064.click or 16065.click or 16066.click begin
+            local vnum = npc.get_race()
+            syschat("[HUNTER] Frattura rilevata! VNUM: " .. vnum)
+            syschat("[HUNTER] Sistema Gate non ancora implementato completamente.")
+            syschat("[HUNTER] Il sistema completo arriverà nelle prossime versioni.")
+        end
+
         -- ============================================================
         -- COMANDI CHAT
         -- ============================================================
