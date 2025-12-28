@@ -102,13 +102,13 @@ quest hunter_level_bridge3 begin
                 "FROM hunter_players WHERE player_id = %d", pid
             )
 
-            local result = mysql_query(query)
+            local count, result = mysql_direct_query(query)
 
-            if result and result[1] then
+            if count > 0 and result[1] then
                 local row = result[1]
 
                 -- Calcola streak bonus basato su login_streak
-                local login_streak = tonumber(row[9]) or 0
+                local login_streak = tonumber(row.login_streak) or 0
                 local streak_bonus = 0
                 if login_streak >= 30 then streak_bonus = 20
                 elseif login_streak >= 14 then streak_bonus = 15
@@ -120,10 +120,21 @@ quest hunter_level_bridge3 begin
                 --                  total_kills|daily_kills|weekly_kills|login_streak|streak_bonus|
                 --                  total_fractures|total_chests|total_metins|pending_daily_reward|
                 --                  pending_weekly_reward|daily_pos|weekly_pos
-                local data_str = row[1] .. "|" .. row[2] .. "|" .. row[3] .. "|" .. row[4] .. "|" .. row[5] .. "|" ..
-                                 row[6] .. "|" .. row[7] .. "|" .. row[8] .. "|" .. row[9] .. "|" .. streak_bonus .. "|" ..
-                                 row[10] .. "|" .. row[11] .. "|" .. row[12] .. "|" .. row[13] .. "|0|" ..
-                                 row[14] .. "|" .. row[15]
+                local data_str = (row.player_name or pc.get_name()) .. "|" ..
+                                 (tonumber(row.total_glory) or 0) .. "|" ..
+                                 (tonumber(row.spendable_credits) or 0) .. "|" ..
+                                 (tonumber(row.daily_glory) or 0) .. "|" ..
+                                 (tonumber(row.weekly_glory) or 0) .. "|" ..
+                                 (tonumber(row.total_kills) or 0) .. "|" ..
+                                 (tonumber(row.daily_kills) or 0) .. "|" ..
+                                 (tonumber(row.weekly_kills) or 0) .. "|" ..
+                                 login_streak .. "|" .. streak_bonus .. "|" ..
+                                 (tonumber(row.total_fractures) or 0) .. "|" ..
+                                 (tonumber(row.total_chests) or 0) .. "|" ..
+                                 (tonumber(row.total_metins) or 0) .. "|" ..
+                                 (tonumber(row.total_bosses) or 0) .. "|0|" ..
+                                 (tonumber(row.daily_position) or 0) .. "|" ..
+                                 (tonumber(row.weekly_position) or 0)
 
                 cmdchat("HunterPlayerData " .. data_str)
             else
@@ -133,7 +144,7 @@ quest hunter_level_bridge3 begin
                     "INSERT INTO hunter_players (player_id, player_name) VALUES (%d, '%s')",
                     pid, mysql_escape_string(player_name)
                 )
-                mysql_query(insert_query)
+                mysql_direct_query(insert_query)
 
                 -- Invia dati iniziali (tutto a 0) - 17 campi allineati a game.py
                 cmdchat("HunterPlayerData " .. player_name .. "|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0")
