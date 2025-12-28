@@ -94,6 +94,124 @@ quest hunter_level_bridge begin
             end
         end
 
+        -- PERFORMANCE: CACHE DEFENSE WAVES (NO QUERY OGNI SECONDO!)
+        function load_defense_waves_cache(rank_grade)
+            -- SECURITY: Valida rank
+            rank_grade = hunter_level_bridge.validate_rank(rank_grade)
+
+            -- Inizializza cache se non esiste
+            if not _G.hunter_defense_waves_cache then
+                _G.hunter_defense_waves_cache = {}
+            end
+
+            -- Se cache per questo rank già caricata, ritorna
+            if _G.hunter_defense_waves_cache[rank_grade] then
+                return  -- Cache già presente
+            end
+
+            -- Carica TUTTE le wave per questo rank in UNA query
+            local q = "SELECT wave_number, spawn_time, mob_vnum, mob_count, spawn_radius FROM srv1_hunabku.hunter_fracture_defense_waves "
+            q = q .. "WHERE rank_grade='" .. rank_grade .. "' AND enabled=1 ORDER BY wave_number"
+            local c, d = mysql_direct_query(q)
+
+            if c > 0 then
+                _G.hunter_defense_waves_cache[rank_grade] = {}
+
+                for i = 1, c do
+                    local wave_num = tonumber(d[i].wave_number)
+                    local spawn_time = tonumber(d[i].spawn_time)
+                    local mob_vnum = tonumber(d[i].mob_vnum)
+                    local mob_count = tonumber(d[i].mob_count)
+                    local spawn_radius = tonumber(d[i].spawn_radius) or 7
+
+                    -- Crea entry per wave
+                    if not _G.hunter_defense_waves_cache[rank_grade][wave_num] then
+                        _G.hunter_defense_waves_cache[rank_grade][wave_num] = {
+                            spawn_time = spawn_time,
+                            mobs = {}
+                        }
+                    end
+
+                    -- Aggiungi mob a questa wave (può avere più tipi di mob)
+                    table.insert(_G.hunter_defense_waves_cache[rank_grade][wave_num].mobs, {
+                        vnum = mob_vnum,
+                        count = mob_count,
+                        radius = spawn_radius
+                    })
+                end
+            end
+        end
+
+        -- PERFORMANCE: BATCH RANKING UPDATES (NO UPDATE SU OGNI KILL!)
+        -- Accumula i punti in quest flags, poi salva tutto insieme su logout/timer
+        function flush_ranking_updates()
+            local pid = pc.get_player_id()
+
+            -- Leggi accumulatori dalle quest flags
+            local pending_total_pts = pc.getqf("hq_pending_total_pts") or 0
+            local pending_spendable_pts = pc.getqf("hq_pending_spendable_pts") or 0
+            local pending_daily_pts = pc.getqf("hq_pending_daily_pts") or 0
+            local pending_weekly_pts = pc.getqf("hq_pending_weekly_pts") or 0
+            local pending_total_kills = pc.getqf("hq_pending_total_kills") or 0
+            local pending_daily_kills = pc.getqf("hq_pending_daily_kills") or 0
+            local pending_weekly_kills = pc.getqf("hq_pending_weekly_kills") or 0
+            local pending_metins = pc.getqf("hq_pending_metins") or 0
+            local pending_chests = pc.getqf("hq_pending_chests") or 0
+            local pending_fractures = pc.getqf("hq_pending_fractures") or 0
+
+            -- Se non c'è nulla da salvare, esci
+            if pending_total_pts == 0 and pending_total_kills == 0 and pending_metins == 0 and pending_chests == 0 and pending_fractures == 0 then
+                return
+            end
+
+            -- SALVA TUTTO IN UNA QUERY (invece di 100+ query separate!)
+            local q = "UPDATE srv1_hunabku.hunter_quest_ranking SET "
+            q = q .. "total_points = total_points + " .. pending_total_pts .. ", "
+            q = q .. "spendable_points = spendable_points + " .. pending_spendable_pts .. ", "
+            q = q .. "daily_points = daily_points + " .. pending_daily_pts .. ", "
+            q = q .. "weekly_points = weekly_points + " .. pending_weekly_pts .. ", "
+            q = q .. "total_kills = total_kills + " .. pending_total_kills .. ", "
+            q = q .. "daily_kills = daily_kills + " .. pending_daily_kills .. ", "
+            q = q .. "weekly_kills = weekly_kills + " .. pending_weekly_kills .. ", "
+            q = q .. "total_metins = total_metins + " .. pending_metins .. ", "
+            q = q .. "total_chests = total_chests + " .. pending_chests .. ", "
+            q = q .. "total_fractures = total_fractures + " .. pending_fractures .. " "
+            q = q .. "WHERE player_id = " .. pid
+
+            mysql_direct_query(q)
+
+            -- Reset accumulatori dopo il salvataggio
+            pc.setqf("hq_pending_total_pts", 0)
+            pc.setqf("hq_pending_spendable_pts", 0)
+            pc.setqf("hq_pending_daily_pts", 0)
+            pc.setqf("hq_pending_weekly_pts", 0)
+            pc.setqf("hq_pending_total_kills", 0)
+            pc.setqf("hq_pending_daily_kills", 0)
+            pc.setqf("hq_pending_weekly_kills", 0)
+            pc.setqf("hq_pending_metins", 0)
+            pc.setqf("hq_pending_chests", 0)
+            pc.setqf("hq_pending_fractures", 0)
+        end
+
+        -- PERFORMANCE: Aggiungi punti agli accumulatori (NO DB UPDATE immediato!)
+        function add_pending_points(total_pts, daily_pts, weekly_pts)
+            total_pts = tonumber(total_pts) or 0
+            daily_pts = tonumber(daily_pts) or total_pts
+            weekly_pts = tonumber(weekly_pts) or total_pts
+
+            pc.setqf("hq_pending_total_pts", (pc.getqf("hq_pending_total_pts") or 0) + total_pts)
+            pc.setqf("hq_pending_spendable_pts", (pc.getqf("hq_pending_spendable_pts") or 0) + total_pts)
+            pc.setqf("hq_pending_daily_pts", (pc.getqf("hq_pending_daily_pts") or 0) + daily_pts)
+            pc.setqf("hq_pending_weekly_pts", (pc.getqf("hq_pending_weekly_pts") or 0) + weekly_pts)
+        end
+
+        -- PERFORMANCE: Aggiungi kill agli accumulatori
+        function add_pending_kill()
+            pc.setqf("hq_pending_total_kills", (pc.getqf("hq_pending_total_kills") or 0) + 1)
+            pc.setqf("hq_pending_daily_kills", (pc.getqf("hq_pending_daily_kills") or 0) + 1)
+            pc.setqf("hq_pending_weekly_kills", (pc.getqf("hq_pending_weekly_kills") or 0) + 1)
+        end
+
         -- Helper function per formattare l'ora
         function format_time(h, m)
             local hh = tostring(h)
@@ -712,6 +830,9 @@ quest hunter_level_bridge begin
         when logout begin
             local pid = pc.get_player_id()
 
+            -- PERFORMANCE: Salva accumulatori ranking PRIMA del logout (CRITICO!)
+            hunter_level_bridge.flush_ranking_updates()
+
             -- Salva tempo logout
             pc.setqf("hq_last_logout", get_time())
 
@@ -723,7 +844,8 @@ quest hunter_level_bridge begin
                 hunter_defense_data[pid] = nil
             end
 
-            -- TODO: Qui andrà il batch update ranking (commit successivo)
+            -- NOTA: La cache waves (_G.hunter_defense_waves_cache) è condivisa tra tutti i player
+            -- Non va pulita al logout, viene riutilizzata da tutti
         end
         
         -- Timer per mostrare il benvenuto DOPO gli altri messaggi
@@ -1063,7 +1185,10 @@ quest hunter_level_bridge begin
                 
                 -- Aggiorna il rank salvato (quest flag)
                 pc.setqf("hq_rank_num", new_rank)
-                
+
+                -- PERFORMANCE: Salva tutti i punti accumulati PRIMA del rank up!
+                hunter_level_bridge.flush_ranking_updates()
+
                 -- *** FIX: Aggiorna anche il rank nel DATABASE ***
                 mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET hunter_rank='" .. new_letter .. "', current_rank='" .. new_letter .. "' WHERE player_id=" .. pid)
                 
@@ -1368,23 +1493,27 @@ quest hunter_level_bridge begin
             -- Salva punti prima dell'update per check rank up
             local old_total_pts = pc.getqf("hq_total_points") or 0
 
-            mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET total_points=total_points+" .. base_pts .. ", spendable_points=spendable_points+" .. base_pts .. ", daily_points=daily_points+" .. base_pts .. ", weekly_points=weekly_points+" .. base_pts .. ", total_kills=total_kills+1, daily_kills=daily_kills+1, weekly_kills=weekly_kills+1 WHERE player_id=" .. pid)
-            
+            -- PERFORMANCE: Accumula in quest flags invece di UPDATE immediato!
+            hunter_level_bridge.add_pending_points(base_pts, base_pts, base_pts)
+            hunter_level_bridge.add_pending_kill()
+
             pc.setqf("hq_total_kills", (pc.getqf("hq_total_kills") or 0) + 1)
             local new_total_pts = old_total_pts + base_pts
             pc.setqf("hq_total_points", new_total_pts)
-            
-            -- Check se il giocatore   salito di rank
+
+            -- Check se il giocatore è salito di rank
             hunter_level_bridge.check_rank_up(old_total_pts, new_total_pts)
-            
+
             if mob_info.type_name == "SUPER_METIN" then
                 hunter_level_bridge.check_overtake(pid, pname, "total_metins", 1, "METIN")
-                mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET total_metins = total_metins + 1 WHERE player_id=" .. pid)
+                -- PERFORMANCE: Accumula invece di UPDATE immediato
+                pc.setqf("hq_pending_metins", (pc.getqf("hq_pending_metins") or 0) + 1)
                 -- MISSION HOOK: Metin ucciso
                 hunter_level_bridge.on_metin_kill(vnum)
             elseif mob_info.type_name == "BAULE" then
                 hunter_level_bridge.check_overtake(pid, pname, "total_chests", 1, "BAULI")
-                mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET total_chests = total_chests + 1 WHERE player_id=" .. pid)
+                -- PERFORMANCE: Accumula invece di UPDATE immediato
+                pc.setqf("hq_pending_chests", (pc.getqf("hq_pending_chests") or 0) + 1)
                 hunter_level_bridge.give_chest_reward()
             elseif mob_info.type_name == "BOSS" then
                 -- MISSION HOOK: Boss ucciso
@@ -1756,6 +1885,9 @@ quest hunter_level_bridge begin
             -- SECURITY: Valida rank prima di salvarlo
             frank = hunter_level_bridge.validate_rank(frank)
 
+            -- PERFORMANCE: Carica cache waves per questo rank (1 query invece di 60+!)
+            hunter_level_bridge.load_defense_waves_cache(frank)
+
             -- Salva posizione e VID frattura
             local fx, fy = pc.get_local_x(), pc.get_local_y()
             local fracture_vid = npc.get_vid()  -- SALVA VID per rimuoverla dopo
@@ -1825,14 +1957,19 @@ quest hunter_level_bridge begin
         function spawn_defense_wave(wave_num, rank_grade)
             -- ERROR HANDLING: Protezione da errori durante spawn
             local ok, err = pcall(function()
-                -- SECURITY: Valida rank prima di query
+                -- SECURITY: Valida rank
                 rank_grade = hunter_level_bridge.validate_rank(rank_grade)
 
-                local q = "SELECT mob_vnum, mob_count, spawn_radius FROM srv1_hunabku.hunter_fracture_defense_waves "
-                q = q .. "WHERE rank_grade='" .. rank_grade .. "' AND wave_number=" .. wave_num .. " AND enabled=1"
-                local c, d = mysql_direct_query(q)
+                -- PERFORMANCE: Leggi dalla cache invece che dal DB!
+                if not _G.hunter_defense_waves_cache or not _G.hunter_defense_waves_cache[rank_grade] then
+                    syschat("[ERROR] Cache waves non caricata per rank " .. rank_grade)
+                    return
+                end
 
-                if c == 0 then return end
+                local wave_data = _G.hunter_defense_waves_cache[rank_grade][wave_num]
+                if not wave_data or not wave_data.mobs then
+                    return  -- Wave non esiste
+                end
 
                 local fx = pc.getqf("hq_defense_x") or 0
                 local fy = pc.getqf("hq_defense_y") or 0
@@ -1840,10 +1977,11 @@ quest hunter_level_bridge begin
                 -- Conta mob totali da spawnare
                 local total_spawned = 0
 
-                for i = 1, c do
-                    local vnum = tonumber(d[i].mob_vnum) or 0
-                    local count = tonumber(d[i].mob_count) or 1
-                    local radius = tonumber(d[i].spawn_radius) or 7
+                -- Spawna tutti i tipi di mob per questa wave (dalla cache!)
+                for i, mob_info in ipairs(wave_data.mobs) do
+                    local vnum = mob_info.vnum or 0
+                    local count = mob_info.count or 1
+                    local radius = mob_info.radius or 7
 
                     -- Debug spawn
                     syschat("[DEBUG] Ondata " .. wave_num .. ": spawno " .. count .. " mob (VNUM: " .. vnum .. ")")
@@ -1914,7 +2052,8 @@ quest hunter_level_bridge begin
 
             -- Statistiche
             hunter_level_bridge.check_overtake(pid, pc.get_name(), "total_fractures", 1, "ESPLORATORI")
-            mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET total_fractures = total_fractures + 1 WHERE player_id=" .. pid)
+            -- PERFORMANCE: Accumula invece di UPDATE immediato
+            pc.setqf("hq_pending_fractures", (pc.getqf("hq_pending_fractures") or 0) + 1)
             pc.setqf("hq_elite_spawn_time", get_time())
             pc.setqf("hq_pending_elite", (pc.getqf("hq_pending_elite") or 0) + 1)
 
@@ -2066,6 +2205,12 @@ quest hunter_level_bridge begin
             end
         end
 
+        -- PERFORMANCE: Timer salvataggio periodico ranking (ogni 5 minuti)
+        when hq_ranking_flush_timer.timer begin
+            -- Flush accumulatori ranking su DB
+            hunter_level_bridge.flush_ranking_updates()
+        end
+
         -- Timer difesa frattura
         when hq_defense_timer.timer begin
             if pc.getqf("hq_defense_active") ~= 1 then
@@ -2107,7 +2252,7 @@ quest hunter_level_bridge begin
                 end
             end
 
-            -- Spawn ondate in base al tempo
+            -- Spawn ondate in base al tempo (PERFORMANCE: usa cache!)
             local pid = pc.get_player_id()
             local frank = "E"
             if hunter_defense_data and hunter_defense_data[pid] then
@@ -2116,15 +2261,13 @@ quest hunter_level_bridge begin
             frank = hunter_level_bridge.validate_rank(frank)  -- SECURITY: Valida rank
             local current_wave = pc.getqf("hq_defense_wave") or 0
 
-            -- Leggi tutte le ondate per questo rank
-            local q = "SELECT wave_number, spawn_time FROM srv1_hunabku.hunter_fracture_defense_waves "
-            q = q .. "WHERE rank_grade='" .. frank .. "' AND enabled=1 ORDER BY wave_number"
-            local c, d = mysql_direct_query(q)
+            -- PERFORMANCE: Leggi dalla cache invece che dal DB (NO QUERY OGNI SECONDO!)
+            if _G.hunter_defense_waves_cache and _G.hunter_defense_waves_cache[frank] then
+                local waves = _G.hunter_defense_waves_cache[frank]
 
-            if c > 0 then
-                for i = 1, c do
-                    local wave_num = tonumber(d[i].wave_number)
-                    local spawn_time = tonumber(d[i].spawn_time)
+                -- Itera sulle wave nella cache
+                for wave_num, wave_data in pairs(waves) do
+                    local spawn_time = wave_data.spawn_time
 
                     if elapsed >= spawn_time and wave_num > current_wave then
                         hunter_level_bridge.spawn_defense_wave(wave_num, frank)
@@ -2155,6 +2298,10 @@ quest hunter_level_bridge begin
 
             -- PERFORMANCE: Carica cache mob elite (una query all'avvio invece di N query ai kill)
             hunter_level_bridge.load_elite_cache()
+
+            -- PERFORMANCE: Avvia timer salvataggio periodico ranking (ogni 5 minuti)
+            cleartimer("hq_ranking_flush_timer")
+            loop_timer("hq_ranking_flush_timer", 300)  -- 300 secondi = 5 minuti
 
             -- CLEANUP: Se player riconnette durante difesa attiva, pulisci stato
             if pc.getqf("hq_defense_active") == 1 then
