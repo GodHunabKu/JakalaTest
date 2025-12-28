@@ -65,13 +65,36 @@ quest hunter_level_bridge3 begin
         end
         
         -- ============================================================
+        -- QUEST LETTER (Metodo alternativo per aprire UI)
+        -- ============================================================
+
+        when letter begin
+            -- Mostra lettera solo se livello sufficiente
+            if pc.get_level() >= hunter_level_bridge3.GetMinLevel() then
+                send_letter("Hunter System")
+            end
+        end
+
+        when button or info begin
+            -- Quando si clicca sulla lettera:
+
+            -- 1. Invia i dati del player (questo popola l'UI)
+            if HUNTER and HUNTER.SendPlayerData then
+                HUNTER.SendPlayerData(pc.get_player_id())
+            end
+
+            -- 2. Apri l'interfaccia Hunter
+            -- Usa cmdchat per aprire l'UI (verrà gestito dal Python)
+            cmdchat("OpenHunterUI")
+
+            -- 3. Mantieni la lettera aperta per click futuri
+            send_letter("Hunter System")
+        end
+
+        -- ============================================================
         -- COMANDI CHAT
         -- ============================================================
-        
-        when letter begin
-            send_letter("") 
-        end
-        
+
         when chat."hunter_data" begin
             if pc.get_level() < hunter_level_bridge3.GetMinLevel() then
                 syschat("Devi essere almeno livello " .. hunter_level_bridge3.GetMinLevel() .. ".")

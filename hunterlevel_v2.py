@@ -239,6 +239,10 @@ def ParseHunterCommand(cmd, args):
     elif cmd == "HunterEventActive":
         _ParseEventActive(args)
 
+    elif cmd == "OpenHunterUI":
+        # Apri l'interfaccia Hunter quando richiesto dal server (es. da quest letter)
+        _OpenHunterUI()
+
 # ============================================================================
 # PARSER SPECIFICI
 # ============================================================================
@@ -576,6 +580,16 @@ def _ParseEventActive(args):
     g_playerData.event_multiplier = float(parts[1])
     
     _NotifyUIUpdate("event_active")
+
+def _OpenHunterUI():
+    """Apre l'interfaccia Hunter UI principale"""
+    try:
+        import uihunterlevel
+        uihunterlevel.OpenHunterLevelWindow()
+    except Exception as e:
+        import dbg
+        dbg.TraceError("_OpenHunterUI error: %s" % str(e))
+        chat.AppendChat(chat.CHAT_TYPE_INFO, "[Hunter] Errore apertura UI")
 
 # ============================================================================
 # RICHIESTE AL SERVER
