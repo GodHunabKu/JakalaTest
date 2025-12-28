@@ -627,8 +627,7 @@ quest hunter_gate_trial begin
                 if not progress.boss_vnum_list or progress.boss_vnum_list == "" then
                     should_update = true
                 else
-                    -- FIX: Usa string.gfind invece di string.gmatch (Lua 5.0/5.1 compatibility)
-                    for v in string.gfind(progress.boss_vnum_list, "([^,]+)") do
+                    for v in string.gmatch(progress.boss_vnum_list, "([^,]+)") do
                         if v == vnum_str then should_update = true break end
                     end
                 end
@@ -638,8 +637,7 @@ quest hunter_gate_trial begin
                 if not progress.metin_vnum_list or progress.metin_vnum_list == "" then
                     should_update = true
                 else
-                    -- FIX: Usa string.gfind invece of string.gmatch (Lua 5.0/5.1 compatibility)
-                    for v in string.gfind(progress.metin_vnum_list, "([^,]+)") do
+                    for v in string.gmatch(progress.metin_vnum_list, "([^,]+)") do
                         if v == vnum_str then should_update = true break end
                     end
                 end
