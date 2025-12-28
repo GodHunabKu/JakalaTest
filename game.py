@@ -70,6 +70,7 @@ import uihunterlevel_gate_effects
 import uihunterlevel_gate_trial
 import uihunterlevel_awakening
 import uihunterlevel_whatif
+import uiCharacter_quest_fix  # FIX per crash quest system
 
 # SCREENSHOT_CWDSAVE
 SCREENSHOT_CWDSAVE = True
@@ -114,6 +115,9 @@ class GameWindow(ui.ScriptWindow):
 		self.interface.MakeInterface()
 		self.interface.ShowDefaultWindows()
 		constInfo.SetInterfaceInstance(self.interface)
+
+		# Applica patch per fix crash quest system
+		uiCharacter_quest_fix.PatchQuestModule()
 
 		self.curtain = uiPhaseCurtain.PhaseCurtain()
 		self.curtain.speed = 0.03
