@@ -78,9 +78,6 @@ def RegisterV2Commands(serverCommandList, gameInstance):
         
         # Eventi
         "HunterEventActive",
-
-        # UI
-        "HunterOpenUI",
     ]
     
     # Factory per creare bound methods compatibili con stringCommander
