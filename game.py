@@ -61,9 +61,15 @@ if app.ENABLE_PREMIUM_PRIVATE_SHOP_OFFICIAL:
 from _weakref import proxy
 
 # ============================================================
-# 1. IMPORT HUNTER SYSTEM
+# 1. IMPORT HUNTER SYSTEM (v1 + v2 COMPLETO)
 # ============================================================
 import uihunterlevel
+import hunterlevel_v2
+import hunter_v2_integration
+import uihunterlevel_gate_effects
+import uihunterlevel_gate_trial
+import uihunterlevel_awakening
+import uihunterlevel_whatif
 
 # SCREENSHOT_CWDSAVE
 SCREENSHOT_CWDSAVE = True
