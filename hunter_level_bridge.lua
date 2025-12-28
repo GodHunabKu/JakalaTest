@@ -17,27 +17,27 @@ quest hunter_level_bridge begin
     -- ALL FUNCTIONS (QUEST LEVEL)
     -- ============================================================
 
-        function get_temp_gate_data(pid)
+        local function get_temp_gate_data(pid)
             if not _G.hunter_temp_gate_data then
                 _G.hunter_temp_gate_data = {}
             end
             return _G.hunter_temp_gate_data[pid] or {}
         end
     
-        function set_temp_gate_data(pid, data)
+        local function set_temp_gate_data(pid, data)
             if not _G.hunter_temp_gate_data then
                 _G.hunter_temp_gate_data = {}
             end
             _G.hunter_temp_gate_data[pid] = data
         end
     
-        function clean_str(str)
+        local function clean_str(str)
             if str == nil then return "" end
             local result = string.gsub(tostring(str), " ", "+")
             return result
         end
 
-        function validate_rank(rank)
+        local function validate_rank(rank)
             local valid_ranks = {E=true, D=true, C=true, B=true, A=true, S=true, N=true}
             if rank and valid_ranks[rank] then
                 return rank
@@ -45,7 +45,7 @@ quest hunter_level_bridge begin
             return "E"
         end
     
-        function load_elite_cache()
+        local function load_elite_cache()
             if not _G.hunter_elite_cache then
                 _G.hunter_elite_cache = {}
                 _G.hunter_elite_data = {}  -- Dati completi mob
@@ -80,7 +80,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function load_defense_waves_cache(rank_grade)
+        local function load_defense_waves_cache(rank_grade)
             -- SECURITY: Valida rank
             rank_grade = validate_rank(rank_grade)
     
@@ -127,7 +127,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function flush_ranking_updates()
+        local function flush_ranking_updates()
             local pid = pc.get_player_id()
     
             -- Leggi accumulatori dalle quest flags
@@ -176,7 +176,7 @@ quest hunter_level_bridge begin
             pc.setqf("hq_pending_fractures", 0)
         end
     
-        function add_pending_points(total_pts, daily_pts, weekly_pts)
+        local function add_pending_points(total_pts, daily_pts, weekly_pts)
             total_pts = tonumber(total_pts) or 0
             daily_pts = tonumber(daily_pts) or total_pts
             weekly_pts = tonumber(weekly_pts) or total_pts
@@ -187,13 +187,13 @@ quest hunter_level_bridge begin
             pc.setqf("hq_pending_weekly_pts", (pc.getqf("hq_pending_weekly_pts") or 0) + weekly_pts)
         end
     
-        function add_pending_kill()
+        local function add_pending_kill()
             pc.setqf("hq_pending_total_kills", (pc.getqf("hq_pending_total_kills") or 0) + 1)
             pc.setqf("hq_pending_daily_kills", (pc.getqf("hq_pending_daily_kills") or 0) + 1)
             pc.setqf("hq_pending_weekly_kills", (pc.getqf("hq_pending_weekly_kills") or 0) + 1)
         end
     
-        function format_time(h, m)
+        local function format_time(h, m)
             local hh = tostring(h)
             local mm = tostring(m)
             if tonumber(h) < 10 then hh = "0" .. h end
@@ -201,39 +201,39 @@ quest hunter_level_bridge begin
             return hh .. ":" .. mm
         end
     
-        function modulo(a, b)
+        local function modulo(a, b)
             return a - math.floor(a / b) * b
         end
     
-        function get_hour_from_ts(ts)
+        local function get_hour_from_ts(ts)
             local t = os.date("*t", ts)
             return t.hour
         end
     
-        function get_min_from_ts(ts)
+        local function get_min_from_ts(ts)
             local t = os.date("*t", ts)
             return t.min
         end
     
-        function get_sec_from_ts(ts)
+        local function get_sec_from_ts(ts)
             local t = os.date("*t", ts)
             return t.sec
         end
     
-        function get_dow_from_ts(ts)
+        local function get_dow_from_ts(ts)
             local t = os.date("*t", ts)
             local wday = t.wday - 1
             return wday
         end
     
-        function get_day_db_from_ts(ts)
+        local function get_day_db_from_ts(ts)
             local t = os.date("*t", ts)
             local wday = t.wday - 1
             if wday == 0 then return 7 end
             return wday
         end
     
-        function is_leap_year(y)
+        local function is_leap_year(y)
             local mod400 = y - math.floor(y / 400) * 400
             local mod100 = y - math.floor(y / 100) * 100
             local mod4 = y - math.floor(y / 4) * 4
@@ -243,7 +243,7 @@ quest hunter_level_bridge begin
             return false
         end
     
-        function get_today_date()
+        local function get_today_date()
             local ts = get_time()
             local days = math.floor(ts / 86400)
             local year = 1970
@@ -280,12 +280,12 @@ quest hunter_level_bridge begin
             return y .. "-" .. mo .. "-" .. d
         end
     
-        function get_rank_letter(rank_num)
+        local function get_rank_letter(rank_num)
             local letters = {"E", "D", "C", "B", "A", "S", "N"}
             return letters[rank_num + 1] or "E"
         end
     
-        function get_rank_index(points)
+        local function get_rank_index(points)
             local N = tonumber(get_config("rank_threshold_N")) or 1500000
             local S = tonumber(get_config("rank_threshold_S")) or 500000
             local A = tonumber(get_config("rank_threshold_A")) or 150000
@@ -302,7 +302,7 @@ quest hunter_level_bridge begin
             else return 0 end
         end
     
-        function hunter_speak(msg)
+        local function hunter_speak(msg)
             if msg == nil then return end
             local rank_num = pc.getqf("hq_rank_num")
             if not rank_num or rank_num == 0 then
@@ -320,12 +320,12 @@ quest hunter_level_bridge begin
             cmdchat("HunterSystemSpeak " .. rank_key .. "|" .. clean_str(msg))
         end
     
-        function hunter_speak_color(msg, color_code)
+        local function hunter_speak_color(msg, color_code)
             if msg == nil then return end
             cmdchat("HunterSystemSpeak " .. (color_code or "BLUE") .. "|" .. clean_str(msg))
         end
     
-        function start_emergency(title, seconds, mob_vnum, count)
+        local function start_emergency(title, seconds, mob_vnum, count)
             pc.setqf("hq_emerg_active", 1)
             pc.setqf("hq_emerg_vnum", mob_vnum)
             pc.setqf("hq_emerg_req", count)
@@ -338,11 +338,11 @@ quest hunter_level_bridge begin
             loop_timer("hunter_emerg_tmr", 1)
         end
     
-        function update_emergency(current_count)
+        local function update_emergency(current_count)
             cmdchat("HunterEmergencyUpdate " .. current_count)
         end
     
-        function end_emergency(status)
+        local function end_emergency(status)
             pc.setqf("hq_emerg_active", 0)
             cleartimer("hunter_emerg_tmr")
                 
@@ -378,11 +378,11 @@ quest hunter_level_bridge begin
             pc.setqf("hq_emerg_reward_count", 0)
         end
     
-        function notify_rival(name, points, label)
+        local function notify_rival(name, points, label)
             cmdchat("HunterRivalAlert " .. clean_str(name) .. "|" .. points .. "|" .. clean_str(label))
         end
     
-        function ask_choice_color(qid, text, opt1, opt2, opt3, color_code)
+        local function ask_choice_color(qid, text, opt1, opt2, opt3, color_code)
             local cmd = "HunterWhatIf " .. qid .. "|" .. clean_str(text) .. "|" .. clean_str(opt1) .. "|" .. clean_str(opt2)
             local o3_str = ""
             if opt3 and opt3 ~= "" then
@@ -393,14 +393,14 @@ quest hunter_level_bridge begin
             cmdchat(cmd)
         end
     
-        function get_config(key)
+        local function get_config(key)
             local q = "SELECT config_value FROM srv1_hunabku.hunter_quest_config WHERE config_key='" .. key .. "' LIMIT 1"
             local c, d = mysql_direct_query(q)
             if c > 0 and d[1] then return tonumber(d[1].config_value) or 0 end
             return 0
         end
     
-        function get_rank_bonus(points)
+        local function get_rank_bonus(points)
             local q = "SELECT bonus_gloria FROM srv1_hunabku.hunter_ranks WHERE min_points <= " .. points .. " ORDER BY min_points DESC LIMIT 1"
             local c, d = mysql_direct_query(q)
             if c > 0 and d[1] then
@@ -409,7 +409,7 @@ quest hunter_level_bridge begin
             return 0
         end
     
-        function get_trial_gloria_multiplier()
+        local function get_trial_gloria_multiplier()
             local pid = pc.get_player_id()
             local q = "SELECT COUNT(*) as cnt FROM srv1_hunabku.hunter_player_trials WHERE player_id=" .. pid .. " AND status='in_progress' LIMIT 1"
             local c, d = mysql_direct_query(q)
@@ -419,7 +419,7 @@ quest hunter_level_bridge begin
             return 1.0
         end
     
-        function get_streak_message(day_number)
+        local function get_streak_message(day_number)
             local q = "SELECT message_text FROM srv1_hunabku.hunter_login_messages WHERE day_number = " .. day_number .. " LIMIT 1"
             local c, d = mysql_direct_query(q)
             if c > 0 and d[1] then
@@ -435,7 +435,7 @@ quest hunter_level_bridge begin
             return nil
         end
     
-        function get_text(key, replacements)
+        local function get_text(key, replacements)
             local q = "SELECT text_value FROM srv1_hunabku.hunter_texts WHERE text_key='" .. key .. "' AND enabled=1 LIMIT 1"
             local c, d = mysql_direct_query(q)
             if c > 0 and d[1] then
@@ -450,7 +450,7 @@ quest hunter_level_bridge begin
             return nil
         end
     
-        function get_text_colored(key, replacements)
+        local function get_text_colored(key, replacements)
             local q = "SELECT text_value, color_code FROM srv1_hunabku.hunter_texts WHERE text_key='" .. key .. "' AND enabled=1 LIMIT 1"
             local c, d = mysql_direct_query(q)
             if c > 0 and d[1] then
@@ -469,7 +469,7 @@ quest hunter_level_bridge begin
             return nil
         end
     
-        function get_fracture_voice(color_code, has_points)
+        local function get_fracture_voice(color_code, has_points)
             local key = "fracture_voice_" .. (has_points and "ok_" or "no_") .. color_code
             local txt = get_text(key)
             if txt then return txt end
@@ -480,11 +480,11 @@ quest hunter_level_bridge begin
             end
         end
     
-        function item_name(vnum)
+        local function item_name(vnum)
             return "Item"
         end
     
-        function get_active_event()
+        local function get_active_event()
             local event = get_current_scheduled_event()
                 
             if event then
@@ -524,7 +524,7 @@ quest hunter_level_bridge begin
             return nil, 1.0, nil, nil
         end
     
-        function get_current_scheduled_event()
+        local function get_current_scheduled_event()
             local t = os.date("*t")
             local wday = t.wday - 1
             local day_db = wday
@@ -557,7 +557,7 @@ quest hunter_level_bridge begin
             return nil
         end
     
-        function is_elite_mob(vnum)
+        local function is_elite_mob(vnum)
             -- Assicura che la cache sia caricata
             if not _G.hunter_elite_cache or not next(_G.hunter_elite_cache) then
                 load_elite_cache()
@@ -567,7 +567,7 @@ quest hunter_level_bridge begin
             return _G.hunter_elite_cache[vnum] == true
         end
     
-        function get_mob_info(vnum)
+        local function get_mob_info(vnum)
             -- Assicura che la cache sia caricata
             if not _G.hunter_elite_data or not next(_G.hunter_elite_data) then
                 load_elite_cache()
@@ -577,7 +577,7 @@ quest hunter_level_bridge begin
             return _G.hunter_elite_data[vnum]
         end
     
-        function show_awakening_sequence(name)
+        local function show_awakening_sequence(name)
             cmdchat("HunterAwakening " .. clean_str(name))
             timer("hq_awaken_1", 1)
             timer("hq_awaken_2", 3)
@@ -586,7 +586,7 @@ quest hunter_level_bridge begin
             timer("hq_awaken_5", 9)
         end
     
-        function show_rank_welcome(name, points)
+        local function show_rank_welcome(name, points)
             local rank_key = get_rank_key(points)
             local rank_data = get_rank_data(rank_key)
             cmdchat("HunterWelcome " .. rank_key .. "|" .. clean_str(name) .. "|" .. points)
@@ -605,7 +605,7 @@ quest hunter_level_bridge begin
             syschat(rank_data.border)
         end
     
-        function get_rank_key(points)
+        local function get_rank_key(points)
             local N = tonumber(get_config("rank_threshold_N")) or 1500000
             local S = tonumber(get_config("rank_threshold_S")) or 500000
             local A = tonumber(get_config("rank_threshold_A")) or 150000
@@ -622,7 +622,7 @@ quest hunter_level_bridge begin
             else return "E" end
         end
     
-        function get_rank_data(rank_key)
+        local function get_rank_data(rank_key)
             local border = get_text_colored("welcome_" .. rank_key .. "_border")
             local title = get_text_colored("welcome_" .. rank_key .. "_title")
             local line1 = get_text_colored("welcome_" .. rank_key .. "_line1")
@@ -655,7 +655,7 @@ quest hunter_level_bridge begin
             }
         end
     
-        function check_login_streak()
+        local function check_login_streak()
             local today = math.floor(get_time() / 86400)
             local last_login = pc.getqf("hq_last_login_day") or 0
             local streak = pc.getqf("hq_login_streak") or 0
@@ -693,7 +693,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function check_pending_rewards()
+        local function check_pending_rewards()
             local pid = pc.get_player_id()
             local c, d = mysql_direct_query("SELECT pending_daily_reward, pending_weekly_reward FROM srv1_hunabku.hunter_quest_ranking WHERE player_id=" .. pid)
             if c > 0 and d[1] then
@@ -704,7 +704,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function check_if_overtaken()
+        local function check_if_overtaken()
             local pid = pc.get_player_id()
             local c, d = mysql_direct_query("SELECT overtaken_by, overtaken_diff, overtaken_label FROM srv1_hunabku.hunter_quest_ranking WHERE player_id=" .. pid .. " AND overtaken_by IS NOT NULL AND overtaken_by != ''")
             if c > 0 and d[1] and d[1].overtaken_by and d[1].overtaken_by ~= "" then
@@ -716,7 +716,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function check_rank_up(old_points, new_points)
+        local function check_rank_up(old_points, new_points)
             local old_rank = get_rank_index(old_points)
             local new_rank = get_rank_index(new_points)
                 
@@ -745,7 +745,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function check_overtake(pid, pname, col_name, added_val, label_nice)
+        local function check_overtake(pid, pname, col_name, added_val, label_nice)
             local RIVAL_RANGES = {
                 ["daily_points"]    = tonumber(get_config("rival_range_daily")) or 500,
                 ["weekly_points"]   = tonumber(get_config("rival_range_weekly")) or 2000,
@@ -790,7 +790,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function on_emergency_kill(vnum)
+        local function on_emergency_kill(vnum)
             if pc.getqf("hq_emerg_active") == 1 then
                 local req_vnum = pc.getqf("hq_emerg_vnum")
                 if req_vnum == 0 or req_vnum == vnum then
@@ -806,7 +806,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function on_defense_mob_kill()
+        local function on_defense_mob_kill()
             if pc.getqf("hq_defense_active") ~= 1 then return end
             local killed = pc.getqf("hq_defense_mob_killed") or 0
             killed = killed + 1
@@ -823,7 +823,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function process_elite_kill(vnum)
+        local function process_elite_kill(vnum)
             local mob_info = get_mob_info(vnum)
             if not mob_info then return end
                 
@@ -921,7 +921,7 @@ quest hunter_level_bridge begin
             send_player_data()
         end
     
-        function process_normal_kill()
+        local function process_normal_kill()
             if pc.getqf("hq_emerg_active") == 1 then
                 if get_time() > (pc.getqf("hq_emerg_expire") or 0) then
                     pc.setqf("hq_emerg_active", 0) 
@@ -962,7 +962,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function trigger_random_emergency()
+        local function trigger_random_emergency()
             if pc.getqf("hq_defense_active") == 1 then return end
             if pc.getqf("hq_emerg_active") == 1 then return end
             if pc.getqf("hq_speedkill_active") == 1 then return end
@@ -990,7 +990,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function give_chest_reward()
+        local function give_chest_reward()
             local c, d = mysql_direct_query("SELECT item_vnum, item_quantity, bonus_points FROM srv1_hunabku.hunter_quest_jackpot_rewards WHERE type_name='BAULE' ORDER BY RAND() LIMIT 1")
             if c > 0 and d[1] then
                 local v, q, b = tonumber(d[1].item_vnum), tonumber(d[1].item_quantity), tonumber(d[1].bonus_points) or 0
@@ -1005,7 +1005,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function check_achievements()
+        local function check_achievements()
             local k, p = pc.getqf("hq_total_kills") or 0, pc.getqf("hq_total_points") or 0
             local c, d = mysql_direct_query("SELECT id, type, requirement FROM srv1_hunabku.hunter_quest_achievements_config WHERE enabled=1")
             local u = 0
@@ -1025,7 +1025,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function spawn_fracture()
+        local function spawn_fracture()
             local c, d = mysql_direct_query("SELECT vnum, rank_label, spawn_chance, color_code FROM srv1_hunabku.hunter_quest_fractures WHERE enabled=1 ORDER BY spawn_chance DESC")
             if c == 0 then return end
                 
@@ -1051,7 +1051,7 @@ quest hunter_level_bridge begin
             hunter_speak_color(msg, sel_color)
         end
     
-        function open_gate(fname, frank, fcolor, pid)
+        local function open_gate(fname, frank, fcolor, pid)
             if pc.getqf("hq_emerg_active") == 1 then
                 syschat("|cffFF0000[CONFLITTO]|r Completa prima l'Emergency Quest in corso!")
                 return
@@ -1096,7 +1096,7 @@ quest hunter_level_bridge begin
             loop_timer("hq_defense_timer", 1)
         end
     
-        function get_defense_config(key, default_val)
+        local function get_defense_config(key, default_val)
             local q = "SELECT config_value FROM srv1_hunabku.hunter_fracture_defense_config WHERE config_key='" .. key .. "'"
             local c, d = mysql_direct_query(q)
             if c > 0 and d[1] then
@@ -1105,7 +1105,7 @@ quest hunter_level_bridge begin
             return default_val
         end
     
-        function check_defense_distance()
+        local function check_defense_distance()
             local fx = pc.getqf("hq_defense_x") or 0
             local fy = pc.getqf("hq_defense_y") or 0
             if fx == 0 and fy == 0 then return false end
@@ -1117,7 +1117,7 @@ quest hunter_level_bridge begin
             return dist <= max_dist
         end
     
-        function spawn_defense_wave(wave_num, rank_grade)
+        local function spawn_defense_wave(wave_num, rank_grade)
             local ok, err = pcall(function()
                 -- SECURITY: Valida rank
                 rank_grade = validate_rank(rank_grade)
@@ -1168,7 +1168,7 @@ quest hunter_level_bridge begin
             end)
         end
     
-        function complete_defense_success()
+        local function complete_defense_success()
             local pid = pc.get_player_id()
             local fracture_vid = pc.getqf("hq_defense_fracture_vid") or 0
     
@@ -1201,7 +1201,7 @@ quest hunter_level_bridge begin
             cmdchat("HunterSystemSpeak " .. fcolor .. "|TOCCA IL PORTALE!")
         end
     
-        function fail_defense(reason)
+        local function fail_defense(reason)
             local pid = pc.get_player_id()
             local fracture_vid = pc.getqf("hq_defense_fracture_vid") or 0
                 
@@ -1229,7 +1229,7 @@ quest hunter_level_bridge begin
             hunter_speak_color(msg, "RED")
         end
     
-        function spawn_gate_mob_and_alert(rank_label, fcolor)
+        local function spawn_gate_mob_and_alert(rank_label, fcolor)
             local c, d = mysql_direct_query("SELECT type_name, probability FROM srv1_hunabku.hunter_quest_spawn_types WHERE enabled=1")
             if c == 0 then return end
             local roll, cumul, sel_type = number(1, 1000), 0, "BOSS"
@@ -1298,7 +1298,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function finalize_gate_opening(vid)
+        local function finalize_gate_opening(vid)
             local pid = pc.get_player_id()
                 
             local frank = "E"
@@ -1319,7 +1319,7 @@ quest hunter_level_bridge begin
             pc.setqf("hq_elite_spawn_time", get_time())
         end
     
-        function send_all_data()
+        local function send_all_data()
             send_player_data()
             send_ranking("daily")
             send_ranking("weekly")
@@ -1338,7 +1338,7 @@ quest hunter_level_bridge begin
             send_fractures()
         end
     
-        function send_player_data()
+        local function send_player_data()
             local pid = pc.get_player_id()
             local c, d = mysql_direct_query("SELECT total_points, spendable_points, daily_points, weekly_points, total_kills, daily_kills, weekly_kills, total_fractures, total_chests, total_metins, pending_daily_reward, pending_weekly_reward FROM srv1_hunabku.hunter_quest_ranking WHERE player_id=" .. pid)
             if c > 0 and d[1] then
@@ -1377,7 +1377,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function send_ranking(rtype)
+        local function send_ranking(rtype)
             local col, kcol, cmd = "total_points", "total_kills", "HunterRankingTotal"
             if rtype == "daily" then 
                 col, kcol, cmd = "daily_points", "daily_kills", "HunterRankingDaily"
@@ -1397,7 +1397,7 @@ quest hunter_level_bridge begin
             cmdchat(cmd .. " " .. result)
         end
     
-        function send_ranking_kills(rtype)
+        local function send_ranking_kills(rtype)
             local col, cmd = "total_kills", "HunterRankingTotalKills"
             if rtype == "daily" then 
                 col, cmd = "daily_kills", "HunterRankingDailyKills"
@@ -1415,7 +1415,7 @@ quest hunter_level_bridge begin
             cmdchat(cmd .. " " .. (str == "" and "EMPTY" or str))
         end
     
-        function send_ranking_special(cat)
+        local function send_ranking_special(cat)
             local col, cmd = "total_fractures", "HunterRankingFractures"
             if cat == "chests" then 
                 col, cmd = "total_chests", "HunterRankingChests"
@@ -1433,7 +1433,7 @@ quest hunter_level_bridge begin
             cmdchat(cmd .. " " .. (str == "" and "EMPTY" or str))
         end
     
-        function send_shop()
+        local function send_shop()
             local c, d = mysql_direct_query("SELECT id, item_vnum, item_count, price_points, description FROM srv1_hunabku.hunter_quest_shop WHERE enabled=1 ORDER BY display_order")
             local str = ""
             if c > 0 then 
@@ -1446,7 +1446,7 @@ quest hunter_level_bridge begin
             cmdchat("HunterShopItems " .. result)
         end
     
-        function send_achievements()
+        local function send_achievements()
             local c, d = mysql_direct_query("SELECT id, name, type, requirement FROM srv1_hunabku.hunter_quest_achievements_config WHERE enabled=1 ORDER BY requirement")
             local str = ""
             if c > 0 then
@@ -1466,7 +1466,7 @@ quest hunter_level_bridge begin
             cmdchat("HunterAchievements " .. result)
         end
     
-        function send_calendar()
+        local function send_calendar()
             local c, d = mysql_direct_query("SELECT DISTINCT SUBSTRING_INDEX(days_active, ',', 1) as day_index, event_name, start_hour, (start_hour + FLOOR(duration_minutes/60)) as end_hour FROM srv1_hunabku.hunter_scheduled_events WHERE enabled = 1 ORDER BY start_hour LIMIT 21")
             local str = ""
             if c > 0 then 
@@ -1481,7 +1481,7 @@ quest hunter_level_bridge begin
             cmdchat("HunterCalendar " .. result)
         end
     
-        function send_timers()
+        local function send_timers()
             local ts = get_time()
             local hour = get_hour_from_ts(ts)
             local min = get_min_from_ts(ts)
@@ -1495,7 +1495,7 @@ quest hunter_level_bridge begin
             cmdchat("HunterTimers " .. daily .. "|" .. weekly)
         end
     
-        function send_event()
+        local function send_event()
             local event = get_current_scheduled_event()
             local result = "NONE"
                 
@@ -1528,7 +1528,7 @@ quest hunter_level_bridge begin
             cmdchat("HunterActiveEvent " .. result)
         end
     
-        function send_fractures()
+        local function send_fractures()
             local c, d = mysql_direct_query("SELECT name, req_points FROM srv1_hunabku.hunter_quest_fractures WHERE enabled=1 ORDER BY req_points")
             local str = ""
             if c > 0 then 
@@ -1541,7 +1541,7 @@ quest hunter_level_bridge begin
             cmdchat("HunterFractures " .. result)
         end
     
-        function achiev_claim(id)
+        local function achiev_claim(id)
             local c, d = mysql_direct_query("SELECT name, type, requirement, reward_vnum, reward_count FROM srv1_hunabku.hunter_quest_achievements_config WHERE id="..id)
             if c == 0 or not d[1] then return end
                 
@@ -1573,7 +1573,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function smart_claim_reward()
+        local function smart_claim_reward()
             local pid = pc.get_player_id()
             local c, d = mysql_direct_query("SELECT pending_daily_reward, pending_weekly_reward FROM srv1_hunabku.hunter_quest_ranking WHERE player_id=" .. pid)
             if c == 0 or not d[1] then return end
@@ -1623,7 +1623,7 @@ quest hunter_level_bridge begin
             send_player_data()
         end
     
-        function give_pending_reward(rtype, pos)
+        local function give_pending_reward(rtype, pos)
             local pid = pc.get_player_id()
             local rc, rd = mysql_direct_query("SELECT item_vnum, item_quantity FROM srv1_hunabku.hunter_quest_rewards WHERE reward_type='" .. rtype .. "' AND rank_position=" .. pos)
             if rc > 0 and rd[1] then
@@ -1636,7 +1636,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function shop_buy_confirm(id)
+        local function shop_buy_confirm(id)
             local pid = pc.get_player_id()
             local c, d = mysql_direct_query("SELECT item_vnum, item_count, price_points, description FROM srv1_hunabku.hunter_quest_shop WHERE id=" .. id)
             if c > 0 and d[1] then
@@ -1667,7 +1667,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function announce_daily_winners()
+        local function announce_daily_winners()
             local q = "SELECT player_name, daily_points FROM srv1_hunabku.hunter_quest_ranking WHERE daily_points > 0 ORDER BY daily_points DESC LIMIT 3"
             local c, d = mysql_direct_query(q)
             if c > 0 then
@@ -1723,7 +1723,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function announce_weekly_winners()
+        local function announce_weekly_winners()
             local q = "SELECT player_name, weekly_points FROM srv1_hunabku.hunter_quest_ranking WHERE weekly_points > 0 ORDER BY weekly_points DESC LIMIT 3"
             local c, d = mysql_direct_query(q)
             if c > 0 then
@@ -1746,21 +1746,21 @@ quest hunter_level_bridge begin
             end
         end
     
-        function process_daily_reset()
+        local function process_daily_reset()
             assign_rank_prizes("daily")
             mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET daily_points = 0, daily_kills = 0")
             local msg = get_text("reset_daily") or "|cffFFD700[HUNTER SYSTEM]|r Classifica Giornaliera Resettata! La corsa al potere ricomincia."
             notice_all(msg)
         end
     
-        function process_weekly_reset()
+        local function process_weekly_reset()
             assign_rank_prizes("weekly")
             mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET weekly_points = 0, weekly_kills = 0")
             local msg = get_text("reset_weekly") or "|cffFF6600[HUNTER SYSTEM]|r Classifica Settimanale Resettata! I premi sono stati distribuiti."
             notice_all(msg)
         end
     
-        function assign_rank_prizes(rtype)
+        local function assign_rank_prizes(rtype)
             local col = rtype == "weekly" and "weekly_points" or "daily_points"
             local pcol = rtype == "weekly" and "pending_weekly_reward" or "pending_daily_reward"
             local q = "SELECT player_id FROM srv1_hunabku.hunter_quest_ranking WHERE " .. col .. " > 0 ORDER BY " .. col .. " DESC LIMIT 3"
@@ -1772,7 +1772,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function assign_daily_missions()
+        local function assign_daily_missions()
             local pid = pc.get_player_id()
             local pname = pc.get_name()
             local today_query = "SELECT CURDATE() as today"
@@ -1819,7 +1819,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function send_daily_missions()
+        local function send_daily_missions()
             local pid = pc.get_player_id()
             local today = get_today_date()
             local q = "SELECT pm.id, pm.mission_slot, md.mission_name, md.mission_type, pm.current_progress, pm.target_count, pm.status, pm.reward_glory, pm.penalty_glory, md.time_limit_minutes FROM srv1_hunabku.hunter_player_missions pm LEFT JOIN srv1_hunabku.hunter_mission_definitions md ON pm.mission_def_id = md.mission_id WHERE pm.player_id=" .. pid .. " AND pm.assigned_date='" .. today .. "' ORDER BY pm.mission_slot"
@@ -1848,7 +1848,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function update_mission_progress(mission_type, amount, target_vnum)
+        local function update_mission_progress(mission_type, amount, target_vnum)
             local pid = pc.get_player_id()
             target_vnum = target_vnum or 0
             local q = "SELECT pm.id, pm.current_progress, pm.target_count, pm.reward_glory, md.mission_name, md.target_vnum FROM srv1_hunabku.hunter_player_missions pm LEFT JOIN srv1_hunabku.hunter_mission_definitions md ON pm.mission_def_id = md.mission_id WHERE pm.player_id=" .. pid .. " AND pm.assigned_date=CURDATE() AND pm.status='active' AND md.mission_type='" .. mission_type .. "' AND (md.target_vnum = 0 OR md.target_vnum = " .. target_vnum .. ")"
@@ -1869,7 +1869,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function complete_mission(mission_id)
+        local function complete_mission(mission_id)
             local pid = pc.get_player_id()
             local today = get_today_date()
             local c, d = mysql_direct_query("SELECT pm.reward_glory, pm.status, md.mission_name FROM srv1_hunabku.hunter_player_missions pm LEFT JOIN srv1_hunabku.hunter_mission_definitions md ON pm.mission_def_id = md.mission_id WHERE pm.id=" .. mission_id .. " AND pm.player_id=" .. pid)
@@ -1897,7 +1897,7 @@ quest hunter_level_bridge begin
             send_player_data()
         end
     
-        function check_all_missions_complete()
+        local function check_all_missions_complete()
             local pid = pc.get_player_id()
             local today = get_today_date()
             local c, d = mysql_direct_query("SELECT COUNT(*) as total, SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END) as completed FROM srv1_hunabku.hunter_player_missions WHERE player_id=" .. pid .. " AND assigned_date='" .. today .. "'")
@@ -1922,26 +1922,26 @@ quest hunter_level_bridge begin
             end
         end
     
-        function on_mob_kill(mob_vnum)
+        local function on_mob_kill(mob_vnum)
             update_mission_progress("kill_mob", 1, mob_vnum)
             update_mission_progress("kill_boss", 1, mob_vnum)
             update_mission_progress("kill_metin", 1, mob_vnum)
             update_mission_progress("speedkill", 1, mob_vnum)
         end
     
-        function on_boss_kill(boss_vnum)
+        local function on_boss_kill(boss_vnum)
             update_mission_progress("kill_boss", 1, boss_vnum)
         end
     
-        function on_metin_kill(metin_vnum)
+        local function on_metin_kill(metin_vnum)
             update_mission_progress("kill_metin", 1, metin_vnum)
         end
     
-        function on_fracture_seal()
+        local function on_fracture_seal()
             update_mission_progress("seal_fracture", 1, 0)
         end
     
-        function check_missions_reminder()
+        local function check_missions_reminder()
             local pid = pc.get_player_id()
             local today = get_today_date()
             local ts = get_time()
@@ -1970,7 +1970,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function send_today_events(openWindow)
+        local function send_today_events(openWindow)
             local t = os.date("*t")
             local wday = t.wday - 1
             local day_db = wday
@@ -2037,7 +2037,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function check_active_event_notify()
+        local function check_active_event_notify()
             local event = get_current_scheduled_event()
             if event then
                 local name = event.event_name or "Evento"
@@ -2065,7 +2065,7 @@ quest hunter_level_bridge begin
             end
         end
     
-        function join_event(event_id)
+        local function join_event(event_id)
             local pid = pc.get_player_id()
             local c, d = mysql_direct_query("SELECT event_name, event_type, reward_glory_base, reward_glory_winner, min_rank, color_scheme FROM srv1_hunabku.hunter_scheduled_events WHERE id=" .. event_id)
             if c == 0 then
@@ -2106,7 +2106,7 @@ quest hunter_level_bridge begin
             send_player_data()
         end
     
-        function get_rank_index_by_letter(letter)
+        local function get_rank_index_by_letter(letter)
             local ranks = {E = 0, D = 1, C = 2, B = 3, A = 4, S = 5, N = 6}
             return ranks[letter] or 0
         end
