@@ -2490,7 +2490,10 @@ class GameWindow(ui.ScriptWindow):
 			"botcontrolname" : self.UpdateBotControlRealName,
 			"botcontrolrof" : self.UpdateBotControlRof,
 		})
-		
+
+		# Registra comandi Hunter v2.0 (sovrascrive quelli vecchi se necessario)
+		hunter_v2_integration.RegisterV2Commands(serverCommandList, self)
+
 		self.serverCommander=stringCommander.Analyzer()
 		for serverCommandItem in serverCommandList.items():
 			self.serverCommander.SAFE_RegisterCallBack(
