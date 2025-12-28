@@ -70,7 +70,51 @@ import uihunterlevel_gate_effects
 import uihunterlevel_gate_trial
 import uihunterlevel_awakening
 import uihunterlevel_whatif
-import uiCharacter_quest_fix  # FIX per crash quest system
+
+# ============================================================
+# 2. FIX QUEST SYSTEM - Previene IndexError crash
+# ============================================================
+_quest_GetQuestProperties_ORIGINAL = None
+
+def _SafeGetQuestProperties(questIndex, propertyIndex=0):
+	"""Fix per IndexError in quest.GetQuestProperties"""
+	try:
+		if questIndex < 0:
+			return ""
+
+		questName = quest.GetQuestName(questIndex)
+		if not questName:
+			return ""
+
+		# Usa la funzione originale se disponibile
+		if _quest_GetQuestProperties_ORIGINAL:
+			try:
+				result = _quest_GetQuestProperties_ORIGINAL(questIndex)
+				if result and len(result) > propertyIndex:
+					return result[propertyIndex]
+			except:
+				pass
+
+		# Fallback: ritorna nome quest
+		return questName if propertyIndex == 0 else ""
+
+	except Exception as e:
+		import dbg
+		dbg.TraceError("SafeGetQuestProperties error for quest %d: %s" % (questIndex, str(e)))
+		return ""
+
+def _PatchQuestModule():
+	"""Applica patch per prevenire crash quest system"""
+	global _quest_GetQuestProperties_ORIGINAL
+	try:
+		if hasattr(quest, 'GetQuestProperties'):
+			if not hasattr(quest, 'GetQuestProperties_PATCHED'):
+				_quest_GetQuestProperties_ORIGINAL = quest.GetQuestProperties
+				quest.GetQuestProperties = _SafeGetQuestProperties
+				quest.GetQuestProperties_PATCHED = True
+				dbg.LogBox("[QUEST FIX] Quest module patched successfully")
+	except Exception as e:
+		dbg.TraceError("Failed to patch quest module: %s" % str(e))
 
 # SCREENSHOT_CWDSAVE
 SCREENSHOT_CWDSAVE = True
@@ -117,7 +161,7 @@ class GameWindow(ui.ScriptWindow):
 		constInfo.SetInterfaceInstance(self.interface)
 
 		# Applica patch per fix crash quest system
-		uiCharacter_quest_fix.PatchQuestModule()
+		_PatchQuestModule()
 
 		self.curtain = uiPhaseCurtain.PhaseCurtain()
 		self.curtain.speed = 0.03
