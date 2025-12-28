@@ -78,16 +78,11 @@ quest hunter_level_bridge3 begin
         when button or info begin
             -- Quando si clicca sulla lettera:
 
-            -- 1. Invia i dati del player (questo popola l'UI)
-            if HUNTER and HUNTER.SendPlayerData then
-                HUNTER.SendPlayerData(pc.get_player_id())
-            end
-
-            -- 2. Apri l'interfaccia Hunter
-            -- Usa cmdchat per aprire l'UI (verrà gestito dal Python)
+            -- Apri l'interfaccia Hunter
+            -- Il Python gestirà automaticamente la richiesta dati in Open()
             cmdchat("HunterOpenUI")
 
-            -- 3. Mantieni la lettera aperta per click futuri
+            -- Mantieni la lettera aperta per click futuri
             send_letter("Hunter System")
         end
 
