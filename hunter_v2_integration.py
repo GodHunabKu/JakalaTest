@@ -21,7 +21,7 @@ ISTRUZIONI:
 """
 
 import hunterlevel_v2
-import functools
+import types
 
 def RegisterV2Commands(serverCommandList, gameInstance):
     """
@@ -83,13 +83,20 @@ def RegisterV2Commands(serverCommandList, gameInstance):
         "HunterOpenUI",
     ]
     
+    # Factory per creare bound methods compatibili con stringCommander
+    def _create_v2_handler(cmd_name):
+        """Crea un bound method che forwarda al parser v2.0"""
+        def handler(self, args):
+            hunterlevel_v2.ParseHunterCommand(cmd_name, args)
+        # Converte in bound method dell'istanza GameWindow
+        return types.MethodType(handler, gameInstance, gameInstance.__class__)
+
     # Registra ogni comando per usare il parser unificato v2.0
     for cmd in v2_commands:
         # Solo se non già registrato (priorità al sistema v1)
         if cmd not in serverCommandList:
-            # Usa functools.partial per creare un callable compatibile con stringCommander
-            # Questo evita l'errore "function object has no attribute 'im_func'"
-            serverCommandList[cmd] = functools.partial(hunterlevel_v2.ParseHunterCommand, cmd)
+            # Crea un bound method - stringCommander richiede im_func attribute
+            serverCommandList[cmd] = _create_v2_handler(cmd)
 
 
 # ============================================================================
