@@ -89,8 +89,8 @@ quest hunter_level_bridge3 begin
             -- Apri l'interfaccia Hunter
             cmdchat("HunterOpenUI")
 
-            -- Invia TUTTI i dati al client (come nella vecchia versione)
-            hunter_level_bridge3.send_player_data()
+            -- Invia TUTTI i dati al client (ranking, shop, achievements, player data)
+            hunter_level_bridge3.send_all_data()
 
             -- Mantieni la lettera aperta per click futuri
             send_letter("Hunter System")
@@ -112,8 +112,12 @@ quest hunter_level_bridge3 begin
 
             local count, result = mysql_direct_query(query)
 
+            -- Debug logging
+            syschat(string.format("[HUNTER DEBUG] Player ID: %d, Query result count: %d", pid, count or 0))
+
             if count > 0 and result[1] then
                 local row = result[1]
+                syschat(string.format("[HUNTER DEBUG] Data trovati: Glory=%s, Kills=%s", tostring(row[2]), tostring(row[6])))
 
                 -- IMPORTANTE: mysql_direct_query restituisce array numerici, NON table con nomi campi
                 -- Ordine SELECT: player_name, total_glory, spendable_credits, daily_glory, weekly_glory,
@@ -150,9 +154,12 @@ quest hunter_level_bridge3 begin
                                  (tonumber(row[14]) or 0) .. "|" ..    -- daily_position
                                  (tonumber(row[15]) or 0)              -- weekly_position
 
+                syschat("[HUNTER DEBUG] Invio dati player al client...")
                 cmdchat("HunterPlayerData " .. data_str)
+                syschat("[HUNTER DEBUG] Comando inviato!")
             else
                 -- Player non trovato nel database, crea record nuovo
+                syschat(string.format("[HUNTER DEBUG] Player ID %d non trovato, creo nuovo record...", pid))
                 local player_name = pc.get_name()
                 local insert_query = string.format(
                     "INSERT INTO hunter_players (player_id, player_name) VALUES (%d, '%s')",
@@ -161,6 +168,7 @@ quest hunter_level_bridge3 begin
                 mysql_direct_query(insert_query)
 
                 -- Invia dati iniziali (tutto a 0) - 17 campi allineati a game.py
+                syschat("[HUNTER DEBUG] Invio dati iniziali (tutto a 0)...")
                 cmdchat("HunterPlayerData " .. player_name .. "|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0")
             end
         end
