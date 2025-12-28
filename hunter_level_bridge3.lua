@@ -110,8 +110,14 @@ quest hunter_level_bridge3 begin
             if count > 0 and result[1] then
                 local row = result[1]
 
+                -- IMPORTANTE: mysql_direct_query restituisce array numerici, NON table con nomi campi
+                -- Ordine SELECT: player_name, total_glory, spendable_credits, daily_glory, weekly_glory,
+                --                total_kills, daily_kills, weekly_kills, login_streak,
+                --                total_fractures, total_chests, total_metins, total_bosses,
+                --                daily_position, weekly_position
+
                 -- Calcola streak bonus basato su login_streak
-                local login_streak = tonumber(row.login_streak) or 0
+                local login_streak = tonumber(row[9]) or 0  -- login_streak è il 9° campo
                 local streak_bonus = 0
                 if login_streak >= 30 then streak_bonus = 20
                 elseif login_streak >= 14 then streak_bonus = 15
@@ -123,21 +129,21 @@ quest hunter_level_bridge3 begin
                 --                  total_kills|daily_kills|weekly_kills|login_streak|streak_bonus|
                 --                  total_fractures|total_chests|total_metins|pending_daily_reward|
                 --                  pending_weekly_reward|daily_pos|weekly_pos
-                local data_str = (row.player_name or pc.get_name()) .. "|" ..
-                                 (tonumber(row.total_glory) or 0) .. "|" ..
-                                 (tonumber(row.spendable_credits) or 0) .. "|" ..
-                                 (tonumber(row.daily_glory) or 0) .. "|" ..
-                                 (tonumber(row.weekly_glory) or 0) .. "|" ..
-                                 (tonumber(row.total_kills) or 0) .. "|" ..
-                                 (tonumber(row.daily_kills) or 0) .. "|" ..
-                                 (tonumber(row.weekly_kills) or 0) .. "|" ..
+                local data_str = (row[1] or pc.get_name()) .. "|" ..  -- player_name
+                                 (tonumber(row[2]) or 0) .. "|" ..     -- total_glory
+                                 (tonumber(row[3]) or 0) .. "|" ..     -- spendable_credits
+                                 (tonumber(row[4]) or 0) .. "|" ..     -- daily_glory
+                                 (tonumber(row[5]) or 0) .. "|" ..     -- weekly_glory
+                                 (tonumber(row[6]) or 0) .. "|" ..     -- total_kills
+                                 (tonumber(row[7]) or 0) .. "|" ..     -- daily_kills
+                                 (tonumber(row[8]) or 0) .. "|" ..     -- weekly_kills
                                  login_streak .. "|" .. streak_bonus .. "|" ..
-                                 (tonumber(row.total_fractures) or 0) .. "|" ..
-                                 (tonumber(row.total_chests) or 0) .. "|" ..
-                                 (tonumber(row.total_metins) or 0) .. "|" ..
-                                 (tonumber(row.total_bosses) or 0) .. "|0|" ..
-                                 (tonumber(row.daily_position) or 0) .. "|" ..
-                                 (tonumber(row.weekly_position) or 0)
+                                 (tonumber(row[10]) or 0) .. "|" ..    -- total_fractures
+                                 (tonumber(row[11]) or 0) .. "|" ..    -- total_chests
+                                 (tonumber(row[12]) or 0) .. "|" ..    -- total_metins
+                                 (tonumber(row[13]) or 0) .. "|0|" ..  -- total_bosses
+                                 (tonumber(row[14]) or 0) .. "|" ..    -- daily_position
+                                 (tonumber(row[15]) or 0)              -- weekly_position
 
                 cmdchat("HunterPlayerData " .. data_str)
             else
@@ -188,7 +194,8 @@ quest hunter_level_bridge3 begin
                 for i = 1, count do
                     local row = result[i]
                     if data_str ~= "" then data_str = data_str .. ";" end
-                    data_str = data_str .. (row.player_name or "Unknown") .. "," .. (tonumber(row.glory) or 0) .. ",0"
+                    -- row[1] = player_name, row[2] = glory
+                    data_str = data_str .. (row[1] or "Unknown") .. "," .. (tonumber(row[2]) or 0) .. ",0"
                 end
             end
 
@@ -208,13 +215,13 @@ quest hunter_level_bridge3 begin
                 local entries = {}
                 for i = 1, count do
                     local row = result[i]
+                    -- row[1]=item_id, row[2]=item_vnum, row[3]=item_count, row[4]=price_credits, row[5]=min_rank
                     -- Format corretto per game.py: id,vnum,count,price,name
-                    -- Il nome viene generato client-side, ma serve placeholder
-                    local item_name = "Hunter+Item+" .. (tonumber(row.item_vnum) or 0)
-                    local entry = (tonumber(row.item_id) or 0) .. "," ..
-                                  (tonumber(row.item_vnum) or 0) .. "," ..
-                                  (tonumber(row.item_count) or 1) .. "," ..
-                                  (tonumber(row.price_credits) or 0) .. "," ..
+                    local item_name = "Hunter+Item+" .. (tonumber(row[2]) or 0)
+                    local entry = (tonumber(row[1]) or 0) .. "," ..
+                                  (tonumber(row[2]) or 0) .. "," ..
+                                  (tonumber(row[3]) or 1) .. "," ..
+                                  (tonumber(row[4]) or 0) .. "," ..
                                   item_name
                     table.insert(entries, entry)
                 end
@@ -237,8 +244,9 @@ quest hunter_level_bridge3 begin
             local total_kills = 0
             local total_glory = 0
             if stats_count > 0 and stats_result[1] then
-                total_kills = tonumber(stats_result[1].total_kills) or 0
-                total_glory = tonumber(stats_result[1].total_glory) or 0
+                -- stats_result: row[1]=total_kills, row[2]=total_glory
+                total_kills = tonumber(stats_result[1][1]) or 0
+                total_glory = tonumber(stats_result[1][2]) or 0
             end
 
             -- Get achievements config
@@ -249,8 +257,9 @@ quest hunter_level_bridge3 begin
                 local entries = {}
                 for i = 1, count do
                     local row = result[i]
-                    local ach_type = tonumber(row.type) or 1
-                    local requirement = tonumber(row.requirement) or 0
+                    -- row[1]=id, row[2]=name, row[3]=type, row[4]=requirement, row[5]=reward_vnum, row[6]=reward_count
+                    local ach_type = tonumber(row[3]) or 1
+                    local requirement = tonumber(row[4]) or 0
                     local current_progress = 0
                     local status = "locked"
 
@@ -270,8 +279,8 @@ quest hunter_level_bridge3 begin
 
                     -- Format corretto per game.py: id,name,type,requirement,progress,unlocked,claimed
                     -- Separatore campi = "," | Separatore entries = ";"
-                    local name_clean = string.gsub(row.name or "Achievement", " ", "+")
-                    local entry = (tonumber(row.id) or 0) .. "," ..
+                    local name_clean = string.gsub(row[2] or "Achievement", " ", "+")
+                    local entry = (tonumber(row[1]) or 0) .. "," ..
                                   name_clean .. "," ..
                                   ach_type .. "," ..
                                   requirement .. "," ..
@@ -299,10 +308,11 @@ quest hunter_level_bridge3 begin
 
             if count > 0 and result[1] then
                 local row = result[1]
-                local rank = row.current_rank or "E"
-                local streak = tonumber(row.login_streak) or 0
-                local glory = tonumber(row.total_glory) or 0
-                local name = row.player_name or pc.get_name()
+                -- row[1]=player_name, row[2]=current_rank, row[3]=login_streak, row[4]=total_glory
+                local rank = row[2] or "E"
+                local streak = tonumber(row[3]) or 0
+                local glory = tonumber(row[4]) or 0
+                local name = row[1] or pc.get_name()
 
                 -- Rank color mapping
                 local rank_colors = {
@@ -370,7 +380,7 @@ quest hunter_level_bridge3 begin
                 local msg_count, msg_result = mysql_direct_query(msg_query)
 
                 if msg_count > 0 and msg_result[1] then
-                    local message = msg_result[1].message_text or ""
+                    local message = msg_result[1][1] or ""  -- row[1] = message_text
                     message = string.gsub(message, "_", " ")
                     syschat(string.format("|cff%s   >> %s|r", color, message))
                 end
@@ -419,8 +429,9 @@ quest hunter_level_bridge3 begin
                 return
             end
 
-            local player_rank = result[1].current_rank or "E"
-            local glory = tonumber(result[1].total_glory) or 0
+            -- row[1]=current_rank, row[2]=total_glory
+            local player_rank = result[1][1] or "E"
+            local glory = tonumber(result[1][2]) or 0
 
             -- Rank order: E < D < C < B < A < S < N
             local rank_order = {E=1, D=2, C=3, B=4, A=5, S=6, N=7}
@@ -501,17 +512,17 @@ quest hunter_level_bridge3 begin
         function start_fracture_defense(rank, fracture_vnum)
             local pid = pc.get_player_id()
 
-            -- Salva posizione frattura e informazioni difesa
+            -- Salva posizione player (NON npc!) e informazioni difesa
             pc.setqf("fracture_def_active", 1)
             pc.setqf("fracture_def_rank", string.byte(rank))  -- Salva come numero ASCII
             pc.setqf("fracture_def_start", get_time())
-            pc.setqf("fracture_def_x", npc.get_x())
-            pc.setqf("fracture_def_y", npc.get_y())
+            pc.setqf("fracture_def_x", pc.get_x())  -- Posizione X del player
+            pc.setqf("fracture_def_y", pc.get_y())  -- Posizione Y del player
             pc.setqf("fracture_def_wave", 0)
             pc.setqf("fracture_def_killed", 0)
 
             -- Query configurazione difesa
-            local cfg_query = "SELECT config_value FROM hunter_fracture_defense_config WHERE config_key IN ('defense_duration', 'check_distance', 'spawn_start_delay')"
+            local cfg_query = "SELECT config_value FROM hunter_fracture_defense_config WHERE config_key IN ('defense_duration', 'check_distance', 'spawn_start_delay') ORDER BY config_key"
             local cfg_count, cfg_result = mysql_direct_query(cfg_query)
 
             local defense_duration = 60
@@ -519,12 +530,13 @@ quest hunter_level_bridge3 begin
             local spawn_delay = 5
 
             if cfg_count > 0 then
-                defense_duration = tonumber(cfg_result[1].config_value) or 60
+                -- cfg_result[i][1] = config_value
+                defense_duration = tonumber(cfg_result[1][1]) or 60
                 if cfg_count > 1 then
-                    check_distance = tonumber(cfg_result[2].config_value) or 10
+                    check_distance = tonumber(cfg_result[2][1]) or 10
                 end
                 if cfg_count > 2 then
-                    spawn_delay = tonumber(cfg_result[3].config_value) or 5
+                    spawn_delay = tonumber(cfg_result[3][1]) or 5
                 end
             end
 
@@ -606,9 +618,11 @@ quest hunter_level_bridge3 begin
 
             if count > 0 and result[1] then
                 local wave = result[1]
-                local mob_vnum = tonumber(wave.mob_vnum) or 101
-                local mob_count = tonumber(wave.mob_count) or 5
-                local radius = tonumber(wave.spawn_radius) or 7
+                -- wave[1]=mob_vnum, wave[2]=mob_count, wave[3]=spawn_radius, wave[4]=spawn_time
+                local mob_vnum = tonumber(wave[1]) or 101
+                local mob_count = tonumber(wave[2]) or 5
+                local radius = tonumber(wave[3]) or 7
+                local current_spawn_time = tonumber(wave[4]) or 5
                 local next_spawn_time = 15  -- Default 15 secondi tra ondate
 
                 -- Ottieni prossimo spawn time se c'è un'altra ondata
@@ -618,7 +632,7 @@ quest hunter_level_bridge3 begin
                 )
                 local next_count, next_result = mysql_direct_query(next_query)
                 if next_count > 0 and next_result[1] then
-                    next_spawn_time = tonumber(next_result[1].spawn_time) - tonumber(wave.spawn_time)
+                    next_spawn_time = tonumber(next_result[1][1]) - current_spawn_time  -- next_result[1][1] = spawn_time
                 end
 
                 -- Spawn mob intorno al player
