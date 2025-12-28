@@ -275,12 +275,16 @@ class WhatIfChoiceWindow(SoloLevelingWindow):
         # Crea bottoni
         for i, opt in enumerate(options):
             if not opt: continue
-            
-            # Lambda per catturare l'indice corretto
-            def make_event(idx):
-                return lambda: self.__OnClickOption(idx)
-                
-            btn = SystemButton(self, 20, baseY, windowWidth-40, opt.replace("+", " "), scheme, make_event(i+1))
+
+            # FIX: Usa closure che non cattura self direttamente per evitare memory leak
+            # Invece di lambda che cattura self, usiamo una funzione wrapper
+            def make_event(idx, callback):
+                def _wrapper():
+                    callback(idx)
+                return _wrapper
+
+            btn = SystemButton(self, 20, baseY, windowWidth-40, opt.replace("+", " "), scheme,
+                             make_event(i+1, ui.__mem_func__(self.__OnClickOption)))
             self.buttons.append(btn)
             baseY += 40
             
@@ -309,7 +313,17 @@ class WhatIfChoiceWindow(SoloLevelingWindow):
         
     def Close(self):
         self.Hide()
-        
+
+    def Destroy(self):
+        """Cleanup completo per evitare memory leak"""
+        # Pulisci event handler dai button
+        for btn in self.buttons:
+            if hasattr(btn, 'event'):
+                btn.event = None
+        self.buttons = []
+        self.textLines = []
+        self.Hide()
+
     def OnKeyDown(self, key):
         if key == app.DIK_ESCAPE:
             # Opzionale: Se vuoi che ESC chiuda o selezioni l'ultima opzione
@@ -2191,7 +2205,8 @@ class DailyMissionsWindow(ui.Window):
         self.closeBtn.SetUpVisual("d:/ymir work/ui/public/close_button_01.sub")
         self.closeBtn.SetOverVisual("d:/ymir work/ui/public/close_button_02.sub")
         self.closeBtn.SetDownVisual("d:/ymir work/ui/public/close_button_03.sub")
-        self.closeBtn.SetEvent(self.Hide)
+        # FIX: Usa ui.__mem_func__ per evitare memory leak
+        self.closeBtn.SetEvent(ui.__mem_func__(self.Hide))
         self.closeBtn.Show()
         
         self.Hide()
@@ -2943,7 +2958,8 @@ class EventsScheduleWindow(ui.Window):
         self.closeBtn.SetUpVisual("d:/ymir work/ui/public/close_button_01.sub")
         self.closeBtn.SetOverVisual("d:/ymir work/ui/public/close_button_02.sub")
         self.closeBtn.SetDownVisual("d:/ymir work/ui/public/close_button_03.sub")
-        self.closeBtn.SetEvent(self.Hide)
+        # FIX: Usa ui.__mem_func__ per evitare memory leak
+        self.closeBtn.SetEvent(ui.__mem_func__(self.Hide))
         self.closeBtn.Show()
         
         self.Hide()
@@ -2989,7 +3005,8 @@ class EventsScheduleWindow(ui.Window):
                 
                 status = e.get("status", "pending")
                 if status == "active" and status != "joined":
-                    slot["joinBtn"].SetEvent(lambda eid=e.get("id", 0): self.__OnJoinEvent(eid))
+                    # FIX: Usa ui.__mem_func__ invece di lambda per evitare memory leak
+                    slot["joinBtn"].SetEvent(ui.__mem_func__(self.__OnJoinEvent), e.get("id", 0))
                     slot["joinBtn"].Show()
                     slot["statusText"].Hide()
                 else:

@@ -67,11 +67,12 @@ quest hunter_level_bridge3 begin
         -- ============================================================
         -- COMANDI CHAT
         -- ============================================================
-        
-        when letter begin
-            send_letter("") 
-        end
-        
+
+        -- NOTA: Il sistema Hunter non usa le quest tradizionali di Metin2
+        -- Tutti i comandi sono gestiti tramite chat commands (/hunter_xxx)
+        -- La lettera vuota causava problemi nel pannello quest
+        -- Rimosso: when letter begin send_letter("") end
+
         when chat."hunter_data" begin
             if pc.get_level() < hunter_level_bridge3.GetMinLevel() then
                 syschat("Devi essere almeno livello " .. hunter_level_bridge3.GetMinLevel() .. ".")

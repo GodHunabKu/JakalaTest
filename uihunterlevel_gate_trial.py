@@ -397,7 +397,8 @@ class TrialStatusWindow(ui.Window):
         self.closeBtn.SetParent(self)
         self.closeBtn.SetPosition(self.windowWidth - 30, 10)
         self.closeBtn.SetText("X")
-        self.closeBtn.SetEvent(self.Close)
+        # FIX: Usa ui.__mem_func__ per evitare memory leak
+        self.closeBtn.SetEvent(ui.__mem_func__(self.Close))
         self.closeBtn.Show()
         
         # ===== FOOTER =====
@@ -415,7 +416,13 @@ class TrialStatusWindow(ui.Window):
     
     def Close(self):
         self.Hide()
-    
+
+    def Destroy(self):
+        """Cleanup completo per evitare memory leak"""
+        if hasattr(self, 'closeBtn'):
+            self.closeBtn.SetEvent(None)
+        self.Hide()
+
     def OnPressEscapeKey(self):
         self.Close()
         return True
