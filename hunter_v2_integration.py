@@ -9,10 +9,10 @@ Compatibile con il sistema esistente (hunterlevel.py/uihunterlevel.py)
 ISTRUZIONI:
 1. Aggiungi in game.py nella sezione imports:
    import hunter_v2_integration
-   
+
 2. In GameWindow.__ServerCommand_Build(), aggiungi DOPO gli altri handler Hunter:
    hunter_v2_integration.RegisterV2Commands(serverCommandList, self)
-   
+
 3. In interfaceModule.py, aggiungi metodo per forward al nuovo sistema:
    def ProcessHunterV2Command(self, cmd, args):
        import hunterlevel_v2
@@ -21,6 +21,7 @@ ISTRUZIONI:
 """
 
 import hunterlevel_v2
+import functools
 
 def RegisterV2Commands(serverCommandList, gameInstance):
     """
@@ -84,18 +85,11 @@ def RegisterV2Commands(serverCommandList, gameInstance):
     
     # Registra ogni comando per usare il parser unificato v2.0
     for cmd in v2_commands:
-        # Crea handler che chiama il parser v2.0
-        handler = _create_v2_handler(cmd)
-        
         # Solo se non già registrato (priorità al sistema v1)
         if cmd not in serverCommandList:
-            serverCommandList[cmd] = handler
-
-def _create_v2_handler(cmd_name):
-    """Crea un handler che forwarda al parser v2.0"""
-    def handler(args):
-        hunterlevel_v2.ParseHunterCommand(cmd_name, args)
-    return handler
+            # Usa functools.partial per creare un callable compatibile con stringCommander
+            # Questo evita l'errore "function object has no attribute 'im_func'"
+            serverCommandList[cmd] = functools.partial(hunterlevel_v2.ParseHunterCommand, cmd)
 
 
 # ============================================================================
