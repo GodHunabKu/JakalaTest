@@ -36,19 +36,7 @@ quest hunter_level_bridge begin
             local result = string.gsub(tostring(str), " ", "+")
             return result
         end
-    
-        function sql_escape(str)
-            if str == nil then return "" end
-            -- Rimuove caratteri pericolosi: ', ", \, ;, --, #
-            str = string.gsub(tostring(str), "'", "")
-            str = string.gsub(str, '"', "")
-            str = string.gsub(str, "\\", "")
-            str = string.gsub(str, ";", "")
-            str = string.gsub(str, "--", "")
-            str = string.gsub(str, "#", "")
-            return str
-        end
-    
+
         function validate_rank(rank)
             local valid_ranks = {E=true, D=true, C=true, B=true, A=true, S=true, N=true}
             if rank and valid_ranks[rank] then
