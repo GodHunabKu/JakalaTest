@@ -20,26 +20,31 @@ Il file `uiCharacter_quest_fix.py` fornisce:
 
 ## ✅ Installazione Automatica
 
-Il fix è già stato integrato in `game.py` e si applica automaticamente all'avvio del client.
+Il fix è già stato integrato **direttamente in `game.py`** e si applica automaticamente all'avvio del client.
 
 Quando il gioco viene avviato, vedrai nel log:
 ```
-Quest module patched successfully for Hunter System compatibility
+[QUEST FIX] Quest module patched successfully
 ```
 
 ## 🔧 Come Funziona
 
-### 1. Import Automatico
-In `game.py` (linea 73):
+### 1. Codice Integrato
+Il fix è completamente integrato in `game.py` (linee 74-117):
 ```python
-import uiCharacter_quest_fix  # FIX per crash quest system
+# ============================================================
+# 2. FIX QUEST SYSTEM - Previene IndexError crash
+# ============================================================
+def _SafeGetQuestProperties(questIndex, propertyIndex=0):
+    """Fix per IndexError in quest.GetQuestProperties"""
+    # ... codice di protezione ...
 ```
 
-### 2. Applicazione Patch
-In `game.py` (linea 120):
+### 2. Applicazione Automatica
+In `game.py` (linea 164):
 ```python
 # Applica patch per fix crash quest system
-uiCharacter_quest_fix.PatchQuestModule()
+_PatchQuestModule()
 ```
 
 ### 3. Protezione Automatica
@@ -51,14 +56,16 @@ Il modulo sostituisce `quest.GetQuestProperties` con una versione safe che:
 
 ## 📦 File Modificati
 
-1. **uiCharacter_quest_fix.py** (NUOVO)
-   - Contiene tutte le funzioni di fix e protezione
-   - Supporto per missioni Hunter
-   - Funzioni di debug
+1. **game.py** (MODIFICATO)
+   - Integrato codice fix completo (linee 74-117)
+   - Aggiunta funzione `_SafeGetQuestProperties()`
+   - Aggiunta funzione `_PatchQuestModule()`
+   - Applicazione automatica del patch all'avvio (linea 164)
 
-2. **game.py** (MODIFICATO)
-   - Aggiunto import di `uiCharacter_quest_fix`
-   - Aggiunta chiamata a `PatchQuestModule()`
+2. **uiCharacter_quest_fix.py** (OPZIONALE - Non più necessario)
+   - File mantenuto per documentazione e uso standalone
+   - Contiene versione estesa con funzioni di debug
+   - Può essere usato come reference
 
 ## 🎮 Compatibilità con Sistema Hunter
 
