@@ -29,38 +29,54 @@ Quando il gioco viene avviato, vedrai nel log:
 
 ## 🔧 Come Funziona
 
-### 1. Codice Integrato
-Il fix è completamente integrato in `game.py` (linee 74-117):
+### 1. Patch Applicato a Livello di Modulo
+Il fix è integrato in `game.py` (linee 26-63) e si applica **IMMEDIATAMENTE** dopo l'import di `quest`:
+
 ```python
+import quest  # linea 17
+
 # ============================================================
-# 2. FIX QUEST SYSTEM - Previene IndexError crash
+# QUEST SYSTEM FIX - Applica PRIMA del caricamento di uiCharacter
 # ============================================================
 def _SafeGetQuestProperties(questIndex, propertyIndex=0):
     """Fix per IndexError in quest.GetQuestProperties"""
     # ... codice di protezione ...
+
+# Applica il patch IMMEDIATAMENTE
+if hasattr(quest, 'GetQuestProperties'):
+    quest.GetQuestProperties = _SafeGetQuestProperties
+    # linea 63
 ```
 
-### 2. Applicazione Automatica
-In `game.py` (linea 164):
-```python
-# Applica patch per fix crash quest system
-_PatchQuestModule()
+### 2. Sequenza di Caricamento Corretta
+```
+1. import quest (linea 17)
+2. ✅ APPLICA PATCH (linee 26-63)
+3. import uiCharacter (linea 71) ← usa quest già patchato!
+4. import interfaceModule (linea 79)
 ```
 
-### 3. Protezione Automatica
-Il modulo sostituisce `quest.GetQuestProperties` con una versione safe che:
-- Controlla se la stringa è vuota prima di accedervi
-- Gestisce correttamente il formato "type:value"
-- Ritorna stringhe vuote invece di andare in crash
-- Integra le missioni Hunter con il sistema quest standard
+### 3. Perché Questo Funziona
+- Il patch viene applicato **PRIMA** che `uiCharacter.py` venga caricato
+- Quando `uiCharacter.GetQuestProperties()` chiama `quest.GetQuestProperties()`, usa la versione **safe**
+- Impossibile avere IndexError perché tutte le chiamate sono protette
+
+### 4. Protezione Automatica
+La funzione `_SafeGetQuestProperties` fornisce:
+- ✅ Controllo se questIndex è valido (>= 0)
+- ✅ Verifica che questName non sia None o vuoto
+- ✅ Try-catch su accesso a result[propertyIndex]
+- ✅ Fallback a questName se le properties sono vuote
+- ✅ Ritorna stringhe vuote invece di crashare
+- ✅ Logging degli errori per debug
 
 ## 📦 File Modificati
 
 1. **game.py** (MODIFICATO)
-   - Integrato codice fix completo (linee 74-117)
-   - Aggiunta funzione `_SafeGetQuestProperties()`
-   - Aggiunta funzione `_PatchQuestModule()`
-   - Applicazione automatica del patch all'avvio (linea 164)
+   - Integrato codice fix completo (linee 26-63)
+   - Patch applicato a livello di modulo, PRIMA di uiCharacter
+   - Funzione `_SafeGetQuestProperties()` protegge tutte le chiamate
+   - Applicazione automatica IMMEDIATA dopo import quest
 
 2. **uiCharacter_quest_fix.py** (OPZIONALE - Non più necessario)
    - File mantenuto per documentazione e uso standalone
