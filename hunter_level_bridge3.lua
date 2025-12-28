@@ -65,13 +65,35 @@ quest hunter_level_bridge3 begin
         end
         
         -- ============================================================
-        -- COMANDI CHAT
+        -- QUEST LETTER (Metodo alternativo per aprire UI)
         -- ============================================================
 
-        -- NOTA: Il sistema Hunter non usa le quest tradizionali di Metin2
-        -- Tutti i comandi sono gestiti tramite chat commands (/hunter_xxx)
-        -- La lettera vuota causava problemi nel pannello quest
-        -- Rimosso: when letter begin send_letter("") end
+        when letter begin
+            -- Mostra lettera solo se livello sufficiente
+            if pc.get_level() >= hunter_level_bridge3.GetMinLevel() then
+                send_letter("Hunter System")
+            end
+        end
+
+        when button or info begin
+            -- Quando si clicca sulla lettera:
+
+            -- 1. Invia i dati del player (questo popola l'UI)
+            if HUNTER and HUNTER.SendPlayerData then
+                HUNTER.SendPlayerData(pc.get_player_id())
+            end
+
+            -- 2. Apri l'interfaccia Hunter
+            -- Usa cmdchat per aprire l'UI (verrà gestito dal Python)
+            cmdchat("OpenHunterUI")
+
+            -- 3. Mantieni la lettera aperta per click futuri
+            send_letter("Hunter System")
+        end
+
+        -- ============================================================
+        -- COMANDI CHAT
+        -- ============================================================
 
         when chat."hunter_data" begin
             if pc.get_level() < hunter_level_bridge3.GetMinLevel() then

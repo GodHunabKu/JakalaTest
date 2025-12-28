@@ -2513,6 +2513,15 @@ class HunterLevelWindow(ui.ScriptWindow):
         self.SetTop()
         self.Show()
 
+        # Richiedi automaticamente i dati del player quando l'UI si apre
+        # Questo assicura che i dati siano sempre aggiornati
+        try:
+            import hunterlevel_v2
+            hunterlevel_v2.RequestPlayerData()
+        except:
+            # Fallback: usa comando chat diretto
+            net.SendChatPacket("/hunter_data")
+
         # Se il player apre manualmente mentre c'è un timer auto-close, disabilitalo
         # Questo evita che la finestra si chiuda se il player vuole tenerla aperta
         if self.IsShow() and self.autoCloseTimer > 0.0:
