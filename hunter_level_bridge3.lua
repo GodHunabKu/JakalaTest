@@ -79,34 +79,27 @@ quest hunter_level_bridge3 begin
             -- Quando si clicca sulla lettera:
 
             -- Apri l'interfaccia Hunter
-            -- Il Python gestirà automaticamente la richiesta dati in Open()
             cmdchat("HunterOpenUI")
+
+            -- Invia TUTTI i dati al client (come nella vecchia versione)
+            hunter_level_bridge3.send_player_data()
 
             -- Mantieni la lettera aperta per click futuri
             send_letter("Hunter System")
         end
 
         -- ============================================================
-        -- COMANDI CHAT
+        -- FUNZIONI INVIO DATI AL CLIENT
         -- ============================================================
 
-        when chat."hunter_data" begin
-            if pc.get_level() < hunter_level_bridge3.GetMinLevel() then
-                syschat("Devi essere almeno livello " .. hunter_level_bridge3.GetMinLevel() .. ".")
-                return
-            end
-
-            -- Recupera dati dal database MySQL
-            local player_id = pc.get_player_id()
-            -- Ordine query allineato a game.py __HunterPlayerData:
-            -- name|total_points|spendable_points|daily_points|weekly_points|total_kills|daily_kills|weekly_kills|
-            -- login_streak|total_fractures|total_chests|total_metins|total_bosses|daily_pos|weekly_pos
+        function send_player_data()
+            local pid = pc.get_player_id()
             local query = string.format(
                 "SELECT player_name, total_glory, spendable_credits, daily_glory, weekly_glory, " ..
                 "total_kills, daily_kills, weekly_kills, login_streak, " ..
                 "total_fractures, total_chests, total_metins, total_bosses, " ..
                 "daily_position, weekly_position " ..
-                "FROM hunter_players WHERE player_id = %d", player_id
+                "FROM hunter_players WHERE player_id = %d", pid
             )
 
             local result = mysql_query(query)
@@ -138,13 +131,27 @@ quest hunter_level_bridge3 begin
                 local player_name = pc.get_name()
                 local insert_query = string.format(
                     "INSERT INTO hunter_players (player_id, player_name) VALUES (%d, '%s')",
-                    player_id, player_name
+                    pid, mysql_escape_string(player_name)
                 )
                 mysql_query(insert_query)
 
                 -- Invia dati iniziali (tutto a 0) - 17 campi allineati a game.py
                 cmdchat("HunterPlayerData " .. player_name .. "|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0")
             end
+        end
+
+        -- ============================================================
+        -- COMANDI CHAT
+        -- ============================================================
+
+        when chat."hunter_data" begin
+            if pc.get_level() < hunter_level_bridge3.GetMinLevel() then
+                syschat("Devi essere almeno livello " .. hunter_level_bridge3.GetMinLevel() .. ".")
+                return
+            end
+
+            -- Invia i dati del player
+            hunter_level_bridge3.send_player_data()
         end
         
         -- Nota come qui sotto ora uso hunter_level_bridge3
