@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # ============================================================================
-#  HUNTER TERMINAL - SOLO LEVELING EDITION v3.0
+#  HUNTER TERMINAL - SOLO LEVELING EDITION v4.0
 #  Interfaccia completamente dinamica con colori basati sul Rank
-#  Bottoni custom stile Solo Leveling
+#  Design ispirato a Solo Leveling - Temi scuri con accenti neon
 # ============================================================================
 
 import ui
@@ -10,341 +10,47 @@ import net
 import app
 import wndMgr
 import grp
-# Import nuovi moduli Hunter System
+from weakref import proxy
+
+# Import moduli Hunter System
 import hunter_windows
 import hunter_effects
 import hunter_missions
-from weakref import proxy
+
+# Import CENTRALIZZATO da hunter_core.py - NO DUPLICAZIONI
+from hunter_core import (
+    RANK_THEMES,
+    RANK_COLORS,
+    GetRankKey,
+    GetRankTheme,
+    GetRankProgress,
+    FormatNumber,
+    FormatTime,
+    DraggableMixin,
+    WINDOW_POSITIONS,
+    SaveWindowPosition,
+    GetWindowPosition,
+)
+
+# Import SoloLevelingButton da hunter_components.py
+from hunter_components import SoloLevelingButton
 
 # ============================================================================
-#  CONFIGURAZIONE DIMENSIONI
+#  CONFIGURAZIONE DIMENSIONI TERMINALE
 # ============================================================================
 WINDOW_WIDTH = 500
-WINDOW_HEIGHT = 520
-CONTENT_HEIGHT = 300
-HEADER_HEIGHT = 95
-TAB_HEIGHT = 28
-FOOTER_HEIGHT = 35
+WINDOW_HEIGHT = 540  # Leggermente piu' alto per effetti
+CONTENT_HEIGHT = 310
+HEADER_HEIGHT = 100
+TAB_HEIGHT = 30
+FOOTER_HEIGHT = 38
 
 # ============================================================================
-#  RANK THEMES - Ogni rank ha il suo schema colori completo
+#  COLORI SPECIALI
 # ============================================================================
-RANK_THEMES = {
-    "E": {
-        "name": "E-Rank",
-        "title": "Risvegliato",
-        "min": 0,
-        "max": 2000,
-        "bg_dark": 0xEE0D0D0D,
-        "bg_medium": 0xEE1A1A1A,
-        "bg_light": 0xEE2A2A2A,
-        "border": 0xFF555555,
-        "accent": 0xFF808080,
-        "text_title": 0xFF999999,
-        "text_value": 0xFFCCCCCC,
-        "text_muted": 0xFF666666,
-        "bar_fill": 0xFF808080,
-        "glow": 0x33808080,
-        "btn_normal": 0xFF333333,
-        "btn_hover": 0xFF444444,
-        "btn_down": 0xFF555555,
-    },
-    "D": {
-        "name": "D-Rank",
-        "title": "Apprendista",
-        "min": 2000,
-        "max": 10000,
-        "bg_dark": 0xEE0A1A0A,
-        "bg_medium": 0xEE0F2A0F,
-        "bg_light": 0xEE153A15,
-        "border": 0xFF00AA00,
-        "accent": 0xFF00FF00,
-        "text_title": 0xFF44FF44,
-        "text_value": 0xFFAAFFAA,
-        "text_muted": 0xFF337733,
-        "bar_fill": 0xFF00DD00,
-        "glow": 0x3300FF00,
-        "btn_normal": 0xFF0A2A0A,
-        "btn_hover": 0xFF0F3F0F,
-        "btn_down": 0xFF155515,
-    },
-    "C": {
-        "name": "C-Rank",
-        "title": "Cacciatore",
-        "min": 10000,
-        "max": 50000,
-        "bg_dark": 0xEE0A1A2A,
-        "bg_medium": 0xEE0F2A3A,
-        "bg_light": 0xEE153A4A,
-        "border": 0xFF00CCFF,
-        "accent": 0xFF00FFFF,
-        "text_title": 0xFF44DDFF,
-        "text_value": 0xFFAAEEFF,
-        "text_muted": 0xFF337799,
-        "bar_fill": 0xFF00CCFF,
-        "glow": 0x3300FFFF,
-        "btn_normal": 0xFF0A2A3A,
-        "btn_hover": 0xFF0F3A4A,
-        "btn_down": 0xFF154A5A,
-    },
-    "B": {
-        "name": "B-Rank",
-        "title": "Veterano",
-        "min": 50000,
-        "max": 150000,
-        "bg_dark": 0xEE0A0A2A,
-        "bg_medium": 0xEE0F0F3A,
-        "bg_light": 0xEE15154A,
-        "border": 0xFF0066FF,
-        "accent": 0xFF4488FF,
-        "text_title": 0xFF6699FF,
-        "text_value": 0xFFAABBFF,
-        "text_muted": 0xFF334477,
-        "bar_fill": 0xFF0066FF,
-        "glow": 0x330066FF,
-        "btn_normal": 0xFF0A0A3A,
-        "btn_hover": 0xFF0F0F4A,
-        "btn_down": 0xFF15155A,
-    },
-    "A": {
-        "name": "A-Rank",
-        "title": "Maestro",
-        "min": 150000,
-        "max": 500000,
-        "bg_dark": 0xEE1A0A2A,
-        "bg_medium": 0xEE2A0F3A,
-        "bg_light": 0xEE3A154A,
-        "border": 0xFFAA00FF,
-        "accent": 0xFFCC66FF,
-        "text_title": 0xFFDD88FF,
-        "text_value": 0xFFEEBBFF,
-        "text_muted": 0xFF773399,
-        "bar_fill": 0xFFAA00FF,
-        "glow": 0x33AA00FF,
-        "btn_normal": 0xFF2A0A3A,
-        "btn_hover": 0xFF3A0F4A,
-        "btn_down": 0xFF4A155A,
-    },
-    "S": {
-        "name": "S-Rank",
-        "title": "Leggenda",
-        "min": 500000,
-        "max": 1500000,
-        "bg_dark": 0xEE2A1A0A,
-        "bg_medium": 0xEE3A2A0F,
-        "bg_light": 0xEE4A3A15,
-        "border": 0xFFFF6600,
-        "accent": 0xFFFFAA00,
-        "text_title": 0xFFFFBB44,
-        "text_value": 0xFFFFDDAA,
-        "text_muted": 0xFF996633,
-        "bar_fill": 0xFFFF6600,
-        "glow": 0x33FF6600,
-        "btn_normal": 0xFF3A2A0A,
-        "btn_hover": 0xFF4A3A0F,
-        "btn_down": 0xFF5A4A15,
-    },
-    "N": {
-        "name": "NATIONAL",
-        "title": "Monarca Nazionale",
-        "min": 1500000,
-        "max": 5000000,
-        "bg_dark": 0xEE2A0A0A,
-        "bg_medium": 0xEE3A0F0F,
-        "bg_light": 0xEE4A1515,
-        "border": 0xFFFF0000,
-        "accent": 0xFFFF4444,
-        "text_title": 0xFFFF6666,
-        "text_value": 0xFFFFAAAA,
-        "text_muted": 0xFF993333,
-        "bar_fill": 0xFFFF0000,
-        "glow": 0x33FF0000,
-        "btn_normal": 0xFF3A0A0A,
-        "btn_hover": 0xFF4A0F0F,
-        "btn_down": 0xFF5A1515,
-    },
-}
-
 GOLD_COLOR = 0xFFFFD700
 SILVER_COLOR = 0xFFC0C0C0
 BRONZE_COLOR = 0xFFCD7F32
-
-def GetRankKey(points):
-    if points >= 1500000:
-        return "N"
-    elif points >= 500000:
-        return "S"
-    elif points >= 150000:
-        return "A"
-    elif points >= 50000:
-        return "B"
-    elif points >= 10000:
-        return "C"
-    elif points >= 2000:
-        return "D"
-    return "E"
-
-def GetRankProgress(points):
-    key = GetRankKey(points)
-    theme = RANK_THEMES[key]
-    if points >= theme["max"]:
-        return 100.0
-    progress = float(points - theme["min"]) / float(theme["max"] - theme["min"]) * 100
-    return min(100, max(0, progress))
-
-def FormatNumber(num):
-    s = str(int(num))
-    r = ""
-    while len(s) > 3:
-        r = "." + s[-3:] + r
-        s = s[:-3]
-    return s + r
-
-# ============================================================================
-#  SOLO LEVELING BUTTON - Bottone custom con bordi colorati
-# ============================================================================
-class SoloLevelingButton(ui.Window):
-    """Bottone stile Solo Leveling con bordi neon"""
-    
-    def __init__(self):
-        ui.Window.__init__(self)
-        self.eventFunc = None
-        self.eventArgs = None
-        self.isOver = False
-        self.isDown = False
-        self.text = ""
-        
-        self.theme = RANK_THEMES["E"]
-        self.width = 75
-        self.height = 24
-        
-        self.bgBar = None
-        self.borderTop = None
-        self.borderBot = None
-        self.borderLeft = None
-        self.borderRight = None
-        self.textLine = None
-    
-    def Create(self, parent, x, y, width, height, text, theme):
-        self.SetParent(parent)
-        self.SetPosition(x, y)
-        self.SetSize(width, height)
-        self.width = width
-        self.height = height
-        self.text = text
-        self.theme = theme
-        
-        # Background
-        self.bgBar = ui.Bar()
-        self.bgBar.SetParent(self)
-        self.bgBar.SetPosition(0, 0)
-        self.bgBar.SetSize(width, height)
-        self.bgBar.SetColor(theme["btn_normal"])
-        self.bgBar.AddFlag("not_pick")
-        self.bgBar.Show()
-        
-        # Bordi (2px)
-        self.borderTop = ui.Bar()
-        self.borderTop.SetParent(self)
-        self.borderTop.SetPosition(0, 0)
-        self.borderTop.SetSize(width, 2)
-        self.borderTop.SetColor(theme["border"])
-        self.borderTop.AddFlag("not_pick")
-        self.borderTop.Show()
-        
-        self.borderBot = ui.Bar()
-        self.borderBot.SetParent(self)
-        self.borderBot.SetPosition(0, height - 2)
-        self.borderBot.SetSize(width, 2)
-        self.borderBot.SetColor(theme["border"])
-        self.borderBot.AddFlag("not_pick")
-        self.borderBot.Show()
-        
-        self.borderLeft = ui.Bar()
-        self.borderLeft.SetParent(self)
-        self.borderLeft.SetPosition(0, 0)
-        self.borderLeft.SetSize(2, height)
-        self.borderLeft.SetColor(theme["border"])
-        self.borderLeft.AddFlag("not_pick")
-        self.borderLeft.Show()
-        
-        self.borderRight = ui.Bar()
-        self.borderRight.SetParent(self)
-        self.borderRight.SetPosition(width - 2, 0)
-        self.borderRight.SetSize(2, height)
-        self.borderRight.SetColor(theme["border"])
-        self.borderRight.AddFlag("not_pick")
-        self.borderRight.Show()
-        
-        # Testo
-        self.textLine = ui.TextLine()
-        self.textLine.SetParent(self)
-        self.textLine.SetPosition(width / 2, height / 2 - 7)
-        self.textLine.SetHorizontalAlignCenter()
-        self.textLine.SetText(text)
-        self.textLine.SetPackedFontColor(theme["text_value"])
-        self.textLine.AddFlag("not_pick")
-        self.textLine.Show()
-        
-        self.Show()
-        return self
-    
-    def SetEvent(self, func, *args):
-        self.eventFunc = func
-        self.eventArgs = args
-    
-    def SetText(self, text):
-        self.text = text
-        if self.textLine:
-            self.textLine.SetText(text)
-    
-    def SetTextColor(self, color):
-        if self.textLine:
-            self.textLine.SetPackedFontColor(color)
-    
-    def UpdateTheme(self, theme):
-        self.theme = theme
-        if self.bgBar:
-            self.bgBar.SetColor(theme["btn_normal"])
-        for border in [self.borderTop, self.borderBot, self.borderLeft, self.borderRight]:
-            if border:
-                border.SetColor(theme["border"])
-        if self.textLine:
-            self.textLine.SetPackedFontColor(theme["text_value"])
-    
-    def Down(self):
-        self.isDown = True
-        if self.bgBar:
-            self.bgBar.SetColor(self.theme["btn_down"])
-        if self.textLine:
-            self.textLine.SetPackedFontColor(self.theme["accent"])
-    
-    def SetUp(self):
-        self.isDown = False
-        if self.bgBar:
-            self.bgBar.SetColor(self.theme["btn_normal"])
-        if self.textLine:
-            self.textLine.SetPackedFontColor(self.theme["text_value"])
-    
-    def OnMouseOverIn(self):
-        self.isOver = True
-        if not self.isDown and self.bgBar:
-            self.bgBar.SetColor(self.theme["btn_hover"])
-    
-    def OnMouseOverOut(self):
-        self.isOver = False
-        if not self.isDown and self.bgBar:
-            self.bgBar.SetColor(self.theme["btn_normal"])
-    
-    def OnMouseLeftButtonDown(self):
-        pass
-    
-    def OnMouseLeftButtonUp(self):
-        if self.eventFunc:
-            if self.eventArgs:
-                self.eventFunc(*self.eventArgs)
-            else:
-                self.eventFunc()
 
 # ============================================================================
 #  HUNTER TERMINAL WINDOW
