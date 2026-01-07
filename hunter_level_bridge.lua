@@ -229,7 +229,11 @@ when chat."/hunter_request_trial_data" begin
             -- Invia TUTTI i dati del terminale al client al login
             -- (player data, ranking, shop, achievements, timers, etc.)
             hg_lib.send_all_data()
-            
+
+            -- Invia la lingua corrente del player al client
+            local player_lang = hg_lib.get_player_language(pid)
+            cmdchat("HunterPlayerLanguage " .. player_lang)
+
             if pc.getqf("hq_intro") == 0 then 
                 pc.setqf("hq_intro", 1)
                 hg_lib.show_awakening_sequence(pname)

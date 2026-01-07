@@ -243,7 +243,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         self.langButton = None
         self.langPopup = None
         self.langPopupButtons = []
-        self.currentLang = "it"
+        self.currentLang = self.LoadLanguageLocal()  # Carica lingua da file locale
 
         # Windows dal modulo hunter_windows
         self.systemMsgWnd = hunter_windows.GetSystemMessageWindow()
@@ -987,92 +987,42 @@ class HunterLevelWindow(ui.ScriptWindow):
         """Crea il selettore lingua nel footer"""
         t = self.theme
 
-        # Bottone lingua - click apre popup selezione
+        # Determina testo bottone dalla lingua corrente
+        langNames = {"it": "IT", "en": "EN", "de": "DE", "es": "ES", "fr": "FR", "pt": "PT", "ru": "RU", "pl": "PL"}
+        buttonText = langNames.get(self.currentLang, "IT")
+
+        # Bottone lingua - click mostra messaggio NPC
         self.langButton = SoloLevelingButton()
-        self.langButton.Create(self.baseWindow, WINDOW_WIDTH - 80, footerY + 5, 60, 26, "IT", t)
+        self.langButton.Create(self.baseWindow, WINDOW_WIDTH - 80, footerY + 5, 60, 26, buttonText, t)
         self.langButton.SetEvent(ui.__mem_func__(self.__OnClickLangButton))
         self.footerElements.append(self.langButton)
 
-        # Popup selezione lingua (inizialmente nascosto)
-        self.langPopup = None
-        self.currentLang = "it"
-
     def __OnClickLangButton(self):
-        """Apre popup selezione lingua"""
-        if self.langPopup:
-            self.__CloseLangPopup()
-            return
+        """Mostra messaggio per cambiare lingua via NPC"""
+        try:
+            import chat
+            chat.AppendChat(chat.CHAT_TYPE_INFO, "|cff00AAFF[HUNTER]|r Parla con l'NPC Traduttore per cambiare lingua.")
+        except:
+            pass
 
-        self.__OpenLangPopup()
+    def SaveLanguageLocal(self, langCode):
+        """Salva la lingua in un file locale per accesso rapido"""
+        try:
+            with open("hunter_language.cfg", "w") as f:
+                f.write(str(langCode))
+        except:
+            pass
 
-    def __OpenLangPopup(self):
-        """Crea e mostra popup selezione lingua"""
-        t = self.theme
-
-        languages = [
-            ("it", "Italiano"),
-            ("en", "English"),
-            ("de", "Deutsch"),
-            ("es", "Espanol"),
-            ("fr", "Francais"),
-            ("pt", "Portugues"),
-        ]
-
-        popupW = 150
-        popupH = len(languages) * 28 + 40
-        footerY = WINDOW_HEIGHT - FOOTER_HEIGHT - 10
-        popupX = WINDOW_WIDTH - 80 - 45
-        popupY = footerY - popupH - 5
-
-        # Finestra popup
-        self.langPopup = ui.BoardWithTitleBar()
-        self.langPopup.SetParent(self.baseWindow)
-        self.langPopup.SetSize(popupW, popupH)
-        self.langPopup.SetPosition(popupX, popupY)
-        self.langPopup.SetTitleName("Lingua")
-        self.langPopup.SetCloseEvent(ui.__mem_func__(self.__CloseLangPopup))
-        self.langPopup.Show()
-
-        # Lista bottoni lingua
-        self.langPopupButtons = []
-        y = 30
-        for code, name in languages:
-            btn = SoloLevelingButton()
-            btn.Create(self.langPopup, 10, y, popupW - 20, 24, name, t)
-            btn.SetEvent(ui.__mem_func__(self.__OnSelectLanguage), code)
-
-            # Evidenzia lingua corrente
-            if code == self.currentLang:
-                btn.SetTextColor(0xFF00FF00)
-
-            self.langPopupButtons.append(btn)
-            y += 28
-
-    def __CloseLangPopup(self):
-        """Chiude popup selezione lingua"""
-        if self.langPopup:
-            # Pulisci bottoni
-            for btn in getattr(self, 'langPopupButtons', []):
-                btn.Hide()
-            self.langPopupButtons = []
-
-            self.langPopup.Hide()
-            self.langPopup = None
-
-    def __OnSelectLanguage(self, langCode):
-        """Cambia lingua e salva nel DB via server"""
-        self.currentLang = langCode
-
-        # Aggiorna bottone footer
-        langNames = {"it": "IT", "en": "EN", "de": "DE", "es": "ES", "fr": "FR", "pt": "PT"}
-        if self.langButton:
-            self.langButton.SetText(langNames.get(langCode, langCode.upper()))
-
-        # Invia al server per salvare nel DB
-        net.SendChatPacket("/hunter_set_language " + langCode)
-
-        # Chiudi popup
-        self.__CloseLangPopup()
+    def LoadLanguageLocal(self):
+        """Carica la lingua dal file locale"""
+        try:
+            with open("hunter_language.cfg", "r") as f:
+                lang = f.read().strip()
+                if lang in ["it", "en", "de", "es", "fr", "pt", "ru", "pl"]:
+                    return lang
+        except:
+            pass
+        return "it"  # Default italiano
 
     def UpdateLanguageButton(self, langCode):
         """Aggiorna il testo del bottone lingua (chiamato dal server)"""
