@@ -2439,6 +2439,7 @@ class GameWindow(ui.ScriptWindow):
 		serverCommandList["HunterTranslationsReady"] = self.__HunterTranslationsReady
 		serverCommandList["HunterLanguages"]          = self.__HunterLanguages
 		serverCommandList["HunterLanguageChanged"]   = self.__HunterLanguageChanged
+		serverCommandList["HunterPlayerLanguage"]    = self.__HunterPlayerLanguage
 
 		if app.ENABLE_ODLAMKI_SYSTEM:
 			serverCommandList["OpenOdlamki"] = self.OpenOdlamki
@@ -3846,9 +3847,24 @@ class GameWindow(ui.ScriptWindow):
 			# Aggiorna il bottone lingua nella UI
 			if self.interface and self.interface.wndHunterLevel:
 				self.interface.wndHunterLevel.UpdateLanguageButton(str(langCode))
+				# Salva anche localmente
+				self.interface.wndHunterLevel.SaveLanguageLocal(str(langCode))
 		except Exception as e:
 			import dbg
 			dbg.TraceError("__HunterLanguageChanged error: " + str(e))
+
+	def __HunterPlayerLanguage(self, langCode):
+		"""
+		Riceve la lingua del player dal server al login.
+		Salva localmente e aggiorna la UI.
+		"""
+		try:
+			if self.interface and self.interface.wndHunterLevel:
+				self.interface.wndHunterLevel.UpdateLanguageButton(str(langCode))
+				self.interface.wndHunterLevel.SaveLanguageLocal(str(langCode))
+		except Exception as e:
+			import dbg
+			dbg.TraceError("__HunterPlayerLanguage error: " + str(e))
 
 	# ============================================================
 	# FINE CHEST HANDLERS
