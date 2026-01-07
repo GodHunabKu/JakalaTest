@@ -985,20 +985,14 @@ class HunterLevelWindow(ui.ScriptWindow):
         """Crea il selettore lingua nel footer"""
         t = self.theme
 
-        # Ottieni lingua corrente
-        import hunter_translations
-        currentLang = hunter_translations.GetCurrentLanguage()
-        langNames = {"it": "IT", "en": "EN", "de": "DE", "es": "ES", "fr": "FR", "pt": "PT", "ru": "RU", "pl": "PL"}
-        displayLang = langNames.get(currentLang, "IT")
+        # Default: italiano (la lingua viene aggiornata quando riceviamo i dati)
+        displayLang = "IT"
 
         # Bottone lingua
         self.langButton = SoloLevelingButton()
         self.langButton.Create(self.baseWindow, WINDOW_WIDTH - 80, footerY + 5, 60, 26, displayLang, t)
         self.langButton.SetEvent(ui.__mem_func__(self.__OnClickLangButton))
         self.footerElements.append(self.langButton)
-
-        # Richiedi lista lingue dal server
-        hunter_translations.RequestLanguages()
 
     def __OnClickLangButton(self):
         """Toggle dropdown lingua"""
@@ -1012,14 +1006,23 @@ class HunterLevelWindow(ui.ScriptWindow):
         if self.langDropdown:
             self.__HideLangDropdown()
 
-        import hunter_translations
-        langs = hunter_translations.GetAvailableLanguages()
-        if not langs:
-            # Fallback se non abbiamo ancora ricevuto la lista
-            langs = [
-                {"code": "it", "name": "Italiano", "name_en": "Italian"},
-                {"code": "en", "name": "English", "name_en": "English"},
-            ]
+        # Default values
+        langs = [
+            {"code": "it", "name": "Italiano", "name_en": "Italian"},
+            {"code": "en", "name": "English", "name_en": "English"},
+        ]
+        currentLang = "it"
+
+        try:
+            import hunter_translations
+            serverLangs = hunter_translations.GetAvailableLanguages()
+            if serverLangs:
+                langs = serverLangs
+            else:
+                hunter_translations.RequestLanguages()
+            currentLang = hunter_translations.GetCurrentLanguage()
+        except:
+            pass
 
         self.availableLanguages = langs
         t = self.theme
@@ -1051,9 +1054,6 @@ class HunterLevelWindow(ui.ScriptWindow):
         border.SetColor(t["accent"])
         border.Show()
 
-        # Lingua corrente
-        currentLang = hunter_translations.GetCurrentLanguage()
-
         # Items lingua
         for i, lang in enumerate(langs):
             yPos = 5 + i * itemH
@@ -1084,8 +1084,11 @@ class HunterLevelWindow(ui.ScriptWindow):
 
     def __OnSelectLanguage(self, langCode):
         """Cambia lingua"""
-        import hunter_translations
-        hunter_translations.ChangeLanguage(langCode)
+        try:
+            import hunter_translations
+            hunter_translations.ChangeLanguage(langCode)
+        except:
+            pass
         self.__HideLangDropdown()
 
         # Aggiorna testo bottone
@@ -1095,19 +1098,25 @@ class HunterLevelWindow(ui.ScriptWindow):
 
     def OnTranslationsReady(self):
         """Callback quando le traduzioni sono pronte"""
-        # Ricarica la tab corrente per aggiornare i testi
-        self.__LoadTabContent(self.currentTab)
+        try:
+            # Ricarica la tab corrente per aggiornare i testi
+            self.__LoadTabContent(self.currentTab)
+        except:
+            pass
 
     def OnLanguagesReceived(self):
         """Callback quando riceviamo lista lingue"""
-        import hunter_translations
-        self.availableLanguages = hunter_translations.GetAvailableLanguages()
+        try:
+            import hunter_translations
+            self.availableLanguages = hunter_translations.GetAvailableLanguages()
 
-        # Aggiorna testo bottone con lingua corrente
-        currentLang = hunter_translations.GetCurrentLanguage()
-        langNames = {"it": "IT", "en": "EN", "de": "DE", "es": "ES", "fr": "FR", "pt": "PT", "ru": "RU", "pl": "PL"}
-        if self.langButton:
-            self.langButton.SetText(langNames.get(currentLang, currentLang.upper()))
+            # Aggiorna testo bottone con lingua corrente
+            currentLang = hunter_translations.GetCurrentLanguage()
+            langNames = {"it": "IT", "en": "EN", "de": "DE", "es": "ES", "fr": "FR", "pt": "PT", "ru": "RU", "pl": "PL"}
+            if self.langButton:
+                self.langButton.SetText(langNames.get(currentLang, currentLang.upper()))
+        except:
+            pass
 
     # ========================================================================
     #  CONTENT HELPERS
