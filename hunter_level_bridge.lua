@@ -1336,43 +1336,17 @@ when chat."/hunter_request_trial_data" begin
             end
         end
 
-        -- Dialog selezione lingua (aperto dal bottone LANG nel terminale)
-        when chat."/hunter_select_language" begin
-            say_title("[HUNTER] Seleziona Lingua")
-            say("")
-            say("Scegli la lingua per il terminale Hunter:")
-            say("")
+        -- Salva lingua dal popup Python
+        when chat."/hunter_set_language" begin
+            local lang = string.gsub(input, "/hunter_set_language ", "")
+            if lang and lang ~= "" and lang ~= "/hunter_set_language" then
+                local pid = pc.get_player_id()
+                local current_lang = hg_lib.get_player_language(pid)
 
-            local current_lang = hg_lib.get_player_language(pc.get_player_id())
-            local marker = " [*]"
-
-            local it_mark = ""
-            local en_mark = ""
-            local de_mark = ""
-            local es_mark = ""
-            local fr_mark = ""
-            local pt_mark = ""
-
-            if current_lang == "it" then it_mark = marker end
-            if current_lang == "en" then en_mark = marker end
-            if current_lang == "de" then de_mark = marker end
-            if current_lang == "es" then es_mark = marker end
-            if current_lang == "fr" then fr_mark = marker end
-            if current_lang == "pt" then pt_mark = marker end
-
-            local sel = select("Italiano" .. it_mark, "English" .. en_mark, "Deutsch" .. de_mark, "Espanol" .. es_mark, "Francais" .. fr_mark, "Portugues" .. pt_mark, "Chiudi")
-
-            local lang_codes = {"it", "en", "de", "es", "fr", "pt"}
-
-            if sel >= 1 and sel <= 6 then
-                local new_lang = lang_codes[sel]
-                if new_lang ~= current_lang then
-                    hg_lib.set_player_language(pc.get_player_id(), new_lang)
-                    syschat("|cff00AAFF[HUNTER]|r Lingua cambiata!")
-                    -- Notifica il client del cambio
-                    cmdchat("HunterLanguageChanged " .. new_lang)
-                else
-                    syschat("|cffFFAA00[HUNTER]|r Lingua gia' selezionata.")
+                if lang ~= current_lang then
+                    hg_lib.set_player_language(pid, lang)
+                    syschat("|cff00AAFF[HUNTER]|r Lingua cambiata in: " .. string.upper(lang))
+                    cmdchat("HunterLanguageChanged " .. lang)
                 end
             end
         end
