@@ -1118,117 +1118,117 @@ class HunterLevelWindow(ui.ScriptWindow):
     def __LoadStats(self):
         t = self.theme
         y = 5
-        
-        self.__CText("STATISTICHE PERSONALI", 5, y, t["accent"])
+
+        self.__CText(T("STATS_TITLE", "STATISTICHE PERSONALI"), 5, y, t["accent"])
         y += 25
-        
+
         self.__CBar(5, y, 420, 45, t["bg_dark"])
-        self.__CText("Rango:", 15, y + 5, t["text_muted"])
+        self.__CText(T("STATS_RANK", "Rango:"), 15, y + 5, t["text_muted"])
         self.__CText("[%s] %s - %s" % (self.currentRankKey, t["name"], t["title"]), 70, y + 5, t["accent"])
-        
+
         progress = GetRankProgress(self.playerData["total_points"])
-        self.__CText("Progresso:", 15, y + 25, t["text_muted"])
+        self.__CText(T("STATS_PROGRESS", "Progresso:"), 15, y + 25, t["text_muted"])
         self.__CProgressBar(90, y + 25, 220, 12, progress, t["bar_fill"])
         self.__CText("%d%%" % int(progress), 320, y + 23, t["accent"])
         y += 55
-        
+
         if self.playerData.get("pending_daily_reward", 0) > 0 or self.playerData.get("pending_weekly_reward", 0) > 0:
             self.__CBar(5, y, 420, 30, 0x4400FF00)
-            self.__CText("PREMI DISPONIBILI!", 15, y + 8, 0xFF00FF88)
-            self.__CButton(340, y + 3, "Ritira", ui.__mem_func__(self.__OnSmartClaim))
+            self.__CText(T("STATS_REWARDS_AVAILABLE", "PREMI DISPONIBILI!"), 15, y + 8, 0xFF00FF88)
+            self.__CButton(340, y + 3, T("BTN_CLAIM", "Ritira"), ui.__mem_func__(self.__OnSmartClaim))
             y += 40
-        
+
         self.__CSep(5, y)
         y += 15
-        
-        self.__CText("OGGI", 100, y, t["accent"])
-        self.__CText("TOTALE", 300, y, GOLD_COLOR)
+
+        self.__CText(T("STATS_TODAY", "OGGI"), 100, y, t["accent"])
+        self.__CText(T("STATS_TOTAL", "TOTALE"), 300, y, GOLD_COLOR)
         y += 25
-        
-        self.__CText("Uccisioni:", 15, y, t["text_muted"])
+
+        self.__CText(T("STATS_KILLS", "Uccisioni:"), 15, y, t["text_muted"])
         self.__CText(str(self.playerData["daily_kills"]), 120, y, 0xFF00FF88)
         self.__CText(FormatNumber(self.playerData["total_kills"]), 320, y, t["text_value"])
         y += 22
-        
-        self.__CText("Gloria:", 15, y, t["text_muted"])
+
+        self.__CText(T("STATS_GLORY", "Gloria:"), 15, y, t["text_muted"])
         self.__CText("+" + FormatNumber(self.playerData["daily_points"]), 120, y, GOLD_COLOR)
         self.__CText(FormatNumber(self.playerData["total_points"]), 320, y, GOLD_COLOR)
         y += 30
-        
+
         self.__CSep(5, y)
         y += 15
-        
-        self.__CText("ECONOMIA", 5, y, 0xFFFFA500)
+
+        self.__CText(T("STATS_ECONOMY", "ECONOMIA"), 5, y, 0xFFFFA500)
         y += 22
-        self.__CText("Spendibili:", 15, y, t["text_muted"])
+        self.__CText(T("STATS_SPENDABLE", "Spendibili:"), 15, y, t["text_muted"])
         self.__CText(FormatNumber(self.playerData["spendable_points"]) + " CR", 100, y, 0xFFFFA500)
         y += 30
-        
+
         self.__CSep(5, y)
         y += 15
-        
-        self.__CText("RECORD", 5, y, t["accent"])
+
+        self.__CText(T("STATS_RECORDS", "RECORD"), 5, y, t["accent"])
         y += 22
-        self.__CText("Fratture: %d" % self.playerData["total_fractures"], 15, y, t["accent"])
+        self.__CText(T("STATS_FRACTURES", "Fratture:") + " %d" % self.playerData["total_fractures"], 15, y, t["accent"])
         self.__CText("Metin: %d" % self.playerData["total_metins"], 160, y, 0xFFFFA500)
-        self.__CText("Bauli: %d" % self.playerData["total_chests"], 300, y, GOLD_COLOR)
+        self.__CText(T("STATS_CHESTS", "Bauli:") + " %d" % self.playerData["total_chests"], 300, y, GOLD_COLOR)
     
     def __LoadShop(self):
         t = self.theme
         y = 5
-        
-        self.__CText("[ MERCANTE HUNTER ]", 150, y, t["accent"])
+
+        self.__CText(T("SHOP_TITLE", "[ MERCANTE HUNTER ]"), 150, y, t["accent"])
         y += 28
-        
-        self.__CText("Gloria disponibile:", 15, y, t["text_muted"])
+
+        self.__CText(T("SHOP_GLORY_AVAILABLE", "Gloria disponibile:"), 15, y, t["text_muted"])
         self.__CText(FormatNumber(self.playerData["spendable_points"]), 150, y, 0xFFFFA500)
         y += 25
-        
+
         self.__CSep(5, y)
         y += 15
-        
+
         if not self.shopData:
-            self.__CText("Negozio vuoto.", 160, y + 40, t["text_muted"])
+            self.__CText(T("SHOP_EMPTY", "Negozio vuoto."), 160, y + 40, t["text_muted"])
             return
-        
+
         for item in self.shopData:
             name = item.get("name", "Item").replace("+", " ")
             price = item.get("price", 0)
             count = item.get("count", 1)
             itemId = item.get("id", 0)
             canBuy = self.playerData["spendable_points"] >= price
-            
+
             bgCol = t["bg_dark"] if canBuy else 0x22440000
             self.__CBar(5, y, 420, 35, bgCol)
-            
+
             displayName = "%s x%d" % (name, count) if count > 1 else name
             self.__CText(displayName, 15, y + 3, t["text_value"] if canBuy else t["text_muted"])
-            
-            self.__CText("Prezzo:", 15, y + 18, t["text_muted"])
+
+            self.__CText(T("SHOP_PRICE", "Prezzo:"), 15, y + 18, t["text_muted"])
             priceCol = 0xFFFFA500 if canBuy else 0xFFFF4444
-            self.__CText(FormatNumber(price) + " Gloria", 70, y + 18, priceCol)
-            
+            self.__CText(FormatNumber(price) + " " + T("GLORY", "Gloria"), 70, y + 18, priceCol)
+
             if canBuy:
-                self.__CButton(340, y + 5, "Acquista", ui.__mem_func__(self.__OnBuy), itemId)
-            
+                self.__CButton(340, y + 5, T("BTN_BUY", "Acquista"), ui.__mem_func__(self.__OnBuy), itemId)
+
             y += 42
     
     def __LoadRanking(self, rType):
         t = self.theme
         self.currentRankingView = rType
         y = 5
-        
+
         # =====================================================
         # TITOLO
         # =====================================================
-        self.__CText("SALA DELLE LEGGENDE", 150, y, t["accent"])
+        self.__CText(T("RANK_TITLE", "SALA DELLE LEGGENDE"), 150, y, t["accent"])
         y += 22
-        
+
         # =====================================================
         # RIGA 1: PERIODO (Daily / Weekly / Total)
         # =====================================================
-        self.__CText("Periodo:", 5, y + 3, t["text_muted"])
-        periods = [("Oggi", "daily"), ("Settimana", "weekly"), ("Sempre", "total")]
+        self.__CText(T("RANK_PERIOD", "Periodo:"), 5, y + 3, t["text_muted"])
+        periods = [(T("RANK_TODAY", "Oggi"), "daily"), (T("RANK_WEEK", "Settimana"), "weekly"), (T("RANK_ALWAYS", "Sempre"), "total")]
         pX = 70
         for pLabel, pKey in periods:
             # Determina se questo periodo è attivo
@@ -1258,8 +1258,8 @@ class HunterLevelWindow(ui.ScriptWindow):
         # =====================================================
         # RIGA 2: CATEGORIA (Gloria / Kills / Fratture / etc)
         # =====================================================
-        self.__CText("Tipo:", 5, y + 3, t["text_muted"])
-        categories = [("Gloria", "points"), ("Kills", "kills"), ("Fratture", "fractures"), ("Bauli", "chests"), ("Metin", "metins")]
+        self.__CText(T("RANK_TYPE", "Tipo:"), 5, y + 3, t["text_muted"])
+        categories = [(T("GLORY", "Gloria"), "points"), ("Kills", "kills"), (T("FRACTURES", "Fratture"), "fractures"), (T("CHESTS", "Bauli"), "chests"), ("Metin", "metins")]
         catX = 55
         for catLabel, catKey in categories:
             # Determina il tipo target
@@ -1294,7 +1294,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         myTheme = RANK_THEMES[myRank]
         
         self.__CBar(5, y, 420, 24, t["bg_dark"])
-        self.__CText("TU:", 12, y + 5, t["text_muted"])
+        self.__CText(T("RANK_YOU", "TU:"), 12, y + 5, t["text_muted"])
         
         # Badge rank
         self.__CBar(40, y + 3, 20, 16, myTheme["accent"])
@@ -1305,7 +1305,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         if myPos > 0:
             self.__CText("#%d" % myPos, 200, y + 5, GOLD_COLOR)
         
-        self.__CText(FormatNumber(myPts) + " Gloria", 280, y + 5, t["text_value"])
+        self.__CText(FormatNumber(myPts) + " " + T("GLORY", "Gloria"), 280, y + 5, t["text_value"])
         y += 28
         
         self.__CSep(5, y)
@@ -1323,15 +1323,15 @@ class HunterLevelWindow(ui.ScriptWindow):
                 data = self.rankingData.get("daily_kills", [])
         
         if not data:
-            self.__CText("Nessun dato disponibile.", 130, y + 30, t["text_muted"])
-            self.__CText("Gioca per scalare la classifica!", 120, y + 50, t["text_muted"])
+            self.__CText(T("RANK_NO_DATA", "Nessun dato disponibile."), 130, y + 30, t["text_muted"])
+            self.__CText(T("RANK_PLAY_TO_CLIMB", "Gioca per scalare la classifica!"), 120, y + 50, t["text_muted"])
             return
-        
+
         # Header colonne
         self.__CText("#", 12, y, t["text_muted"])
         self.__CText("Rk", 35, y, t["text_muted"])
-        self.__CText("Cacciatore", 65, y, t["text_muted"])
-        self.__CText("Valore", 350, y, t["text_muted"])
+        self.__CText(T("RANK_HUNTER", "Cacciatore"), 65, y, t["text_muted"])
+        self.__CText(T("RANK_VALUE", "Valore"), 350, y, t["text_muted"])
         y += 16
         
         # =====================================================
@@ -1406,32 +1406,37 @@ class HunterLevelWindow(ui.ScriptWindow):
     def __LoadAchievements(self):
         t = self.theme
         y = 5
-        
-        self.__CText("TRAGUARDI", 5, y, t["accent"])
+
+        self.__CText(T("ACHIEV_TITLE", "TRAGUARDI"), 5, y, t["accent"])
         y += 30
-        
+
         if not self.achievementsData:
-            self.__CText("Nessun traguardo.", 150, y + 40, t["text_muted"])
+            self.__CText(T("ACHIEV_NONE", "Nessun traguardo."), 150, y + 40, t["text_muted"])
             return
-        
+
         for a in self.achievementsData:
             unlocked = a.get("unlocked", False)
             claimed = a.get("claimed", False)
-            
+
             bgCol = 0x22888888 if claimed else (0x2200FF00 if unlocked else t["bg_dark"])
             self.__CBar(5, y, 420, 38, bgCol)
-            
+
             col = 0xFF00FF88 if unlocked else t["text_muted"]
             self.__CText(a.get("name", "").replace("+", " "), 15, y + 3, col)
-            
+
             prg = a.get("progress", 0)
             req = a.get("requirement", 1)
             pct = min(100, (float(prg) / float(req)) * 100) if req > 0 else 0
-            
+
             self.__CProgressBar(15, y + 22, 200, 8, pct, col)
             self.__CText("%d / %d" % (min(prg, req), req), 225, y + 19, t["text_value"])
-            
-            btnText = "Riscuoti" if unlocked and not claimed else "Fatto" if claimed else "Vedi"
+
+            if unlocked and not claimed:
+                btnText = T("BTN_CLAIM_REWARD", "Riscuoti")
+            elif claimed:
+                btnText = T("BTN_DONE", "Fatto")
+            else:
+                btnText = T("BTN_VIEW", "Vedi")
             self.__CButton(340, y + 5, btnText, ui.__mem_func__(self.__OnClaim), a.get("id", 0))
             y += 45
     
@@ -1473,7 +1478,7 @@ class HunterLevelWindow(ui.ScriptWindow):
             # Box stato missioni
             self.__CBar(5, y, 420, 85, 0x22000044)
             
-            self.__CText("Stato: %d/%d complete" % (completedCount, missionCount), 15, y + 5, t["text_value"])
+            self.__CText(T("MISSION_STATUS", "Stato:") + " %d/%d %s" % (completedCount, missionCount, T("COMPLETE", "complete")), 15, y + 5, t["text_value"])
             
             # Mini preview delle 3 missioni
             for i, m in enumerate(self.missionsData[:3]):
@@ -1494,23 +1499,23 @@ class HunterLevelWindow(ui.ScriptWindow):
             # Info bonus
             if completedCount == missionCount and missionCount == 3:
                 self.__CBar(5, y + 73, 420, 12, 0x4400FF00)
-                self.__CText("BONUS x1.5 ATTIVO!", 180, y + 73, 0xFF00FF00)
+                self.__CText(T("BONUS_ACTIVE", "BONUS x1.5 ATTIVO!"), 180, y + 73, 0xFF00FF00)
             
             y += 92
         else:
             self.__CBar(5, y, 420, 35, 0x22440000)
-            self.__CText("Nessuna missione assegnata oggi.", 80, y + 10, t["text_muted"])
-            self.__CText("Le missioni vengono assegnate al login.", 75, y + 22, 0xFF888888)
+            self.__CText(T("NO_MISSION_TODAY", "Nessuna missione assegnata oggi."), 80, y + 10, t["text_muted"])
+            self.__CText(T("MISSION_ON_LOGIN", "Le missioni vengono assegnate al login."), 75, y + 22, 0xFF888888)
             y += 42
-        
+
         # Info box bonus/penalita
         self.__CBar(5, y, 205, 35, 0x2200FF00)
-        self.__CText("Tutte complete:", 12, y + 4, 0xFF00FF00)
-        self.__CText("+50% Gloria Bonus!", 12, y + 18, 0xFF88FF88)
-        
+        self.__CText(T("ALL_COMPLETE", "Tutte complete:"), 12, y + 4, 0xFF00FF00)
+        self.__CText(T("BONUS_50_GLORY", "+50% Gloria Bonus!"), 12, y + 18, 0xFF88FF88)
+
         self.__CBar(220, y, 205, 35, 0x22FF0000)
-        self.__CText("Non complete:", 227, y + 4, 0xFFFF4444)
-        self.__CText("Penalita' Gloria", 227, y + 18, 0xFFFF8888)
+        self.__CText(T("NOT_COMPLETE", "Non complete:"), 227, y + 4, 0xFFFF4444)
+        self.__CText(T("PENALTY_GLORY", "Penalita' Gloria"), 227, y + 18, 0xFFFF8888)
         y += 42
         
         self.__CSep(5, y)
@@ -1520,35 +1525,35 @@ class HunterLevelWindow(ui.ScriptWindow):
         # SEZIONE EVENTI CALENDARIO
         # =====================================================
         self.__CBar(5, y, 420, 28, t["bg_dark"])
-        self.__CText("EVENTI DEL GIORNO", 15, y + 6, 0xFFFFAA00)
-        self.__CButton(310, y + 2, "Apri Eventi", ui.__mem_func__(self.__OnOpenEvents))
+        self.__CText(T("EVENTS_TODAY", "EVENTI DEL GIORNO"), 15, y + 6, 0xFFFFAA00)
+        self.__CButton(310, y + 2, T("BTN_OPEN_EVENTS", "Apri Eventi"), ui.__mem_func__(self.__OnOpenEvents))
         y += 35
-        
+
         # Evento in corso?
         ev = self.activeEvent[0] if self.activeEvent[0] != "Nessuno" else None
         if ev:
             self.__CBar(5, y, 420, 40, 0x4400FF00)
-            self.__CText("EVENTO IN CORSO!", 15, y + 5, 0xFF00FF88)
+            self.__CText(T("EVENT_IN_PROGRESS", "EVENTO IN CORSO!"), 15, y + 5, 0xFF00FF88)
             self.__CText(ev.replace("+", " "), 15, y + 22, GOLD_COLOR)
             y += 48
         else:
             self.__CBar(5, y, 420, 25, 0x22000000)
-            self.__CText("Nessun evento attivo al momento", 120, y + 5, t["text_muted"])
+            self.__CText(T("NO_ACTIVE_EVENT", "Nessun evento attivo al momento"), 120, y + 5, t["text_muted"])
             y += 32
-        
+
         # Eventi di Oggi (usa eventsData popolato dal server)
-        self.__CText("Eventi Programmati Oggi:", 5, y, t["accent"])
+        self.__CText(T("SCHEDULED_EVENTS_TODAY", "Eventi Programmati Oggi:"), 5, y, t["accent"])
         y += 20
-        
+
         if not self.eventsData:
-            self.__CText("Nessun evento programmato oggi.", 120, y + 10, t["text_muted"])
+            self.__CText(T("NO_SCHEDULED_EVENT", "Nessun evento programmato oggi."), 120, y + 10, t["text_muted"])
             y += 30
         else:
             # Header
             self.__CBar(5, y, 420, 18, t["bg_dark"])
-            self.__CText("Stato", 15, y + 2, t["text_muted"])
-            self.__CText("Evento", 60, y + 2, t["text_muted"])
-            self.__CText("Orario", 280, y + 2, t["text_muted"])
+            self.__CText(T("COL_STATUS", "Stato"), 15, y + 2, t["text_muted"])
+            self.__CText(T("COL_EVENT", "Evento"), 60, y + 2, t["text_muted"])
+            self.__CText(T("COL_TIME", "Orario"), 280, y + 2, t["text_muted"])
             self.__CText("Rank", 380, y + 2, t["text_muted"])
             y += 20
             
@@ -1588,20 +1593,20 @@ class HunterLevelWindow(ui.ScriptWindow):
             
             # Se ci sono piu' di 8 eventi, mostra quanti altri
             if len(self.eventsData) > 8:
-                self.__CText("... e altri %d eventi (clicca 'Apri Eventi')" % (len(self.eventsData) - 8), 100, y, t["text_muted"])
+                self.__CText(T("MORE_EVENTS", "... e altri %d eventi (clicca 'Apri Eventi')") % (len(self.eventsData) - 8), 100, y, t["text_muted"])
                 y += 19
-        
+
         y += 10
         self.__CSep(5, y)
         y += 15
-        
+
         # =====================================================
         # INFO RESET
         # =====================================================
         self.__CBar(5, y, 420, 40, t["bg_dark"])
-        self.__CText("ORARI RESET:", 180, y + 4, t["accent"])
-        self.__CText("Missioni: Ogni giorno alle 00:05", 50, y + 20, 0xFFAAAAAA)
-        self.__CText("Eventi: In base al calendario", 230, y + 20, 0xFFAAAAAA)
+        self.__CText(T("RESET_TIMES", "ORARI RESET:"), 180, y + 4, t["accent"])
+        self.__CText(T("RESET_MISSIONS", "Missioni: Ogni giorno alle 00:05"), 50, y + 20, 0xFFAAAAAA)
+        self.__CText(T("RESET_EVENTS", "Eventi: In base al calendario"), 230, y + 20, 0xFFAAAAAA)
     
     def __OnOpenMissions(self):
         """Apre direttamente la finestra popup delle missioni giornaliere"""
@@ -1679,29 +1684,29 @@ class HunterLevelWindow(ui.ScriptWindow):
         
         # Lista ranghi con dettagli
         rankDetails = [
-            ("E", "Risvegliato", "0", "2.000", "Hai appena scoperto i tuoi poteri."),
-            ("D", "Apprendista", "2.000", "10.000", "Inizi a padroneggiare le basi."),
-            ("C", "Cacciatore", "10.000", "50.000", "Sei un vero Cacciatore ora."),
-            ("B", "Veterano", "50.000", "150.000", "I mostri tremano al tuo passaggio."),
-            ("A", "Maestro", "150.000", "500.000", "Solo i migliori arrivano qui."),
-            ("S", "Leggenda", "500.000", "1.500.000", "Il tuo nome e' conosciuto ovunque."),
-            ("N", "Monarca Nazionale", "1.500.000", "MAX", "Hai raggiunto l'apice del potere!"),
+            ("E", T("RANK_E_NAME", "Risvegliato"), "0", "2.000", T("RANK_E_DESC", "Hai appena scoperto i tuoi poteri.")),
+            ("D", T("RANK_D_NAME", "Apprendista"), "2.000", "10.000", T("RANK_D_DESC", "Inizi a padroneggiare le basi.")),
+            ("C", T("RANK_C_NAME", "Cacciatore"), "10.000", "50.000", T("RANK_C_DESC", "Sei un vero Cacciatore ora.")),
+            ("B", T("RANK_B_NAME", "Veterano"), "50.000", "150.000", T("RANK_B_DESC", "I mostri tremano al tuo passaggio.")),
+            ("A", T("RANK_A_NAME", "Maestro"), "150.000", "500.000", T("RANK_A_DESC", "Solo i migliori arrivano qui.")),
+            ("S", T("RANK_S_NAME", "Leggenda"), "500.000", "1.500.000", T("RANK_S_DESC", "Il tuo nome e' conosciuto ovunque.")),
+            ("N", T("RANK_N_NAME", "Monarca Nazionale"), "1.500.000", "MAX", T("RANK_N_DESC", "Hai raggiunto l'apice del potere!")),
         ]
-        
+
         for key, title, minPts, maxPts, desc in rankDetails:
             rt = RANK_THEMES[key]
-            
+
             # Box rank
             self.__CBar(5, y, 420, 45, rt["bg_dark"])
             self.__CBar(5, y, 5, 45, rt["accent"])
-            
+
             # Badge e titolo
             self.__CBar(15, y + 5, 25, 18, rt["accent"])
             self.__CText(key, 22, y + 6, 0xFF000000)
             self.__CText(title, 50, y + 5, rt["accent"])
-            
+
             # Range punti
-            self.__CText("%s - %s Gloria" % (minPts, maxPts), 200, y + 5, rt["text_value"])
+            self.__CText("%s - %s %s" % (minPts, maxPts, T("GLORY", "Gloria")), 200, y + 5, rt["text_value"])
             
             # Descrizione
             self.__CText(desc, 15, y + 27, rt["text_muted"])
@@ -1713,28 +1718,28 @@ class HunterLevelWindow(ui.ScriptWindow):
     def __LoadGuideGlory(self, y):
         """Guida su come guadagnare Gloria"""
         t = self.theme
-        
+
         # =====================================================
         # GLORIA
         # =====================================================
-        self.__CText("COME GUADAGNARE GLORIA", 140, y, GOLD_COLOR)
+        self.__CText(T("GUIDE_GLORY_TITLE", "COME GUADAGNARE GLORIA"), 140, y, GOLD_COLOR)
         y += 25
 
         # IMPORTANTE: Spiegazione mostri normali NON danno Gloria
         self.__CBar(5, y, 420, 55, 0x44FF0000)
-        self.__CText("ATTENZIONE!", 180, y + 5, 0xFFFF0000)
-        self.__CText("I mostri, metin e boss NORMALI NON danno Gloria!", 30, y + 22, 0xFFFFAAAA)
-        self.__CText("Ottieni Gloria SOLO da:", 140, y + 37, 0xFFFFFFFF)
+        self.__CText(T("WARNING", "ATTENZIONE!"), 180, y + 5, 0xFFFF0000)
+        self.__CText(T("GLORY_WARNING1", "I mostri, metin e boss NORMALI NON danno Gloria!"), 30, y + 22, 0xFFFFAAAA)
+        self.__CText(T("GLORY_WARNING2", "Ottieni Gloria SOLO da:"), 140, y + 37, 0xFFFFFFFF)
         y += 62
 
         gloryMethods = [
-            ("Fratture Dimensionali", "+50-500", "Boss/Metin DENTRO le fratture (base pts)"),
-            ("Missioni Giornaliere", "+50-3000", "3 missioni al giorno (reward scala col Rank)"),
-            ("Emergency Quest", "+150-1200", "40% chance dopo ~500 kill normali"),
-            ("Eventi Programmati", "+100-2000", "Glory Rush, Metin Frenzy, Boss Massacre..."),
-            ("Streak Login", "+5/10/20%", "3gg=+5%, 7gg=+10%, 30gg=+20% Gloria"),
-            ("Bauli Hunter", "+20-100", "Bauli spawn nelle mappe normali"),
-            ("Speed Kill Bonus", "x2 reward", "Boss 60s, Metin 300s = doppia Gloria"),
+            (T("GLORY_METHOD_FRACTURES", "Fratture Dimensionali"), "+50-500", T("GLORY_METHOD_FRACTURES_DESC", "Boss/Metin DENTRO le fratture (base pts)")),
+            (T("GLORY_METHOD_MISSIONS", "Missioni Giornaliere"), "+50-3000", T("GLORY_METHOD_MISSIONS_DESC", "3 missioni al giorno (reward scala col Rank)")),
+            (T("GLORY_METHOD_EMERGENCY", "Emergency Quest"), "+150-1200", T("GLORY_METHOD_EMERGENCY_DESC", "40% chance dopo ~500 kill normali")),
+            (T("GLORY_METHOD_EVENTS", "Eventi Programmati"), "+100-2000", T("GLORY_METHOD_EVENTS_DESC", "Glory Rush, Metin Frenzy, Boss Massacre...")),
+            (T("GLORY_METHOD_STREAK", "Streak Login"), "+5/10/20%", T("GLORY_METHOD_STREAK_DESC", "3gg=+5%, 7gg=+10%, 30gg=+20% Gloria")),
+            (T("GLORY_METHOD_CHESTS", "Bauli Hunter"), "+20-100", T("GLORY_METHOD_CHESTS_DESC", "Bauli spawn nelle mappe normali")),
+            (T("GLORY_METHOD_SPEEDKILL", "Speed Kill Bonus"), "x2 reward", T("GLORY_METHOD_SPEEDKILL_DESC", "Boss 60s, Metin 300s = doppia Gloria")),
         ]
 
         for method, reward, desc in gloryMethods:
@@ -1743,174 +1748,174 @@ class HunterLevelWindow(ui.ScriptWindow):
             self.__CText(reward, 200, y + 3, 0xFF00FF00)
             self.__CText(desc, 15, y + 18, t["text_muted"])
             y += 38
-        
+
         y += 15
         self.__CSep(5, y)
         y += 15
-        
+
         # =====================================================
         # GLORIA SPENDIBILE
         # =====================================================
-        self.__CText("GLORIA SPENDIBILE (SHOP)", 130, y, 0xFFFFA500)
+        self.__CText(T("GLORY_SPENDABLE_TITLE", "GLORIA SPENDIBILE (SHOP)"), 130, y, 0xFFFFA500)
         y += 25
-        
+
         self.__CBar(5, y, 420, 80, t["bg_dark"])
-        self.__CText("La Gloria e' divisa in due contatori:", 115, y + 5, t["text_value"])
-        self.__CText("- Gloria Totale: determina il tuo RANK (non scende mai)", 30, y + 22, GOLD_COLOR)
-        self.__CText("- Gloria Spendibile: usala nello SHOP senza perdere rank!", 15, y + 38, 0xFF00FF00)
-        self.__CText("Ogni Gloria guadagnata incrementa ENTRAMBI i contatori!", 35, y + 58, t["text_muted"])
+        self.__CText(T("GLORY_SPLIT_INFO", "La Gloria e' divisa in due contatori:"), 115, y + 5, t["text_value"])
+        self.__CText(T("GLORY_TOTAL_INFO", "- Gloria Totale: determina il tuo RANK (non scende mai)"), 30, y + 22, GOLD_COLOR)
+        self.__CText(T("GLORY_SPEND_INFO", "- Gloria Spendibile: usala nello SHOP senza perdere rank!"), 15, y + 38, 0xFF00FF00)
+        self.__CText(T("GLORY_BOTH_INFO", "Ogni Gloria guadagnata incrementa ENTRAMBI i contatori!"), 35, y + 58, t["text_muted"])
         y += 90
-        
+
         y += 10
         self.__CSep(5, y)
         y += 15
-        
+
         # =====================================================
         # GLORIA IN PARTY
         # =====================================================
         self.__CBar(5, y, 420, 30, 0x3300FFFF)
-        self.__CText("GLORIA IN PARTY", 160, y + 5, 0xFF00FFFF)
+        self.__CText(T("GLORY_PARTY_TITLE", "GLORIA IN PARTY"), 160, y + 5, 0xFF00FFFF)
         y += 38
-        
+
         self.__CBar(5, y, 420, 75, t["bg_dark"])
-        self.__CText("Quando giochi in GRUPPO (party), la Gloria va a", 70, y + 5, t["text_value"])
-        self.__CText("CHI COMPIE L'AZIONE!", 145, y + 20, GOLD_COLOR)
-        self.__CText("Bauli: chi apre | Boss/Metin: chi uccide | Fratture: chi conquista", 15, y + 37, 0xFF00FF00)
-        self.__CText("Il Power Rank serve per FORZARE fratture, non per dividere Gloria.", 20, y + 55, t["text_muted"])
+        self.__CText(T("GLORY_PARTY_INFO1", "Quando giochi in GRUPPO (party), la Gloria va a"), 70, y + 5, t["text_value"])
+        self.__CText(T("GLORY_PARTY_INFO2", "CHI COMPIE L'AZIONE!"), 145, y + 20, GOLD_COLOR)
+        self.__CText(T("GLORY_PARTY_INFO3", "Bauli: chi apre | Boss/Metin: chi uccide | Fratture: chi conquista"), 15, y + 37, 0xFF00FF00)
+        self.__CText(T("GLORY_PARTY_INFO4", "Il Power Rank serve per FORZARE fratture, non per dividere Gloria."), 20, y + 55, t["text_muted"])
         y += 83
-        
-        self.__CText("COME FUNZIONA:", 5, y, t["accent"])
+
+        self.__CText(T("HOW_IT_WORKS", "COME FUNZIONA:"), 5, y, t["accent"])
         y += 20
-        
+
         partySteps = [
-            "1. Boss/Metin ucciso = Gloria va al KILLER",
-            "2. Baule aperto = Gloria va a CHI APRE",
-            "3. Frattura conquistata = Gloria va al CONQUISTATORE",
-            "4. Si applicano i bonus personali (Streak, Focus, Evento...)",
-            "5. Si applicano i malus personali (Trial -50%)",
-            "6. Gloria finale assegnata!",
+            T("PARTY_STEP_1", "1. Boss/Metin ucciso = Gloria va al KILLER"),
+            T("PARTY_STEP_2", "2. Baule aperto = Gloria va a CHI APRE"),
+            T("PARTY_STEP_3", "3. Frattura conquistata = Gloria va al CONQUISTATORE"),
+            T("PARTY_STEP_4", "4. Si applicano i bonus personali (Streak, Focus, Evento...)"),
+            T("PARTY_STEP_5", "5. Si applicano i malus personali (Trial -50%)"),
+            T("PARTY_STEP_6", "6. Gloria finale assegnata!"),
         ]
-        
+
         for step in partySteps:
             self.__CText(step, 15, y, t["text_value"])
             y += 16
         y += 10
-        
+
         # Info importante
         self.__CBar(5, y, 420, 70, 0x33FFD700)
-        self.__CText("POWER RANK - A COSA SERVE?", 130, y + 5, GOLD_COLOR)
-        self.__CText("Il Power Rank del party serve per FORZARE fratture!", 50, y + 22, t["text_value"])
-        self.__CText("Fratture B/A/S/N richiedono tot Power Rank per entrare", 45, y + 38, t["text_value"])
-        self.__CText("se non hai abbastanza Gloria personale.", 100, y + 52, t["text_muted"])
+        self.__CText(T("POWER_RANK_TITLE", "POWER RANK - A COSA SERVE?"), 130, y + 5, GOLD_COLOR)
+        self.__CText(T("POWER_RANK_INFO1", "Il Power Rank del party serve per FORZARE fratture!"), 50, y + 22, t["text_value"])
+        self.__CText(T("POWER_RANK_INFO2", "Fratture B/A/S/N richiedono tot Power Rank per entrare"), 45, y + 38, t["text_value"])
+        self.__CText(T("POWER_RANK_INFO3", "se non hai abbastanza Gloria personale."), 100, y + 52, t["text_muted"])
         y += 80
-        
+
         # Bonus/Malus personali
         self.__CBar(5, y, 420, 85, t["bg_dark"])
-        self.__CText("BONUS/MALUS PERSONALI:", 145, y + 5, t["accent"])
-        self.__CText("+ Streak Login: +5%/+10%/+20% (3/7/30 giorni)", 15, y + 22, 0xFF00FF00)
-        self.__CText("+ Focus Hunter: +20% (item consumabile)", 15, y + 36, 0xFF00FF00)
-        self.__CText("+ Fracture Bonus: +50% (missioni 3/3 complete)", 15, y + 50, 0xFF00FF00)
-        self.__CText("- Trial Attivo: -50% (fino a completamento prova)", 15, y + 66, 0xFFFF6666)
+        self.__CText(T("BONUS_MALUS_TITLE", "BONUS/MALUS PERSONALI:"), 145, y + 5, t["accent"])
+        self.__CText(T("BONUS_STREAK", "+ Streak Login: +5%/+10%/+20% (3/7/30 giorni)"), 15, y + 22, 0xFF00FF00)
+        self.__CText(T("BONUS_FOCUS", "+ Focus Hunter: +20% (item consumabile)"), 15, y + 36, 0xFF00FF00)
+        self.__CText(T("BONUS_FRACTURE", "+ Fracture Bonus: +50% (missioni 3/3 complete)"), 15, y + 50, 0xFF00FF00)
+        self.__CText(T("MALUS_TRIAL", "- Trial Attivo: -50% (fino a completamento prova)"), 15, y + 66, 0xFFFF6666)
         y += 95
-        
+
         # =====================================================
         # DETTAGLIO GLORIA - SYSCHAT
         # =====================================================
         self.__CBar(5, y, 420, 30, 0x33AAAAFF)
-        self.__CText("DETTAGLIO GLORIA IN CHAT", 140, y + 5, 0xFFAAAAFF)
+        self.__CText(T("GLORY_DETAIL_TITLE", "DETTAGLIO GLORIA IN CHAT"), 140, y + 5, 0xFFAAAAFF)
         y += 38
-        
+
         self.__CBar(5, y, 420, 100, t["bg_dark"])
-        self.__CText("Quando uccidi Boss, Metin o apri Bauli, vedrai in chat:", 40, y + 5, t["text_value"])
+        self.__CText(T("GLORY_DETAIL_INFO", "Quando uccidi Boss, Metin o apri Bauli, vedrai in chat:"), 40, y + 5, t["text_value"])
         self.__CText("========== DETTAGLIO GLORIA =========", 80, y + 22, 0xFF888888)
         self.__CText("BOSS: Nome Del Boss", 100, y + 36, t["text_value"])
-        self.__CText("Gloria Base: 500", 100, y + 50, t["text_muted"])
+        self.__CText(T("GLORY_BASE", "Gloria Base:") + " 500", 100, y + 50, t["text_muted"])
         self.__CText("Streak Bonus (+10%): +50", 100, y + 64, 0xFF00FF00)
         self.__CText(">>> TOTALE: +550 Gloria <<<", 100, y + 78, GOLD_COLOR)
         y += 110
-        
-        self.__CText("Cosi' puoi verificare TUTTI i bonus/malus applicati!", 55, y, 0xFF00CCFF)
+
+        self.__CText(T("GLORY_DETAIL_TIP", "Cosi' puoi verificare TUTTI i bonus/malus applicati!"), 55, y, 0xFF00CCFF)
         y += 25
-        
+
         return y
     
     def __LoadGuideMissions(self, y):
         """Guida alle missioni giornaliere"""
         t = self.theme
-        
-        self.__CText("MISSIONI GIORNALIERE", 150, y, t["accent"])
+
+        self.__CText(T("GUIDE_MISSIONS_TITLE", "MISSIONI GIORNALIERE"), 150, y, t["accent"])
         y += 25
-        
+
         # Pulsante per aprire le missioni
         self.__CBar(5, y, 420, 35, 0x3300CCFF)
-        self.__CText("Vuoi vedere le tue missioni attuali?", 100, y + 3, t["text_value"])
-        self.__CButton(150, y + 18, "APRI MISSIONI GIORNALIERE", ui.__mem_func__(self.__OnOpenMissions))
+        self.__CText(T("WANT_SEE_MISSIONS", "Vuoi vedere le tue missioni attuali?"), 100, y + 3, t["text_value"])
+        self.__CButton(150, y + 18, T("BTN_OPEN_DAILY_MISSIONS", "APRI MISSIONI GIORNALIERE"), ui.__mem_func__(self.__OnOpenMissions))
         y += 45
-        
+
         # Intro
         self.__CBar(5, y, 420, 80, t["bg_dark"])
-        self.__CText("Ogni giorno alle 00:05 ricevi 3 nuove missioni.", 50, y + 5, t["text_value"])
-        self.__CText("Le missioni sono basate sul tuo Rank attuale.", 60, y + 20, t["text_muted"])
+        self.__CText(T("MISSIONS_INTRO1", "Ogni giorno alle 00:05 ricevi 3 nuove missioni."), 50, y + 5, t["text_value"])
+        self.__CText(T("MISSIONS_INTRO2", "Le missioni sono basate sul tuo Rank attuale."), 60, y + 20, t["text_muted"])
 
-        self.__CText("DOVE VEDERLE:", 170, y + 40, 0xFFFFAA00)
-        self.__CText("1. Scrivi /hunter_missions in chat", 80, y + 55, 0xFF00CCFF)
-        self.__CText("2. Premi N > Tab Eventi > Apri Dettagli", 75, y + 68, 0xFF00CCFF)
+        self.__CText(T("WHERE_TO_SEE", "DOVE VEDERLE:"), 170, y + 40, 0xFFFFAA00)
+        self.__CText(T("MISSIONS_HOW1", "1. Scrivi /hunter_missions in chat"), 80, y + 55, 0xFF00CCFF)
+        self.__CText(T("MISSIONS_HOW2", "2. Premi N > Tab Eventi > Apri Dettagli"), 75, y + 68, 0xFF00CCFF)
         y += 90
-        
+
         # Tipi di missioni (quelli effettivi nel DB)
-        self.__CText("TIPI DI MISSIONI:", 5, y, t["accent"])
+        self.__CText(T("MISSION_TYPES_TITLE", "TIPI DI MISSIONI:"), 5, y, t["accent"])
         y += 22
-        
+
         missionTypes = [
-            ("kill_mob", "Uccidi Mostri", "Elimina un certo numero di mob (vnum specifico o qualsiasi)"),
-            ("kill_boss", "Caccia al Boss", "Sconfiggi boss nel mondo di gioco"),
-            ("kill_metin", "Distruggi Metin", "Distruggi pietre metin nelle mappe"),
-            ("seal_fracture", "Sigilla Frattura", "Chiudi le fratture dimensionali (rank A+)"),
+            ("kill_mob", T("MISSION_TYPE_KILL_MOB", "Uccidi Mostri"), T("MISSION_TYPE_KILL_MOB_DESC", "Elimina un certo numero di mob (vnum specifico o qualsiasi)")),
+            ("kill_boss", T("MISSION_TYPE_KILL_BOSS", "Caccia al Boss"), T("MISSION_TYPE_KILL_BOSS_DESC", "Sconfiggi boss nel mondo di gioco")),
+            ("kill_metin", T("MISSION_TYPE_KILL_METIN", "Distruggi Metin"), T("MISSION_TYPE_KILL_METIN_DESC", "Distruggi pietre metin nelle mappe")),
+            ("seal_fracture", T("MISSION_TYPE_SEAL_FRACTURE", "Sigilla Frattura"), T("MISSION_TYPE_SEAL_FRACTURE_DESC", "Chiudi le fratture dimensionali (rank A+)")),
         ]
-        
+
         for mType, name, desc in missionTypes:
             self.__CBar(5, y, 420, 32, t["bg_dark"])
             self.__CText("- %s" % name, 15, y + 3, t["text_value"])
             self.__CText(desc, 20, y + 17, t["text_muted"])
             y += 34
-        
+
         y += 10
         self.__CSep(5, y)
         y += 15
-        
+
         # Come funziona
-        self.__CText("COME FUNZIONA:", 5, y, t["accent"])
+        self.__CText(T("HOW_IT_WORKS", "COME FUNZIONA:"), 5, y, t["accent"])
         y += 22
-        
+
         steps = [
-            "1. Al login ricevi automaticamente 3 missioni",
-            "2. Uccidi mob/boss/metin per fare progresso",
-            "3. Un popup ti mostra il progresso (3 secondi)",
-            "4. Al completamento ricevi Gloria + effetto verde",
-            "5. Se completi TUTTE E 3: Bonus x1.5 + effetto oro!",
+            T("MISSION_STEP_1", "1. Al login ricevi automaticamente 3 missioni"),
+            T("MISSION_STEP_2", "2. Uccidi mob/boss/metin per fare progresso"),
+            T("MISSION_STEP_3", "3. Un popup ti mostra il progresso (3 secondi)"),
+            T("MISSION_STEP_4", "4. Al completamento ricevi Gloria + effetto verde"),
+            T("MISSION_STEP_5", "5. Se completi TUTTE E 3: Bonus x1.5 + effetto oro!"),
         ]
-        
+
         for step in steps:
             self.__CText(step, 15, y, t["text_value"])
             y += 18
-        
+
         y += 15
-        
+
         # Penalita
         self.__CBar(5, y, 420, 70, 0x33FF0000)
-        self.__CText("SISTEMA PENALITA'", 160, y + 5, 0xFFFF4444)
-        self.__CText("Missioni NON completate entro mezzanotte:", 90, y + 22, t["text_value"])
-        self.__CText("= Perdi Gloria TOTALE (non spendibile)!", 85, y + 38, 0xFFFF6666)
-        self.__CText("La missione viene segnata come 'failed' nel DB.", 60, y + 53, t["text_muted"])
+        self.__CText(T("PENALTY_SYSTEM", "SISTEMA PENALITA'"), 160, y + 5, 0xFFFF4444)
+        self.__CText(T("PENALTY_INFO1", "Missioni NON completate entro mezzanotte:"), 90, y + 22, t["text_value"])
+        self.__CText(T("PENALTY_INFO2", "= Perdi Gloria TOTALE (non spendibile)!"), 85, y + 38, 0xFFFF6666)
+        self.__CText(T("PENALTY_INFO3", "La missione viene segnata come 'failed' nel DB."), 60, y + 53, t["text_muted"])
         y += 80
-        
+
         # Bonus completamento
         self.__CBar(5, y, 420, 80, 0x3300FF00)
-        self.__CText("BONUS TUTTE COMPLETE", 155, y + 5, 0xFF00FF00)
-        self.__CText("Completa tutte e 3 le missioni:", 130, y + 22, 0xFF88FF88)
-        self.__CText("1. +50% Gloria extra (sulla somma ricompense missioni)", 30, y + 37, t["text_value"])
-        self.__CText("2. BONUS FRATTURE: +50% Gloria da Boss/Metin fratture!", 15, y + 52, 0xFFFFD700)
-        self.__CText("Il bonus e' visibile nel syschat dettagliato.", 80, y + 67, t["text_muted"])
+        self.__CText(T("BONUS_ALL_COMPLETE_TITLE", "BONUS TUTTE COMPLETE"), 155, y + 5, 0xFF00FF00)
+        self.__CText(T("BONUS_ALL_COMPLETE_INFO", "Completa tutte e 3 le missioni:"), 130, y + 22, 0xFF88FF88)
+        self.__CText(T("BONUS_ALL_1", "1. +50% Gloria extra (sulla somma ricompense missioni)"), 30, y + 37, t["text_value"])
+        self.__CText(T("BONUS_ALL_2", "2. BONUS FRATTURE: +50% Gloria da Boss/Metin fratture!"), 15, y + 52, 0xFFFFD700)
+        self.__CText(T("BONUS_ALL_3", "Il bonus e' visibile nel syschat dettagliato."), 80, y + 67, t["text_muted"])
         y += 90
 
         y += 15
@@ -1921,20 +1926,20 @@ class HunterLevelWindow(ui.ScriptWindow):
         # EMERGENCY QUEST - Sezione dedicata
         # =====================================================
         self.__CBar(5, y, 420, 35, 0x33FF6600)
-        self.__CText("EMERGENCY QUEST", 160, y + 5, 0xFFFF6600)
-        self.__CText("MISSIONI SPECIALI A TEMPO - PREMI MASSIMI!", 80, y + 22, 0xFFFFAA00)
+        self.__CText(T("EMERGENCY_QUEST_TITLE", "EMERGENCY QUEST"), 160, y + 5, 0xFFFF6600)
+        self.__CText(T("EMERGENCY_QUEST_SUBTITLE", "MISSIONI SPECIALI A TEMPO - PREMI MASSIMI!"), 80, y + 22, 0xFFFFAA00)
         y += 43
 
-        self.__CText("COME FUNZIONA:", 5, y, t["accent"])
+        self.__CText(T("HOW_IT_WORKS", "COME FUNZIONA:"), 5, y, t["accent"])
         y += 22
 
         emergencySteps = [
-            "1. Spawn RANDOM dopo aver ucciso ~500 mob normali",
-            "2. 40% chance Emergency, 60% chance Frattura",
-            "3. Tempo limitato: 60-180 secondi per completare!",
-            "4. Obiettivi: 30-250 kill a seconda della difficolta'",
-            "5. Premi: 150-1200 Gloria + item bonus",
-            "6. Se fallisci, non c'e' penalita' (solo opportunita' persa)",
+            T("EMERG_STEP_1", "1. Spawn RANDOM dopo aver ucciso ~500 mob normali"),
+            T("EMERG_STEP_2", "2. 40% chance Emergency, 60% chance Frattura"),
+            T("EMERG_STEP_3", "3. Tempo limitato: 60-180 secondi per completare!"),
+            T("EMERG_STEP_4", "4. Obiettivi: 30-250 kill a seconda della difficolta'"),
+            T("EMERG_STEP_5", "5. Premi: 150-1200 Gloria + item bonus"),
+            T("EMERG_STEP_6", "6. Se fallisci, non c'e' penalita' (solo opportunita' persa)"),
         ]
 
         for step in emergencySteps:
@@ -1944,15 +1949,15 @@ class HunterLevelWindow(ui.ScriptWindow):
         y += 10
 
         # Difficoltà Emergency
-        self.__CText("LIVELLI DI DIFFICOLTA':", 5, y, t["accent"])
+        self.__CText(T("DIFFICULTY_LEVELS", "LIVELLI DI DIFFICOLTA':"), 5, y, t["accent"])
         y += 22
 
         emergencyLevels = [
-            ("EASY", 0xFF00FF00, "30 kill in 60s", "+150 Gloria"),
-            ("NORMAL", 0xFF00CCFF, "2-3 Boss/Metin in 120-150s", "+350-400 Gloria"),
-            ("HARD", 0xFFFFAA00, "60 kill/60s o 5 Metin/180s", "+300-500 Gloria"),
-            ("EXTREME", 0xFFFF6600, "120 kill/90s o 3 Boss/180s", "+600-1000 Gloria"),
-            ("GOD_MODE", 0xFFFF0000, "250 kill in 180s", "+1200 Gloria"),
+            ("EASY", 0xFF00FF00, T("EMERG_EASY_REQ", "30 kill in 60s"), "+150 Gloria"),
+            ("NORMAL", 0xFF00CCFF, T("EMERG_NORMAL_REQ", "2-3 Boss/Metin in 120-150s"), "+350-400 Gloria"),
+            ("HARD", 0xFFFFAA00, T("EMERG_HARD_REQ", "60 kill/60s o 5 Metin/180s"), "+300-500 Gloria"),
+            ("EXTREME", 0xFFFF6600, T("EMERG_EXTREME_REQ", "120 kill/90s o 3 Boss/180s"), "+600-1000 Gloria"),
+            ("GOD_MODE", 0xFFFF0000, T("EMERG_GODMODE_REQ", "250 kill in 180s"), "+1200 Gloria"),
         ]
 
         for diff, color, req, reward in emergencyLevels:
@@ -1967,9 +1972,9 @@ class HunterLevelWindow(ui.ScriptWindow):
 
         # Speed Kill bonus per Emergency
         self.__CBar(5, y, 420, 50, 0x3300FFFF)
-        self.__CText("SPEED KILL BONUS", 165, y + 5, 0xFF00FFFF)
-        self.__CText("Boss: Uccidi entro 60 secondi = x2 Punti Gloria!", 50, y + 22, t["text_value"])
-        self.__CText("Metin: Distruggi entro 300 secondi = x2 Punti Gloria!", 40, y + 36, t["text_value"])
+        self.__CText(T("SPEEDKILL_BONUS_TITLE", "SPEED KILL BONUS"), 165, y + 5, 0xFF00FFFF)
+        self.__CText(T("SPEEDKILL_BOSS", "Boss: Uccidi entro 60 secondi = x2 Punti Gloria!"), 50, y + 22, t["text_value"])
+        self.__CText(T("SPEEDKILL_METIN", "Metin: Distruggi entro 300 secondi = x2 Punti Gloria!"), 40, y + 36, t["text_value"])
         y += 60
 
         y += 15
@@ -1977,9 +1982,9 @@ class HunterLevelWindow(ui.ScriptWindow):
         y += 15
 
         # Ricompense per rank
-        self.__CText("RICOMPENSE PER RANK:", 5, y, t["accent"])
+        self.__CText(T("REWARDS_BY_RANK", "RICOMPENSE PER RANK:"), 5, y, t["accent"])
         y += 22
-        
+
         rankRewards = [
             ("E", "15-50", "5-15"),
             ("D", "40-100", "12-30"),
@@ -1989,114 +1994,114 @@ class HunterLevelWindow(ui.ScriptWindow):
             ("S", "600-1500", "180-450"),
             ("N", "1200-3000", "350-900"),
         ]
-        
-        self.__CText("Rank    Reward Gloria    Penalita'", 60, y, t["text_muted"])
+
+        self.__CText("Rank    Reward Gloria    " + T("PENALTY", "Penalita'"), 60, y, t["text_muted"])
         y += 18
-        
+
         for rank, reward, penalty in rankRewards:
             color = RANK_COLORS.get(rank, t["text_value"])
             self.__CText("%s" % rank, 80, y, color)
             self.__CText("%s" % reward, 140, y, 0xFF00FF00)
             self.__CText("%s" % penalty, 260, y, 0xFFFF6666)
             y += 16
-        
+
         y += 15
-        
+
         return y
     
     def __LoadGuideEvents(self, y):
         """Guida agli eventi programmati - Sistema 24H"""
         t = self.theme
-        
-        self.__CText("EVENTI PROGRAMMATI 24H", 145, y, t["accent"])
+
+        self.__CText(T("GUIDE_EVENTS_TITLE", "EVENTI PROGRAMMATI 24H"), 145, y, t["accent"])
         y += 25
-        
+
         # Pulsante per aprire gli eventi
         self.__CBar(5, y, 420, 35, 0x33FFD700)
-        self.__CText("Vuoi vedere gli eventi di oggi?", 120, y + 3, t["text_value"])
-        self.__CButton(150, y + 18, "APRI EVENTI DEL GIORNO", ui.__mem_func__(self.__OnOpenEvents))
+        self.__CText(T("WANT_SEE_EVENTS", "Vuoi vedere gli eventi di oggi?"), 120, y + 3, t["text_value"])
+        self.__CButton(150, y + 18, T("BTN_OPEN_TODAY_EVENTS", "APRI EVENTI DEL GIORNO"), ui.__mem_func__(self.__OnOpenEvents))
         y += 45
-        
+
         # Intro
         self.__CBar(5, y, 420, 55, t["bg_dark"])
-        self.__CText("Gli eventi si attivano automaticamente ad orari", 70, y + 5, t["text_muted"])
-        self.__CText("prestabiliti. L'iscrizione e' AUTOMATICA!", 100, y + 20, t["text_muted"])
-        self.__CText("Clicca 'Apri Eventi' per vedere quelli di oggi!", 65, y + 37, 0xFF00CCFF)
+        self.__CText(T("EVENTS_INTRO1", "Gli eventi si attivano automaticamente ad orari"), 70, y + 5, t["text_muted"])
+        self.__CText(T("EVENTS_INTRO2", "prestabiliti. L'iscrizione e' AUTOMATICA!"), 100, y + 20, t["text_muted"])
+        self.__CText(T("EVENTS_INTRO3", "Clicca 'Apri Eventi' per vedere quelli di oggi!"), 65, y + 37, 0xFF00CCFF)
         y += 65
-        
+
         # =====================================================
         # ISCRIZIONE AUTOMATICA - IMPORTANTE!
         # =====================================================
         self.__CBar(5, y, 420, 80, 0x3300FF00)
-        self.__CText("ISCRIZIONE AUTOMATICA", 155, y + 5, 0xFF00FF00)
-        self.__CText("NON devi cliccare nessun pulsante!", 110, y + 22, t["text_value"])
-        self.__CText("Conquista fratture, uccidi boss, metin o mob", 70, y + 38, t["text_value"])
-        self.__CText("per iscriverti automaticamente all'evento!", 80, y + 54, t["text_value"])
-        self.__CText("Vedrai: [EVENTO] Sei iscritto all'estrazione finale!", 50, y + 70, 0xFFFFD700)
+        self.__CText(T("AUTO_REGISTRATION", "ISCRIZIONE AUTOMATICA"), 155, y + 5, 0xFF00FF00)
+        self.__CText(T("AUTO_REG_INFO1", "NON devi cliccare nessun pulsante!"), 110, y + 22, t["text_value"])
+        self.__CText(T("AUTO_REG_INFO2", "Conquista fratture, uccidi boss, metin o mob"), 70, y + 38, t["text_value"])
+        self.__CText(T("AUTO_REG_INFO3", "per iscriverti automaticamente all'evento!"), 80, y + 54, t["text_value"])
+        self.__CText(T("AUTO_REG_INFO4", "Vedrai: [EVENTO] Sei iscritto all'estrazione finale!"), 50, y + 70, 0xFFFFD700)
         y += 90
-        
+
         # Tipi di eventi
-        self.__CText("TIPI DI EVENTO:", 5, y, t["accent"])
+        self.__CText(T("EVENT_TYPES_TITLE", "TIPI DI EVENTO:"), 5, y, t["accent"])
         y += 22
-        
+
         eventTypes = [
-            ("GLORY RUSH", 0xFFFFD700, "Gloria x2 per ogni kill! Sorteggio finale."),
-            ("FRATTURA SERA", 0xFF9900FF, "PRIMO a conquistare frattura VINCE!"),
-            ("CACCIA BOSS", 0xFFFF0000, "PRIMO a uccidere un boss VINCE!"),
-            ("RIFT HUNT", 0xFF9900FF, "Fratture +50% spawn. Sorteggio finale."),
-            ("BOSS MASSACRE", 0xFFFF6600, "Boss Gloria +50%. Sorteggio finale."),
-            ("METIN FRENZY", 0xFFFF6600, "Metin Bonus +50%. Sorteggio finale."),
-            ("DOUBLE SPAWN", 0xFF00FF00, "Spawn Elite x2. Sorteggio finale."),
+            ("GLORY RUSH", 0xFFFFD700, T("EVENT_DESC_GLORY_RUSH", "Gloria x2 per ogni kill! Sorteggio finale.")),
+            (T("EVENT_FRACTURE_EVENING", "FRATTURA SERA"), 0xFF9900FF, T("EVENT_DESC_FRACTURE_EVENING", "PRIMO a conquistare frattura VINCE!")),
+            (T("EVENT_BOSS_HUNT", "CACCIA BOSS"), 0xFFFF0000, T("EVENT_DESC_BOSS_HUNT", "PRIMO a uccidere un boss VINCE!")),
+            ("RIFT HUNT", 0xFF9900FF, T("EVENT_DESC_RIFT_HUNT", "Fratture +50% spawn. Sorteggio finale.")),
+            ("BOSS MASSACRE", 0xFFFF6600, T("EVENT_DESC_BOSS_MASSACRE", "Boss Gloria +50%. Sorteggio finale.")),
+            ("METIN FRENZY", 0xFFFF6600, T("EVENT_DESC_METIN_FRENZY", "Metin Bonus +50%. Sorteggio finale.")),
+            ("DOUBLE SPAWN", 0xFF00FF00, T("EVENT_DESC_DOUBLE_SPAWN", "Spawn Elite x2. Sorteggio finale.")),
         ]
-        
+
         for name, color, desc in eventTypes:
             self.__CBar(5, y, 420, 22, t["bg_dark"])
             self.__CBar(5, y, 4, 22, color)
             self.__CText(name, 15, y + 3, color)
             self.__CText(desc, 140, y + 3, t["text_muted"])
             y += 24
-        
+
         y += 10
         self.__CSep(5, y)
         y += 15
-        
+
         # =====================================================
         # EVENTI "PRIMO VINCE"
         # =====================================================
         self.__CBar(5, y, 420, 95, 0x33FF4444)
-        self.__CText("EVENTI 'PRIMO VINCE'", 160, y + 5, 0xFFFF4444)
-        self.__CText("FRATTURA DELLA SERA (first_rift):", 15, y + 22, 0xFFFFD700)
-        self.__CText("Il PRIMO giocatore che conquista una frattura VINCE!", 25, y + 38, t["text_value"])
-        self.__CText("CACCIA AL BOSS (first_boss):", 15, y + 55, 0xFFFFD700)
-        self.__CText("Il PRIMO giocatore che uccide un boss VINCE!", 25, y + 71, t["text_value"])
-        self.__CText("Premio immediato + annuncio globale!", 80, y + 87, 0xFF00FF00)
+        self.__CText(T("FIRST_WINS_TITLE", "EVENTI 'PRIMO VINCE'"), 160, y + 5, 0xFFFF4444)
+        self.__CText(T("FIRST_RIFT_TITLE", "FRATTURA DELLA SERA (first_rift):"), 15, y + 22, 0xFFFFD700)
+        self.__CText(T("FIRST_RIFT_DESC", "Il PRIMO giocatore che conquista una frattura VINCE!"), 25, y + 38, t["text_value"])
+        self.__CText(T("FIRST_BOSS_TITLE", "CACCIA AL BOSS (first_boss):"), 15, y + 55, 0xFFFFD700)
+        self.__CText(T("FIRST_BOSS_DESC", "Il PRIMO giocatore che uccide un boss VINCE!"), 25, y + 71, t["text_value"])
+        self.__CText(T("FIRST_PRIZE_INFO", "Premio immediato + annuncio globale!"), 80, y + 87, 0xFF00FF00)
         y += 105
-        
+
         # Come funziona
-        self.__CText("COME FUNZIONA:", 5, y, t["accent"])
+        self.__CText(T("HOW_IT_WORKS", "COME FUNZIONA:"), 5, y, t["accent"])
         y += 22
-        
+
         steps = [
-            "1. Gli eventi si attivano automaticamente",
-            "2. Fai azioni che danno Gloria = sei ISCRITTO!",
-            "3. Nella lista eventi vedrai [ISCRITTO] in verde",
-            "4. Per GLORY RUSH: sorteggio casuale a fine evento",
-            "5. Per PRIMO VINCE: chi fa l'azione per primo vince!",
-            "6. Il vincitore riceve il PREMIO FINALE!",
+            T("EVENT_STEP_1", "1. Gli eventi si attivano automaticamente"),
+            T("EVENT_STEP_2", "2. Fai azioni che danno Gloria = sei ISCRITTO!"),
+            T("EVENT_STEP_3", "3. Nella lista eventi vedrai [ISCRITTO] in verde"),
+            T("EVENT_STEP_4", "4. Per GLORY RUSH: sorteggio casuale a fine evento"),
+            T("EVENT_STEP_5", "5. Per PRIMO VINCE: chi fa l'azione per primo vince!"),
+            T("EVENT_STEP_6", "6. Il vincitore riceve il PREMIO FINALE!"),
         ]
-        
+
         for step in steps:
             self.__CText(step, 15, y, t["text_value"])
             y += 18
-        
+
         y += 15
-        
+
         # Box informativo PREMI
         self.__CBar(5, y, 420, 70, 0x33FFD700)
-        self.__CText("PREMI EVENTO", 180, y + 5, GOLD_COLOR)
-        self.__CText("Partecipazione: +50 Gloria base (varia per evento)", 60, y + 22, t["text_value"])
-        self.__CText("Sorteggio/Primo: +200-500 Gloria BONUS!", 80, y + 38, 0xFF00FF00)
-        self.__CText("Controlla la lista eventi per vedere i premi esatti!", 55, y + 54, t["text_muted"])
+        self.__CText(T("EVENT_PRIZES_TITLE", "PREMI EVENTO"), 180, y + 5, GOLD_COLOR)
+        self.__CText(T("EVENT_PRIZE_PARTICIPATION", "Partecipazione: +50 Gloria base (varia per evento)"), 60, y + 22, t["text_value"])
+        self.__CText(T("EVENT_PRIZE_WINNER", "Sorteggio/Primo: +200-500 Gloria BONUS!"), 80, y + 38, 0xFF00FF00)
+        self.__CText(T("EVENT_PRIZE_CHECK", "Controlla la lista eventi per vedere i premi esatti!"), 55, y + 54, t["text_muted"])
         y += 80
 
 
@@ -2104,7 +2109,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         # EVENTI PROGRAMMATI DETTAGLIATI
         # =============================
         self.__CBar(5, y, 420, 30, 0x33FFD700)
-        self.__CText("LISTA COMPLETA EVENTI PROGRAMMATI", 70, y + 5, GOLD_COLOR)
+        self.__CText(T("SCHEDULED_EVENTS_LIST", "LISTA COMPLETA EVENTI PROGRAMMATI"), 70, y + 5, GOLD_COLOR)
         y += 38
 
         # allScheduledEvents deve essere una lista di dict con chiavi:
@@ -2113,18 +2118,18 @@ class HunterLevelWindow(ui.ScriptWindow):
         if 'allScheduledEvents' in globals() and allScheduledEvents:
             # Header
             self.__CBar(5, y, 420, 22, t["bg_dark"])
-            self.__CText("Orario", 10, y + 3, t["text_muted"])
-            self.__CText("Nome Evento", 70, y + 3, t["text_muted"])
-            self.__CText("Tipo", 220, y + 3, t["text_muted"])
+            self.__CText(T("COL_TIME", "Orario"), 10, y + 3, t["text_muted"])
+            self.__CText(T("COL_EVENT_NAME", "Nome Evento"), 70, y + 3, t["text_muted"])
+            self.__CText(T("COL_TYPE", "Tipo"), 220, y + 3, t["text_muted"])
             self.__CText("Rank", 280, y + 3, t["text_muted"])
-            self.__CText("Premio", 330, y + 3, t["text_muted"])
+            self.__CText(T("COL_PRIZE", "Premio"), 330, y + 3, t["text_muted"])
             y += 22
             for ev in allScheduledEvents:
                 # Orario
                 start = "%02d:%02d" % (ev.get("start_hour",0), ev.get("start_minute",0))
                 durata = ev.get("duration_minutes", 0)
                 giorni = ev.get("days_active", "1,2,3,4,5,6,7")
-                giorni_txt = "Tutti" if giorni == "1,2,3,4,5,6,7" else giorni
+                giorni_txt = T("ALL_DAYS", "Tutti") if giorni == "1,2,3,4,5,6,7" else giorni
                 # Colore
                 color_map = {"GOLD":0xFFFFD700, "PURPLE":0xFF9900FF, "RED":0xFFFF0000, "ORANGE":0xFFFF6600}
                 bar_col = color_map.get(ev.get("color_scheme","GOLD"), 0xFFCCCCCC)
@@ -2140,11 +2145,11 @@ class HunterLevelWindow(ui.ScriptWindow):
                 self.__CText(ev.get("event_desc",""), 20, y, t["text_muted"])
                 y += 18
                 # Giorni attivi
-                self.__CText("Giorni: %s | Priorità: %s" % (giorni_txt, str(ev.get("priority",5))), 20, y, t["text_muted"])
+                self.__CText(T("DAYS", "Giorni:") + " %s | " + T("PRIORITY", "Priorità:") + " %s" % (giorni_txt, str(ev.get("priority",5))), 20, y, t["text_muted"])
                 y += 18
                 y += 2
         else:
-            self.__CText("Nessun evento programmato trovato.", 60, y + 5, t["text_muted"])
+            self.__CText(T("NO_SCHEDULED_EVENTS", "Nessun evento programmato trovato."), 60, y + 5, t["text_muted"])
             y += 28
 
         y += 10
@@ -2156,20 +2161,20 @@ class HunterLevelWindow(ui.ScriptWindow):
         # FRATTURE DIMENSIONALI
         # =====================================================
         self.__CBar(5, y, 420, 30, 0x339900FF)
-        self.__CText("FRATTURE DIMENSIONALI", 145, y + 5, 0xFF9900FF)
-        self.__CText("Portali con mob potenti - Alta ricompensa!", 75, y + 20, t["text_muted"])
+        self.__CText(T("FRACTURES_TITLE", "FRATTURE DIMENSIONALI"), 145, y + 5, 0xFF9900FF)
+        self.__CText(T("FRACTURES_SUBTITLE", "Portali con mob potenti - Alta ricompensa!"), 75, y + 20, t["text_muted"])
         y += 38
 
-        self.__CText("COME FUNZIONANO:", 5, y, t["accent"])
+        self.__CText(T("HOW_THEY_WORK", "COME FUNZIONANO:"), 5, y, t["accent"])
         y += 22
 
         fractureSteps = [
-            "1. Dopo ~500 kill normali: 65% chance spawna una Frattura",
-            "2. Clicca sulla Frattura per tentare di aprirla",
-            "3. Se non hai Gloria: usa il POWER RANK del Party!",
-            "4. Difendi la Frattura dalle ondate di mob nemici",
-            "5. Vinci la difesa = sblocchi il portale per 5 minuti",
-            "6. Tocca il portale per evocare Boss/Metin Elite!",
+            T("FRACT_STEP_1", "1. Dopo ~500 kill normali: 65% chance spawna una Frattura"),
+            T("FRACT_STEP_2", "2. Clicca sulla Frattura per tentare di aprirla"),
+            T("FRACT_STEP_3", "3. Se non hai Gloria: usa il POWER RANK del Party!"),
+            T("FRACT_STEP_4", "4. Difendi la Frattura dalle ondate di mob nemici"),
+            T("FRACT_STEP_5", "5. Vinci la difesa = sblocchi il portale per 5 minuti"),
+            T("FRACT_STEP_6", "6. Tocca il portale per evocare Boss/Metin Elite!"),
         ]
 
         for step in fractureSteps:
@@ -2177,11 +2182,11 @@ class HunterLevelWindow(ui.ScriptWindow):
             y += 18
         y += 10
 
-        self.__CText("RANK FRATTURE (da DB):", 5, y, t["accent"])
+        self.__CText(T("FRACTURE_RANKS_TITLE", "RANK FRATTURE (da DB):"), 5, y, t["accent"])
         y += 22
 
         self.__CBar(5, y, 420, 55, t["bg_dark"])
-        self.__CText("Ogni Frattura ha un requisito di Gloria Totale!", 75, y + 5, GOLD_COLOR)
+        self.__CText(T("FRACTURE_REQ_INFO", "Ogni Frattura ha un requisito di Gloria Totale!"), 75, y + 5, GOLD_COLOR)
         self.__CText("E-Rank: 0 | D: 2K | C: 10K | B: 50K | A: 150K | S: 500K | N: 1.5M", 15, y + 22, t["text_value"])
         self.__CText("Spawn chance: E=35% | D=25% | C=15% | B=10% | A=8% | S=5% | N=2%", 15, y + 38, t["text_muted"])
         y += 60
@@ -2189,30 +2194,30 @@ class HunterLevelWindow(ui.ScriptWindow):
         # Power Rank System
         y += 5
         self.__CBar(5, y, 420, 115, 0x33FF6600)
-        self.__CText("FORZARE SENZA GLORIA", 155, y + 5, 0xFFFF6600)
-        self.__CText("Non hai la Gloria richiesta? Puoi forzare!", 65, y + 22, t["text_value"])
+        self.__CText(T("FORCE_WITHOUT_GLORY", "FORZARE SENZA GLORIA"), 155, y + 5, 0xFFFF6600)
+        self.__CText(T("FORCE_INFO", "Non hai la Gloria richiesta? Puoi forzare!"), 65, y + 22, t["text_value"])
         y += 40
-        
-        self.__CText("FRATTURE E / D / C:", 5, y, 0xFF00FF00)
-        self.__CText("Party di 4+ membri vicini", 155, y, t["text_value"])
+
+        self.__CText(T("FRACTURES_EDC", "FRATTURE E / D / C:"), 5, y, 0xFF00FF00)
+        self.__CText(T("FRACTURES_EDC_REQ", "Party di 4+ membri vicini"), 155, y, t["text_value"])
         y += 18
-        
-        self.__CText("FRATTURE B / A / S / N:", 5, y, 0xFFFFAA00)
-        self.__CText("Sistema POWER RANK", 175, y, t["text_value"])
+
+        self.__CText(T("FRACTURES_BASN", "FRATTURE B / A / S / N:"), 5, y, 0xFFFFAA00)
+        self.__CText(T("FRACTURES_BASN_REQ", "Sistema POWER RANK"), 175, y, t["text_value"])
         y += 18
-        
-        self.__CText("Il Power Rank e' la somma della forza di tutti i membri", 40, y, t["text_muted"])
+
+        self.__CText(T("POWER_RANK_SUM", "Il Power Rank e' la somma della forza di tutti i membri"), 40, y, t["text_muted"])
         y += 25
 
         # Power Rank Values
         self.__CBar(5, y, 420, 45, t["bg_dark"])
-        self.__CText("VALORE POWER RANK PER GRADO HUNTER:", 90, y + 5, t["accent"])
-        self.__CText("E=1 | D=5 | C=15 | B=40 | A=80 | S=150 | N=250 punti", 55, y + 25, t["text_value"])
+        self.__CText(T("POWER_RANK_VALUES", "VALORE POWER RANK PER GRADO HUNTER:"), 90, y + 5, t["accent"])
+        self.__CText("E=1 | D=5 | C=15 | B=40 | A=80 | S=150 | N=250 " + T("POINTS", "punti"), 55, y + 25, t["text_value"])
         y += 55
 
         # Power Rank Requirements
         self.__CBar(5, y, 420, 80, t["bg_dark"])
-        self.__CText("REQUISITI POWER RANK FRATTURE:", 110, y + 5, 0xFFFFAA00)
+        self.__CText(T("POWER_RANK_REQ", "REQUISITI POWER RANK FRATTURE:"), 110, y + 5, 0xFFFFAA00)
         self.__CText("B-Rank: 100 PR (es: 3 B = 120, o 1 A + 1 B = 120)", 45, y + 22, t["text_value"])
         self.__CText("A-Rank: 200 PR (es: 2 A + 1 B = 200, o 1 S + 1 B = 190)", 30, y + 38, t["text_value"])
         self.__CText("S-Rank: 350 PR (es: 1 N + 1 S = 400, o 3 S = 450)", 45, y + 52, t["text_value"])
@@ -2220,9 +2225,9 @@ class HunterLevelWindow(ui.ScriptWindow):
         y += 90
 
         self.__CBar(5, y, 420, 45, 0x33FFD700)
-        self.__CText("ATTENZIONE!", 180, y + 5, GOLD_COLOR)
-        self.__CText("Aprire una frattura rivela la tua posizione a TUTTI!", 50, y + 22, 0xFFFF6666)
-        self.__CText("Altri player possono rubarti il Boss! Preparati a difenderlo.", 35, y + 34, t["text_value"])
+        self.__CText(T("WARNING", "ATTENZIONE!"), 180, y + 5, GOLD_COLOR)
+        self.__CText(T("FRACTURE_WARNING1", "Aprire una frattura rivela la tua posizione a TUTTI!"), 50, y + 22, 0xFFFF6666)
+        self.__CText(T("FRACTURE_WARNING2", "Altri player possono rubarti il Boss! Preparati a difenderlo."), 35, y + 34, t["text_value"])
         y += 55
 
         return y
@@ -2230,159 +2235,159 @@ class HunterLevelWindow(ui.ScriptWindow):
     def __LoadGuideShop(self, y):
         """Guida allo shop Hunter"""
         t = self.theme
-        
-        self.__CText("MERCANTE HUNTER", 165, y, 0xFFFFA500)
+
+        self.__CText(T("GUIDE_SHOP_TITLE", "MERCANTE HUNTER"), 165, y, 0xFFFFA500)
         y += 25
-        
+
         # Intro
-        self.__CText("Usa la tua Gloria Spendibile per acquistare oggetti!", 60, y, t["text_muted"])
+        self.__CText(T("SHOP_GUIDE_INTRO", "Usa la tua Gloria Spendibile per acquistare oggetti!"), 60, y, t["text_muted"])
         y += 25
-        
+
         # Come funziona la Gloria Spendibile
         self.__CBar(5, y, 420, 65, t["bg_dark"])
-        self.__CText("GLORIA SPENDIBILE:", 155, y + 5, 0xFFFFA500)
-        self.__CText("Ogni Gloria guadagnata e' anche Gloria Spendibile.", 55, y + 22, t["text_value"])
-        self.__CText("Puoi spenderla nello Shop senza perdere il Rank!", 60, y + 36, t["text_value"])
-        self.__CText("La Gloria Totale determina il Rank, quella Spendibile lo Shop.", 25, y + 50, t["text_muted"])
+        self.__CText(T("SPENDABLE_GLORY_TITLE", "GLORIA SPENDIBILE:"), 155, y + 5, 0xFFFFA500)
+        self.__CText(T("SHOP_INFO1", "Ogni Gloria guadagnata e' anche Gloria Spendibile."), 55, y + 22, t["text_value"])
+        self.__CText(T("SHOP_INFO2", "Puoi spenderla nello Shop senza perdere il Rank!"), 60, y + 36, t["text_value"])
+        self.__CText(T("SHOP_INFO3", "La Gloria Totale determina il Rank, quella Spendibile lo Shop."), 25, y + 50, t["text_muted"])
         y += 75
-        
+
         # Categorie shop
-        self.__CText("CATEGORIE DISPONIBILI:", 5, y, t["accent"])
+        self.__CText(T("SHOP_CATEGORIES_TITLE", "CATEGORIE DISPONIBILI:"), 5, y, t["accent"])
         y += 22
-        
+
         categories = [
-            ("Consumabili", "Pozioni, buff temporanei, boost EXP"),
-            ("Equipaggiamento", "Armi e armature esclusive Hunter"),
-            ("Cosmetici", "Titoli, aure, effetti visivi"),
-            ("Materiali", "Pietre, upgrade, crafting"),
-            ("Speciali", "Item rari a rotazione settimanale"),
+            (T("SHOP_CAT_CONSUMABLES", "Consumabili"), T("SHOP_CAT_CONSUMABLES_DESC", "Pozioni, buff temporanei, boost EXP")),
+            (T("SHOP_CAT_EQUIPMENT", "Equipaggiamento"), T("SHOP_CAT_EQUIPMENT_DESC", "Armi e armature esclusive Hunter")),
+            (T("SHOP_CAT_COSMETICS", "Cosmetici"), T("SHOP_CAT_COSMETICS_DESC", "Titoli, aure, effetti visivi")),
+            (T("SHOP_CAT_MATERIALS", "Materiali"), T("SHOP_CAT_MATERIALS_DESC", "Pietre, upgrade, crafting")),
+            (T("SHOP_CAT_SPECIAL", "Speciali"), T("SHOP_CAT_SPECIAL_DESC", "Item rari a rotazione settimanale")),
         ]
-        
+
         for cat, desc in categories:
             self.__CBar(5, y, 420, 26, t["bg_dark"])
             self.__CText(cat, 15, y + 5, 0xFFFFA500)
             self.__CText(desc, 130, y + 5, t["text_muted"])
             y += 28
-        
+
         y += 15
         self.__CSep(5, y)
         y += 15
-        
+
         # Consigli
-        self.__CText("CONSIGLI ACQUISTI:", 5, y, t["accent"])
+        self.__CText(T("SHOP_TIPS_TITLE", "CONSIGLI ACQUISTI:"), 5, y, t["accent"])
         y += 22
-        
+
         tips = [
-            "- Non sprecare Gloria Spendibile su consumabili comuni",
-            "- Gli item speciali cambiano ogni settimana",
-            "- Risparmia per equipaggiamento di alto rank",
-            "- I cosmetici sono permanenti, buon investimento!",
+            T("SHOP_TIP_1", "- Non sprecare Gloria Spendibile su consumabili comuni"),
+            T("SHOP_TIP_2", "- Gli item speciali cambiano ogni settimana"),
+            T("SHOP_TIP_3", "- Risparmia per equipaggiamento di alto rank"),
+            T("SHOP_TIP_4", "- I cosmetici sono permanenti, buon investimento!"),
         ]
-        
+
         for tip in tips:
             self.__CText(tip, 15, y, t["text_value"])
             y += 18
-        
+
         return y
     
     def __LoadGuideFAQ(self, y):
         """FAQ e domande frequenti"""
         t = self.theme
 
-        self.__CText("DOMANDE FREQUENTI (FAQ)", 130, y, t["accent"])
+        self.__CText(T("FAQ_TITLE", "DOMANDE FREQUENTI (FAQ)"), 130, y, t["accent"])
         y += 25
 
         faqs = [
-            ("Come attivo il sistema Hunter?",
-             "Raggiungi il livello 30 per attivare il sistema automaticamente."),
+            (T("FAQ_Q1", "Come attivo il sistema Hunter?"),
+             T("FAQ_A1", "Raggiungi il livello 30 per attivare il sistema automaticamente.")),
 
-            ("Come vedo le mie missioni?",
-             "Usa /hunter_missions oppure premi N > Tab Eventi > Apri Dettagli."),
+            (T("FAQ_Q2", "Come vedo le mie missioni?"),
+             T("FAQ_A2", "Usa /hunter_missions oppure premi N > Tab Eventi > Apri Dettagli.")),
 
-            ("I mostri normali danno Gloria?",
-             "NO! Solo Fratture, Missioni, Emergency Quest ed Eventi danno Gloria!"),
+            (T("FAQ_Q3", "I mostri normali danno Gloria?"),
+             T("FAQ_A3", "NO! Solo Fratture, Missioni, Emergency Quest ed Eventi danno Gloria!")),
 
-            ("Perche' perdo Gloria?",
-             "Missioni non completate: perdi Gloria TOTALE (non spendibile)."),
+            (T("FAQ_Q4", "Perche' perdo Gloria?"),
+             T("FAQ_A4", "Missioni non completate: perdi Gloria TOTALE (non spendibile).")),
 
-            ("Cos'e' il Bonus x1.5?",
-             "Completi 3 missioni = +50% Gloria missioni + 50% bonus fratture!"),
+            (T("FAQ_Q5", "Cos'e' il Bonus x1.5?"),
+             T("FAQ_A5", "Completi 3 missioni = +50% Gloria missioni + 50% bonus fratture!")),
 
-            ("Come salgo di Rank?",
-             "Accumula Gloria! E->D: 2000, D->C: 10000, C->B: 50000, etc."),
+            (T("FAQ_Q6", "Come salgo di Rank?"),
+             T("FAQ_A6", "Accumula Gloria! E->D: 2000, D->C: 10000, C->B: 50000, etc.")),
 
-            ("Posso perdere il mio Rank?",
-             "No, il Rank e' permanente. La Gloria puo' scendere ma non il Rank."),
+            (T("FAQ_Q7", "Posso perdere il mio Rank?"),
+             T("FAQ_A7", "No, il Rank e' permanente. La Gloria puo' scendere ma non il Rank.")),
 
-            ("Come partecipo agli eventi?",
-             "Usa /hunter_events per vedere gli eventi, poi clicca 'Partecipa'."),
+            (T("FAQ_Q8", "Come partecipo agli eventi?"),
+             T("FAQ_A8", "Usa /hunter_events per vedere gli eventi, poi clicca 'Partecipa'.")),
 
-            ("Cosa sono le Fratture?",
-             "Portali dimensionali con Boss/Metin Elite. Gloria scala col rank!"),
+            (T("FAQ_Q9", "Cosa sono le Fratture?"),
+             T("FAQ_A9", "Portali dimensionali con Boss/Metin Elite. Gloria scala col rank!")),
 
-            ("Quando si resettano le missioni?",
-             "Alle 00:05. Missioni incomplete = penalita' su Gloria TOTALE!"),
+            (T("FAQ_Q10", "Quando si resettano le missioni?"),
+             T("FAQ_A10", "Alle 00:05. Missioni incomplete = penalita' su Gloria TOTALE!")),
 
-            ("Come funziona lo streak bonus?",
-             "Accessi consecutivi: 3 giorni=+5%, 7 giorni=+10%, 30 giorni=+20%!"),
+            (T("FAQ_Q11", "Come funziona lo streak bonus?"),
+             T("FAQ_A11", "Accessi consecutivi: 3 giorni=+5%, 7 giorni=+10%, 30 giorni=+20%!")),
 
-            ("Cos'e' l'Emergency Quest?",
-             "Missioni speciali dopo ~500 kill! 40% chance, tempo limitato."),
+            (T("FAQ_Q12", "Cos'e' l'Emergency Quest?"),
+             T("FAQ_A12", "Missioni speciali dopo ~500 kill! 40% chance, tempo limitato.")),
 
-            ("Come ottengo Speed Kill Bonus?",
-             "Boss: uccidi in 60s. Metin: distruggi in 300s = x2 Gloria!"),
+            (T("FAQ_Q13", "Come ottengo Speed Kill Bonus?"),
+             T("FAQ_A13", "Boss: uccidi in 60s. Metin: distruggi in 300s = x2 Gloria!")),
 
-            ("Perche' il Terminale si apre da solo?",
-             "Quando fai progresso missioni si apre automaticamente per 5 secondi!"),
+            (T("FAQ_Q14", "Perche' il Terminale si apre da solo?"),
+             T("FAQ_A14", "Quando fai progresso missioni si apre automaticamente per 5 secondi!")),
 
-            ("Cosa succede se non completo le missioni?",
-             "Perdi Gloria TOTALE (non spendibile). Missione segnata come 'failed'."),
+            (T("FAQ_Q15", "Cosa succede se non completo le missioni?"),
+             T("FAQ_A15", "Perdi Gloria TOTALE (non spendibile). Missione segnata come 'failed'.")),
 
-            ("Le missioni si perdono se cambio mappa?",
-             "NO! Le missioni persistono anche cambiando mappa o riloggando."),
+            (T("FAQ_Q16", "Le missioni si perdono se cambio mappa?"),
+             T("FAQ_A16", "NO! Le missioni persistono anche cambiando mappa o riloggando.")),
 
-            ("Come funziona il sistema Rival?",
-             "Se qualcuno ti supera in classifica, ricevi una notifica!"),
+            (T("FAQ_Q17", "Come funziona il sistema Rival?"),
+             T("FAQ_A17", "Se qualcuno ti supera in classifica, ricevi una notifica!")),
 
-            ("Cosa sono i Bauli Dimensionali?",
-             "Spawn random nelle fratture. Danno item rari + Gloria bonus!"),
+            (T("FAQ_Q18", "Cosa sono i Bauli Dimensionali?"),
+             T("FAQ_A18", "Spawn random nelle fratture. Danno item rari + Gloria bonus!")),
 
-            ("Posso aprire Fratture da E-Rank?",
-             "SI! Tutti possono aprirle, ma rank A+ hanno fratture esclusive."),
+            (T("FAQ_Q19", "Posso aprire Fratture da E-Rank?"),
+             T("FAQ_A19", "SI! Tutti possono aprirle, ma rank A+ hanno fratture esclusive.")),
 
-            ("Cos'e' la Prova d'Esame?",
-             "Trial per rank-up: -50% Gloria finche' non completi gli obiettivi!"),
+            (T("FAQ_Q20", "Cos'e' la Prova d'Esame?"),
+             T("FAQ_A20", "Trial per rank-up: -50% Gloria finche' non completi gli obiettivi!")),
 
-            ("Perche' guadagno meno Gloria del solito?",
-             "Prova d'Esame attiva? Guarda il syschat dettagliato con tutti i bonus/malus!"),
+            (T("FAQ_Q21", "Perche' guadagno meno Gloria del solito?"),
+             T("FAQ_A21", "Prova d'Esame attiva? Guarda il syschat dettagliato con tutti i bonus/malus!")),
 
-            ("Come funziona la Gloria in party?",
-             "Va a CHI FA L'AZIONE: killer, chi apre bauli, chi conquista fratture!"),
+            (T("FAQ_Q22", "Come funziona la Gloria in party?"),
+             T("FAQ_A22", "Va a CHI FA L'AZIONE: killer, chi apre bauli, chi conquista fratture!")),
 
-            ("Come vedo il calcolo dettagliato Gloria?",
-             "Ogni kill Boss/Metin/Baule mostra syschat con tutti i bonus e malus!"),
+            (T("FAQ_Q23", "Come vedo il calcolo dettagliato Gloria?"),
+             T("FAQ_A23", "Ogni kill Boss/Metin/Baule mostra syschat con tutti i bonus e malus!")),
 
-            ("Cos'e' il Power Rank?",
-             "La somma della forza del party: E=1, D=5, C=15, B=40, A=80, S=150, N=250."),
+            (T("FAQ_Q24", "Cos'e' il Power Rank?"),
+             T("FAQ_A24", "La somma della forza del party: E=1, D=5, C=15, B=40, A=80, S=150, N=250.")),
 
-            ("Come forzo fratture B/A/S/N senza Gloria?",
-             "Servono tot Power Rank: B=100, A=200, S=350, N=500. Fai party con rank alti!"),
+            (T("FAQ_Q25", "Come forzo fratture B/A/S/N senza Gloria?"),
+             T("FAQ_A25", "Servono tot Power Rank: B=100, A=200, S=350, N=500. Fai party con rank alti!")),
 
-            ("Cosa sono i Quick Access nel Trial?",
-             "Pulsanti rapidi per aprire RankUp/Gate e Missioni/Eventi senza uscire!"),
+            (T("FAQ_Q26", "Cosa sono i Quick Access nel Trial?"),
+             T("FAQ_A26", "Pulsanti rapidi per aprire RankUp/Gate e Missioni/Eventi senza uscire!")),
 
-            ("Cos'e' il Fracture Bonus +50%?",
-             "3/3 missioni = +50% Gloria da Boss/Metin delle fratture! Visibile nel dettaglio."),
+            (T("FAQ_Q27", "Cos'e' il Fracture Bonus +50%?"),
+             T("FAQ_A27", "3/3 missioni = +50% Gloria da Boss/Metin delle fratture! Visibile nel dettaglio.")),
         ]
 
         for q, a in faqs:
             # Domanda
             self.__CBar(5, y, 420, 18, t["bg_dark"])
-            self.__CText("D: " + q, 10, y + 2, GOLD_COLOR)
+            self.__CText(T("QUESTION_PREFIX", "D:") + " " + q, 10, y + 2, GOLD_COLOR)
             y += 20
 
             # Risposta
-            self.__CText("R: " + a, 10, y, t["text_value"])
+            self.__CText(T("ANSWER_PREFIX", "R:") + " " + a, 10, y, t["text_value"])
             y += 22
 
         y += 15
@@ -2391,17 +2396,17 @@ class HunterLevelWindow(ui.ScriptWindow):
 
         # Comandi utili
         self.__CBar(5, y, 420, 115, t["bg_dark"])
-        self.__CText("COMANDI E SCORCIATOIE:", 155, y + 5, t["accent"])
+        self.__CText(T("COMMANDS_TITLE", "COMANDI E SCORCIATOIE:"), 155, y + 5, t["accent"])
         y += 22
 
         commands = [
-            ("Tasto N", "Apre/Chiude il Terminale Hunter"),
-            ("/hunter_missions", "Apre pannello missioni giornaliere"),
-            ("/hunter_events", "Mostra eventi programmati di oggi"),
-            ("/hunter_join_event [id]", "Partecipa all'evento con ID specificato"),
-            ("/hunter_buy [id]", "Acquista item dallo shop con Gloria"),
-            ("/hunter_claim [id]", "Riscuoti ricompensa achievement"),
-            ("/hunter_smart_claim", "Riscuoti tutte le ricompense disponibili"),
+            (T("CMD_KEY_N", "Tasto N"), T("CMD_KEY_N_DESC", "Apre/Chiude il Terminale Hunter")),
+            ("/hunter_missions", T("CMD_MISSIONS_DESC", "Apre pannello missioni giornaliere")),
+            ("/hunter_events", T("CMD_EVENTS_DESC", "Mostra eventi programmati di oggi")),
+            ("/hunter_join_event [id]", T("CMD_JOIN_DESC", "Partecipa all'evento con ID specificato")),
+            ("/hunter_buy [id]", T("CMD_BUY_DESC", "Acquista item dallo shop con Gloria")),
+            ("/hunter_claim [id]", T("CMD_CLAIM_DESC", "Riscuoti ricompensa achievement")),
+            ("/hunter_smart_claim", T("CMD_SMART_CLAIM_DESC", "Riscuoti tutte le ricompense disponibili")),
         ]
 
         for cmd, desc in commands:
