@@ -318,23 +318,69 @@ class HunterLevelWindow(ui.ScriptWindow):
         return True
     
     def __ClearAll(self):
-        for e in self.bgElements + self.headerElements + self.contentElements + self.footerElements:
+        """Pulizia rigorosa anti-memory leak - pattern consistente con hunter_effects.py"""
+        # Pulizia bgElements
+        for i in range(len(self.bgElements)):
             try:
-                if hasattr(e, 'SetEvent'):
-                    e.SetEvent(None)
-                e.Hide()
+                if self.bgElements[i]:
+                    if hasattr(self.bgElements[i], 'SetEvent'):
+                        self.bgElements[i].SetEvent(None)
+                    self.bgElements[i].Hide()
+                    self.bgElements[i] = None
             except:
                 pass
+        del self.bgElements[:]
         self.bgElements = []
-        self.headerElements = []
-        self.contentElements = []
-        self.footerElements = []
-        for btn in self.tabButtons:
+
+        # Pulizia headerElements
+        for i in range(len(self.headerElements)):
             try:
-                btn.SetEvent(None)
-                btn.Hide()
+                if self.headerElements[i]:
+                    if hasattr(self.headerElements[i], 'SetEvent'):
+                        self.headerElements[i].SetEvent(None)
+                    self.headerElements[i].Hide()
+                    self.headerElements[i] = None
             except:
                 pass
+        del self.headerElements[:]
+        self.headerElements = []
+
+        # Pulizia contentElements
+        for i in range(len(self.contentElements)):
+            try:
+                if self.contentElements[i]:
+                    if hasattr(self.contentElements[i], 'SetEvent'):
+                        self.contentElements[i].SetEvent(None)
+                    self.contentElements[i].Hide()
+                    self.contentElements[i] = None
+            except:
+                pass
+        del self.contentElements[:]
+        self.contentElements = []
+
+        # Pulizia footerElements
+        for i in range(len(self.footerElements)):
+            try:
+                if self.footerElements[i]:
+                    if hasattr(self.footerElements[i], 'SetEvent'):
+                        self.footerElements[i].SetEvent(None)
+                    self.footerElements[i].Hide()
+                    self.footerElements[i] = None
+            except:
+                pass
+        del self.footerElements[:]
+        self.footerElements = []
+
+        # Pulizia tabButtons
+        for i in range(len(self.tabButtons)):
+            try:
+                if self.tabButtons[i]:
+                    self.tabButtons[i].SetEvent(None)
+                    self.tabButtons[i].Hide()
+                    self.tabButtons[i] = None
+            except:
+                pass
+        del self.tabButtons[:]
         self.tabButtons = []
     
     def __UpdateTheme(self):
