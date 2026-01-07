@@ -351,141 +351,249 @@ class DraggableMixin:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#  RANK THEMES - Schema colori completo per rank (usato dal Terminale)
+#  RANK THEMES - Schema colori SOLO LEVELING STYLE
+#  Design ispirato al manhwa: toni scuri con accenti neon brillanti
+#  Ogni rank ha una palette unica che riflette il suo potere
 # ═══════════════════════════════════════════════════════════════════════════════
 RANK_THEMES = {
+    # ─────────────────────────────────────────────────────────────────────────────
+    # E-RANK: "Il Risvegliato" - Colori grigi, aspetto umile
+    # Rappresenta l'inizio del viaggio, quando Sung Jin-Woo era il piu' debole
+    # ─────────────────────────────────────────────────────────────────────────────
     "E": {
         "name": "E-Rank",
         "title": "Risvegliato",
+        "subtitle": "Il Piu' Debole",
         "min": 0,
         "max": 2000,
-        "bg_dark": 0xEE0D0D0D,
-        "bg_medium": 0xEE1A1A1A,
-        "bg_light": 0xEE2A2A2A,
-        "border": 0xFF555555,
-        "accent": 0xFF808080,
-        "text_title": 0xFF999999,
-        "text_value": 0xFFCCCCCC,
-        "text_muted": 0xFF666666,
-        "bar_fill": 0xFF808080,
-        "glow": 0x33808080,
-        "btn_normal": 0xFF333333,
-        "btn_hover": 0xFF444444,
-        "btn_down": 0xFF555555,
+        # Sfondi molto scuri - quasi neri
+        "bg_dark": 0xF5050505,
+        "bg_medium": 0xF5101010,
+        "bg_light": 0xF5181818,
+        # Bordi e accenti grigi
+        "border": 0xFF4A4A4A,
+        "accent": 0xFF707070,
+        "accent_bright": 0xFF909090,
+        # Testi
+        "text_title": 0xFF858585,
+        "text_value": 0xFFB0B0B0,
+        "text_muted": 0xFF505050,
+        # Barre e effetti
+        "bar_fill": 0xFF606060,
+        "bar_bg": 0xFF1A1A1A,
+        "glow": 0x35707070,
+        "glow_strong": 0x55707070,
+        "pulse_color": 0xFF606060,
+        # Bottoni
+        "btn_normal": 0xFF1E1E1E,
+        "btn_hover": 0xFF2A2A2A,
+        "btn_down": 0xFF383838,
+        "btn_border": 0xFF4A4A4A,
     },
+    # ─────────────────────────────────────────────────────────────────────────────
+    # D-RANK: "L'Apprendista" - Verde neon, speranza
+    # Il primo passo verso la crescita
+    # ─────────────────────────────────────────────────────────────────────────────
     "D": {
         "name": "D-Rank",
         "title": "Apprendista",
+        "subtitle": "Il Sopravvissuto",
         "min": 2000,
         "max": 10000,
-        "bg_dark": 0xEE0A1A0A,
-        "bg_medium": 0xEE0F2A0F,
-        "bg_light": 0xEE153A15,
+        # Sfondi scuri con sfumatura verde
+        "bg_dark": 0xF5030803,
+        "bg_medium": 0xF5081208,
+        "bg_light": 0xF50D1B0D,
+        # Bordi e accenti verde neon
         "border": 0xFF00AA00,
         "accent": 0xFF00FF00,
-        "text_title": 0xFF44FF44,
-        "text_value": 0xFFAAFFAA,
-        "text_muted": 0xFF337733,
+        "accent_bright": 0xFF44FF44,
+        # Testi
+        "text_title": 0xFF33FF33,
+        "text_value": 0xFF99FF99,
+        "text_muted": 0xFF226622,
+        # Barre e effetti
         "bar_fill": 0xFF00DD00,
-        "glow": 0x3300FF00,
-        "btn_normal": 0xFF0A2A0A,
-        "btn_hover": 0xFF0F3F0F,
-        "btn_down": 0xFF155515,
+        "bar_bg": 0xFF0A200A,
+        "glow": 0x3500FF00,
+        "glow_strong": 0x6000FF00,
+        "pulse_color": 0xFF00FF00,
+        # Bottoni
+        "btn_normal": 0xFF081808,
+        "btn_hover": 0xFF0C280C,
+        "btn_down": 0xFF103810,
+        "btn_border": 0xFF00AA00,
     },
+    # ─────────────────────────────────────────────────────────────────────────────
+    # C-RANK: "Il Cacciatore" - Ciano brillante, competenza
+    # Un vero cacciatore che ha dimostrato il suo valore
+    # ─────────────────────────────────────────────────────────────────────────────
     "C": {
         "name": "C-Rank",
         "title": "Cacciatore",
+        "subtitle": "Il Riconosciuto",
         "min": 10000,
         "max": 50000,
-        "bg_dark": 0xEE0A1A2A,
-        "bg_medium": 0xEE0F2A3A,
-        "bg_light": 0xEE153A4A,
+        # Sfondi scuri con sfumatura ciano
+        "bg_dark": 0xF5030A10,
+        "bg_medium": 0xF5081520,
+        "bg_light": 0xF50D2030,
+        # Bordi e accenti ciano neon
         "border": 0xFF00CCFF,
         "accent": 0xFF00FFFF,
-        "text_title": 0xFF44DDFF,
-        "text_value": 0xFFAAEEFF,
-        "text_muted": 0xFF337799,
-        "bar_fill": 0xFF00CCFF,
-        "glow": 0x3300FFFF,
-        "btn_normal": 0xFF0A2A3A,
-        "btn_hover": 0xFF0F3A4A,
-        "btn_down": 0xFF154A5A,
+        "accent_bright": 0xFF66FFFF,
+        # Testi
+        "text_title": 0xFF44FFFF,
+        "text_value": 0xFFAAFFFF,
+        "text_muted": 0xFF226688,
+        # Barre e effetti
+        "bar_fill": 0xFF00DDFF,
+        "bar_bg": 0xFF0A2030,
+        "glow": 0x3800FFFF,
+        "glow_strong": 0x6500FFFF,
+        "pulse_color": 0xFF00FFFF,
+        # Bottoni
+        "btn_normal": 0xFF081828,
+        "btn_hover": 0xFF0C2838,
+        "btn_down": 0xFF103848,
+        "btn_border": 0xFF00CCFF,
     },
+    # ─────────────────────────────────────────────────────────────────────────────
+    # B-RANK: "Il Veterano" - Blu intenso, autorità
+    # Un cacciatore esperto rispettato
+    # ─────────────────────────────────────────────────────────────────────────────
     "B": {
         "name": "B-Rank",
         "title": "Veterano",
+        "subtitle": "L'Esperto",
         "min": 50000,
         "max": 150000,
-        "bg_dark": 0xEE0A0A2A,
-        "bg_medium": 0xEE0F0F3A,
-        "bg_light": 0xEE15154A,
+        # Sfondi scuri con sfumatura blu
+        "bg_dark": 0xF5030310,
+        "bg_medium": 0xF5080820,
+        "bg_light": 0xF50D0D30,
+        # Bordi e accenti blu elettrico
         "border": 0xFF0066FF,
-        "accent": 0xFF4488FF,
-        "text_title": 0xFF6699FF,
-        "text_value": 0xFFAABBFF,
-        "text_muted": 0xFF334477,
-        "bar_fill": 0xFF0066FF,
-        "glow": 0x330066FF,
-        "btn_normal": 0xFF0A0A3A,
-        "btn_hover": 0xFF0F0F4A,
-        "btn_down": 0xFF15155A,
+        "accent": 0xFF4499FF,
+        "accent_bright": 0xFF77BBFF,
+        # Testi
+        "text_title": 0xFF66AAFF,
+        "text_value": 0xFFAADDFF,
+        "text_muted": 0xFF334488,
+        # Barre e effetti
+        "bar_fill": 0xFF0077FF,
+        "bar_bg": 0xFF0A1030,
+        "glow": 0x400066FF,
+        "glow_strong": 0x700066FF,
+        "pulse_color": 0xFF4499FF,
+        # Bottoni
+        "btn_normal": 0xFF080838,
+        "btn_hover": 0xFF0C0C48,
+        "btn_down": 0xFF101058,
+        "btn_border": 0xFF0066FF,
     },
+    # ─────────────────────────────────────────────────────────────────────────────
+    # A-RANK: "Il Maestro" - Viola mistico, potere elite
+    # Tra i migliori cacciatori esistenti
+    # ─────────────────────────────────────────────────────────────────────────────
     "A": {
         "name": "A-Rank",
         "title": "Maestro",
+        "subtitle": "L'Elite",
         "min": 150000,
         "max": 500000,
-        "bg_dark": 0xEE1A0A2A,
-        "bg_medium": 0xEE2A0F3A,
-        "bg_light": 0xEE3A154A,
+        # Sfondi scuri con sfumatura viola
+        "bg_dark": 0xF5080310,
+        "bg_medium": 0xF5100820,
+        "bg_light": 0xF5180D30,
+        # Bordi e accenti viola brillante
         "border": 0xFFAA00FF,
-        "accent": 0xFFCC66FF,
-        "text_title": 0xFFDD88FF,
+        "accent": 0xFFCC44FF,
+        "accent_bright": 0xFFDD88FF,
+        # Testi
+        "text_title": 0xFFDD77FF,
         "text_value": 0xFFEEBBFF,
-        "text_muted": 0xFF773399,
-        "bar_fill": 0xFFAA00FF,
-        "glow": 0x33AA00FF,
-        "btn_normal": 0xFF2A0A3A,
-        "btn_hover": 0xFF3A0F4A,
-        "btn_down": 0xFF4A155A,
+        "text_muted": 0xFF663399,
+        # Barre e effetti
+        "bar_fill": 0xFFBB22FF,
+        "bar_bg": 0xFF150830,
+        "glow": 0x45AA00FF,
+        "glow_strong": 0x75AA00FF,
+        "pulse_color": 0xFFCC44FF,
+        # Bottoni
+        "btn_normal": 0xFF180838,
+        "btn_hover": 0xFF200C48,
+        "btn_down": 0xFF281058,
+        "btn_border": 0xFFAA00FF,
     },
+    # ─────────────────────────────────────────────────────────────────────────────
+    # S-RANK: "La Leggenda" - Arancione/Oro infuocato, gloria suprema
+    # Uno dei cacciatori piu' forti del mondo
+    # ─────────────────────────────────────────────────────────────────────────────
     "S": {
         "name": "S-Rank",
         "title": "Leggenda",
+        "subtitle": "Il Prescelto",
         "min": 500000,
         "max": 1500000,
-        "bg_dark": 0xEE2A1A0A,
-        "bg_medium": 0xEE3A2A0F,
-        "bg_light": 0xEE4A3A15,
+        # Sfondi scuri con sfumatura arancione/oro
+        "bg_dark": 0xF5100803,
+        "bg_medium": 0xF5201008,
+        "bg_light": 0xF530180D,
+        # Bordi e accenti arancione infuocato
         "border": 0xFFFF6600,
         "accent": 0xFFFFAA00,
-        "text_title": 0xFFFFBB44,
+        "accent_bright": 0xFFFFCC44,
+        # Testi
+        "text_title": 0xFFFFBB55,
         "text_value": 0xFFFFDDAA,
-        "text_muted": 0xFF996633,
-        "bar_fill": 0xFFFF6600,
-        "glow": 0x33FF6600,
-        "btn_normal": 0xFF3A2A0A,
-        "btn_hover": 0xFF4A3A0F,
-        "btn_down": 0xFF5A4A15,
+        "text_muted": 0xFF885522,
+        # Barre e effetti
+        "bar_fill": 0xFFFF7700,
+        "bar_bg": 0xFF301808,
+        "glow": 0x55FF6600,
+        "glow_strong": 0x88FF6600,
+        "pulse_color": 0xFFFFAA00,
+        # Bottoni
+        "btn_normal": 0xFF281808,
+        "btn_hover": 0xFF382810,
+        "btn_down": 0xFF483818,
+        "btn_border": 0xFFFF6600,
     },
+    # ─────────────────────────────────────────────────────────────────────────────
+    # N-RANK: "Il Monarca" - Rosso sangue/Nero, potere supremo
+    # Ispirato al Re delle Ombre - Sung Jin-Woo nella sua forma finale
+    # Il colore piu' intenso, il potere assoluto
+    # ─────────────────────────────────────────────────────────────────────────────
     "N": {
-        "name": "NATIONAL",
+        "name": "MONARCA",
         "title": "Monarca Nazionale",
+        "subtitle": "Re delle Ombre",
         "min": 1500000,
-        "max": 5000000,
-        "bg_dark": 0xEE2A0A0A,
-        "bg_medium": 0xEE3A0F0F,
-        "bg_light": 0xEE4A1515,
-        "border": 0xFFFF0000,
-        "accent": 0xFFFF4444,
-        "text_title": 0xFFFF6666,
+        "max": 9999999,
+        # Sfondi quasi neri con sfumatura rosso sangue
+        "bg_dark": 0xF8080202,
+        "bg_medium": 0xF8100505,
+        "bg_light": 0xF8180808,
+        # Bordi e accenti rosso sangue intenso
+        "border": 0xFFDD0000,
+        "accent": 0xFFFF2222,
+        "accent_bright": 0xFFFF5555,
+        # Testi - rosso brillante su nero
+        "text_title": 0xFFFF4444,
         "text_value": 0xFFFFAAAA,
-        "text_muted": 0xFF993333,
-        "bar_fill": 0xFFFF0000,
-        "glow": 0x33FF0000,
-        "btn_normal": 0xFF3A0A0A,
-        "btn_hover": 0xFF4A0F0F,
-        "btn_down": 0xFF5A1515,
+        "text_muted": 0xFF772222,
+        # Barre e effetti - MASSIMA INTENSITA' PER IL MONARCA
+        "bar_fill": 0xFFEE1111,
+        "bar_bg": 0xFF200808,
+        "glow": 0x65FF0000,
+        "glow_strong": 0x99FF0000,
+        "pulse_color": 0xFFFF2222,
+        # Bottoni
+        "btn_normal": 0xFF200808,
+        "btn_hover": 0xFF301010,
+        "btn_down": 0xFF401818,
+        "btn_border": 0xFFDD0000,
     },
 }
 

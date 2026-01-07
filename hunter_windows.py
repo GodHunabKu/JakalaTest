@@ -216,10 +216,16 @@ class SystemMessageWindow(ui.Window):
 
         finalColor = self.currentColor
         if color:
-            if isinstance(color, (int, long)):
+            # FIX: Compatibilita' Python 2/3 - usa type() invece di isinstance con long
+            if type(color) in (int,) or (hasattr(__builtins__, 'long') and type(color) == long):
                 finalColor = color
-            else:
+            elif isinstance(color, str):
                 finalColor = GetColorFromKey(color)
+            else:
+                try:
+                    finalColor = int(color)
+                except:
+                    finalColor = GetColorFromKey(str(color))
 
         self.messageQueue.append((msg.replace("+", " "), finalColor))
 

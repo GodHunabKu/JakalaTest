@@ -619,26 +619,68 @@ class AwakeningEffect(ui.Window):
 
     def Destroy(self):
         """Pulizia memoria - Distrugge tutti gli oggetti UI figli"""
-        self.bg = None
-        self.flash = None
-        for line in self.scanLines:
-            line = None
+        # FIX MEMORY LEAK: Prima nascondi e pulisci ogni elemento della lista
+        if self.scanLines:
+            for i in range(len(self.scanLines)):
+                if self.scanLines[i]:
+                    self.scanLines[i].Hide()
+                    self.scanLines[i] = None
+            del self.scanLines[:]
         self.scanLines = []
-        for ring in self.rings:
-            ring = None
+
+        if self.rings:
+            for i in range(len(self.rings)):
+                if self.rings[i]:
+                    self.rings[i].Hide()
+                    self.rings[i] = None
+            del self.rings[:]
         self.rings = []
+
+        # Pulizia altri elementi
+        if self.bg:
+            self.bg.Hide()
+        self.bg = None
+        if self.flash:
+            self.flash.Hide()
+        self.flash = None
+        if self.leftBar:
+            self.leftBar.Hide()
         self.leftBar = None
+        if self.rightBar:
+            self.rightBar.Hide()
         self.rightBar = None
+        if self.topBar:
+            self.topBar.Hide()
         self.topBar = None
+        if self.bottomBar:
+            self.bottomBar.Hide()
         self.bottomBar = None
+        if self.levelText:
+            self.levelText.Hide()
         self.levelText = None
+        if self.nameText:
+            self.nameText.Hide()
         self.nameText = None
+        if self.subtitleText:
+            self.subtitleText.Hide()
         self.subtitleText = None
+        if self.quoteText:
+            self.quoteText.Hide()
         self.quoteText = None
+        if self.tipText:
+            self.tipText.Hide()
         self.tipText = None
+        if self.cornerTL:
+            self.cornerTL.Hide()
         self.cornerTL = None
+        if self.cornerTR:
+            self.cornerTR.Hide()
         self.cornerTR = None
+        if self.cornerBL:
+            self.cornerBL.Hide()
         self.cornerBL = None
+        if self.cornerBR:
+            self.cornerBR.Hide()
         self.cornerBR = None
         self.config = None
         self.ClearDictionary()
@@ -942,20 +984,51 @@ class RankUpEffect(ui.Window):
 
     def Destroy(self):
         """Pulizia memoria - Distrugge tutti gli oggetti UI figli"""
-        self.bg = None
-        self.flash = None
-        self.lineTop = None
-        self.lineBottom = None
-        for ring in self.rings:
-            ring = None
+        # FIX MEMORY LEAK: Prima nascondi e pulisci ogni elemento della lista
+        if self.rings:
+            for i in range(len(self.rings)):
+                if self.rings[i]:
+                    self.rings[i].Hide()
+                    self.rings[i] = None
+            del self.rings[:]
         self.rings = []
+
+        # Pulizia altri elementi
+        if self.bg:
+            self.bg.Hide()
+        self.bg = None
+        if self.flash:
+            self.flash.Hide()
+        self.flash = None
+        if self.lineTop:
+            self.lineTop.Hide()
+        self.lineTop = None
+        if self.lineBottom:
+            self.lineBottom.Hide()
+        self.lineBottom = None
+        if self.systemText:
+            self.systemText.Hide()
         self.systemText = None
+        if self.titleText:
+            self.titleText.Hide()
         self.titleText = None
+        if self.oldRankText:
+            self.oldRankText.Hide()
         self.oldRankText = None
+        if self.arrowText:
+            self.arrowText.Hide()
         self.arrowText = None
+        if self.newRankText:
+            self.newRankText.Hide()
         self.newRankText = None
+        if self.rankNameText:
+            self.rankNameText.Hide()
         self.rankNameText = None
+        if self.titleEarnedText:
+            self.titleEarnedText.Hide()
         self.titleEarnedText = None
+        if self.quoteText:
+            self.quoteText.Hide()
         self.quoteText = None
         self.ClearDictionary()
     
