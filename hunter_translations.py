@@ -5,7 +5,8 @@
 #  Riceve traduzioni dal server e le gestisce con cache lato client
 # ============================================================================
 
-import net
+# NOTA: net viene importato lazy nelle funzioni che lo usano
+# per evitare crash se il modulo viene caricato troppo presto
 
 # ============================================================================
 #  TRANSLATION CACHE
@@ -96,14 +97,22 @@ def RequestTranslations():
     """
     global _is_loading
     _is_loading = True
-    net.SendChatPacket("/hunter_request_translations", 1)
+    try:
+        import net
+        net.SendChatPacket("/hunter_request_translations", 1)
+    except:
+        pass
 
 
 def RequestLanguages():
     """
     Richiede al server la lista delle lingue disponibili.
     """
-    net.SendChatPacket("/hunter_request_languages", 1)
+    try:
+        import net
+        net.SendChatPacket("/hunter_request_languages", 1)
+    except:
+        pass
 
 
 def ChangeLanguage(lang_code):
@@ -114,7 +123,11 @@ def ChangeLanguage(lang_code):
     global _is_loading, _is_ready
     _is_loading = True
     _is_ready = False
-    net.SendChatPacket("/hunter_change_language " + str(lang_code), 1)
+    try:
+        import net
+        net.SendChatPacket("/hunter_change_language " + str(lang_code), 1)
+    except:
+        pass
 
 
 # ============================================================================
