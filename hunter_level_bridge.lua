@@ -1314,5 +1314,27 @@ when chat."/hunter_request_trial_data" begin
             hg_lib.smart_claim_all()
         end
 
+        -- ============================================================
+        -- MULTI-LANGUAGE SYSTEM
+        -- ============================================================
+
+        -- Richiesta traduzioni dal client
+        when chat."/hunter_request_translations" begin
+            hg_lib.send_translations_to_client()
+        end
+
+        -- Richiesta lista lingue disponibili
+        when chat."/hunter_request_languages" begin
+            hg_lib.send_available_languages()
+        end
+
+        -- Cambio lingua dal client
+        when chat."/hunter_change_language" begin
+            local lang = string.gsub(input, "/hunter_change_language ", "")
+            if lang and lang ~= "" then
+                hg_lib.handle_language_change(lang)
+            end
+        end
+
     end
 end

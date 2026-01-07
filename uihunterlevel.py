@@ -238,7 +238,13 @@ class HunterLevelWindow(ui.ScriptWindow):
         # Fracture Bonus System
         self.fractureBonusActive = False
         self.bonusIndicatorText = ""
-        
+
+        # Multi-Language System
+        self.langButton = None
+        self.langDropdown = None
+        self.langDropdownVisible = False
+        self.availableLanguages = []
+
         # Windows dal modulo hunter_windows
         self.systemMsgWnd = hunter_windows.GetSystemMessageWindow()
         self.emergencyWnd = hunter_windows.GetEmergencyQuestWindow()
@@ -382,7 +388,24 @@ class HunterLevelWindow(ui.ScriptWindow):
                 pass
         del self.tabButtons[:]
         self.tabButtons = []
-    
+
+        # Pulizia language selector
+        if self.langDropdown:
+            try:
+                self.langDropdown.Hide()
+                self.langDropdown = None
+            except:
+                pass
+        self.langDropdownVisible = False
+
+        if self.langButton:
+            try:
+                self.langButton.SetEvent(None)
+                self.langButton.Hide()
+                self.langButton = None
+            except:
+                pass
+
     def __UpdateTheme(self):
         newKey = GetRankKey(self.playerData["total_points"])
         if newKey != self.currentRankKey:
@@ -925,7 +948,7 @@ class HunterLevelWindow(ui.ScriptWindow):
     def __CreateFooter(self):
         t = self.theme
         footerY = WINDOW_HEIGHT - FOOTER_HEIGHT - 10
-        
+
         footerBg = ui.Bar()
         footerBg.SetParent(self.baseWindow)
         footerBg.SetPosition(10, footerY)
@@ -934,12 +957,15 @@ class HunterLevelWindow(ui.ScriptWindow):
         footerBg.Show()
         self._DisableMousePick(footerBg)
         self.footerElements.append(footerBg)
-        
+
         self.__FText("Reset Daily:", 20, footerY + 10, t["text_muted"])
         self.dailyTimerLabel = self.__FText("--:--:--", 100, footerY + 10, t["text_value"])
-        
-        self.__FText("Reset Weekly:", 260, footerY + 10, t["text_muted"])
-        self.weeklyTimerLabel = self.__FText("--", 350, footerY + 10, t["text_value"])
+
+        self.__FText("Reset Weekly:", 200, footerY + 10, t["text_muted"])
+        self.weeklyTimerLabel = self.__FText("--", 290, footerY + 10, t["text_value"])
+
+        # Language Selector Button
+        self.__CreateLanguageSelector(footerY)
     
     def __FText(self, text, x, y, color):
         t = ui.TextLine()
@@ -951,7 +977,138 @@ class HunterLevelWindow(ui.ScriptWindow):
         self._DisableMousePick(t)
         self.footerElements.append(t)
         return t
-    
+
+    # ========================================================================
+    #  LANGUAGE SELECTOR
+    # ========================================================================
+    def __CreateLanguageSelector(self, footerY):
+        """Crea il selettore lingua nel footer"""
+        t = self.theme
+
+        # Ottieni lingua corrente
+        import hunter_translations
+        currentLang = hunter_translations.GetCurrentLanguage()
+        langNames = {"it": "IT", "en": "EN", "de": "DE", "es": "ES", "fr": "FR", "pt": "PT", "ru": "RU", "pl": "PL"}
+        displayLang = langNames.get(currentLang, "IT")
+
+        # Bottone lingua
+        self.langButton = SoloLevelingButton()
+        self.langButton.Create(self.baseWindow, WINDOW_WIDTH - 80, footerY + 5, 60, 26, displayLang, t)
+        self.langButton.SetEvent(ui.__mem_func__(self.__OnClickLangButton))
+        self.footerElements.append(self.langButton)
+
+        # Richiedi lista lingue dal server
+        hunter_translations.RequestLanguages()
+
+    def __OnClickLangButton(self):
+        """Toggle dropdown lingua"""
+        if self.langDropdownVisible:
+            self.__HideLangDropdown()
+        else:
+            self.__ShowLangDropdown()
+
+    def __ShowLangDropdown(self):
+        """Mostra dropdown lingue"""
+        if self.langDropdown:
+            self.__HideLangDropdown()
+
+        import hunter_translations
+        langs = hunter_translations.GetAvailableLanguages()
+        if not langs:
+            # Fallback se non abbiamo ancora ricevuto la lista
+            langs = [
+                {"code": "it", "name": "Italiano", "name_en": "Italian"},
+                {"code": "en", "name": "English", "name_en": "English"},
+            ]
+
+        self.availableLanguages = langs
+        t = self.theme
+        itemH = 26
+        dropH = len(langs) * itemH + 10
+        dropW = 120
+        footerY = WINDOW_HEIGHT - FOOTER_HEIGHT - 10
+        dropX = WINDOW_WIDTH - 80
+        dropY = footerY - dropH - 5
+
+        # Background dropdown
+        self.langDropdown = ui.Window()
+        self.langDropdown.SetParent(self.baseWindow)
+        self.langDropdown.SetPosition(dropX, dropY)
+        self.langDropdown.SetSize(dropW, dropH)
+        self.langDropdown.Show()
+
+        bg = ui.Bar()
+        bg.SetParent(self.langDropdown)
+        bg.SetPosition(0, 0)
+        bg.SetSize(dropW, dropH)
+        bg.SetColor(t["bg_dark"])
+        bg.Show()
+
+        border = ui.Bar()
+        border.SetParent(self.langDropdown)
+        border.SetPosition(0, 0)
+        border.SetSize(dropW, 2)
+        border.SetColor(t["accent"])
+        border.Show()
+
+        # Lingua corrente
+        currentLang = hunter_translations.GetCurrentLanguage()
+
+        # Items lingua
+        for i, lang in enumerate(langs):
+            yPos = 5 + i * itemH
+            langCode = lang["code"]
+            langName = lang["name"]
+
+            # Highlight lingua corrente
+            if langCode == currentLang:
+                hl = ui.Bar()
+                hl.SetParent(self.langDropdown)
+                hl.SetPosition(2, yPos)
+                hl.SetSize(dropW - 4, itemH - 2)
+                hl.SetColor(t["glow"])
+                hl.Show()
+
+            btn = SoloLevelingButton()
+            btn.Create(self.langDropdown, 5, yPos, dropW - 10, itemH - 4, langName, t)
+            btn.SetEvent(ui.__mem_func__(self.__OnSelectLanguage), langCode)
+
+        self.langDropdownVisible = True
+
+    def __HideLangDropdown(self):
+        """Nasconde dropdown lingue"""
+        if self.langDropdown:
+            self.langDropdown.Hide()
+            self.langDropdown = None
+        self.langDropdownVisible = False
+
+    def __OnSelectLanguage(self, langCode):
+        """Cambia lingua"""
+        import hunter_translations
+        hunter_translations.ChangeLanguage(langCode)
+        self.__HideLangDropdown()
+
+        # Aggiorna testo bottone
+        langNames = {"it": "IT", "en": "EN", "de": "DE", "es": "ES", "fr": "FR", "pt": "PT", "ru": "RU", "pl": "PL"}
+        if self.langButton:
+            self.langButton.SetText(langNames.get(langCode, langCode.upper()))
+
+    def OnTranslationsReady(self):
+        """Callback quando le traduzioni sono pronte"""
+        # Ricarica la tab corrente per aggiornare i testi
+        self.__LoadTabContent(self.currentTab)
+
+    def OnLanguagesReceived(self):
+        """Callback quando riceviamo lista lingue"""
+        import hunter_translations
+        self.availableLanguages = hunter_translations.GetAvailableLanguages()
+
+        # Aggiorna testo bottone con lingua corrente
+        currentLang = hunter_translations.GetCurrentLanguage()
+        langNames = {"it": "IT", "en": "EN", "de": "DE", "es": "ES", "fr": "FR", "pt": "PT", "ru": "RU", "pl": "PL"}
+        if self.langButton:
+            self.langButton.SetText(langNames.get(currentLang, currentLang.upper()))
+
     # ========================================================================
     #  CONTENT HELPERS
     # ========================================================================
