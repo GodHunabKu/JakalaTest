@@ -5145,3 +5145,197 @@ function hg_lib.smart_claim_all()
         syschat("|cffFFD700[SMART CLAIM]|r Nessun traguardo da riscuotere.")
     end
 end
+
+-- ============================================================
+-- MULTI-LANGUAGE TRANSLATION SYSTEM
+-- ============================================================
+
+-- Cache globale traduzioni (per evitare query continue)
+if not _G.hunter_translations_cache then
+    _G.hunter_translations_cache = {}
+    _G.hunter_translations_loaded = {}
+end
+
+-- Ottiene la lingua preferita del giocatore
+function hg_lib.get_player_language(pid)
+    if not pid then pid = pc.get_player_id() end
+
+    local c, d = mysql_direct_query("SELECT setting_value FROM srv1_hunabku.hunter_player_settings WHERE player_id=" .. pid .. " AND setting_key='language'")
+
+    if c > 0 and d[1] and d[1].setting_value then
+        return d[1].setting_value
+    end
+
+    return "it"  -- Default: italiano
+end
+
+-- Imposta la lingua preferita del giocatore
+function hg_lib.set_player_language(pid, lang_code)
+    if not pid then pid = pc.get_player_id() end
+    if not lang_code then lang_code = "it" end
+
+    -- Valida lingua
+    local valid_langs = {it=true, en=true, de=true, es=true, fr=true, pt=true, ru=true, pl=true}
+    if not valid_langs[lang_code] then
+        lang_code = "it"
+    end
+
+    -- Upsert setting
+    mysql_direct_query("INSERT INTO srv1_hunabku.hunter_player_settings (player_id, setting_key, setting_value) VALUES ("
+        .. pid .. ", 'language', '" .. lang_code .. "') ON DUPLICATE KEY UPDATE setting_value='" .. lang_code .. "'")
+
+    -- Forza ricaricamento traduzioni al prossimo accesso
+    if _G.hunter_translations_loaded then
+        _G.hunter_translations_loaded[pid] = nil
+    end
+
+    return true
+end
+
+-- Carica traduzioni per una lingua nella cache globale
+function hg_lib.load_translations_for_lang(lang_code)
+    if not lang_code then lang_code = "it" end
+
+    -- Se gia' caricate, non ricaricare
+    if _G.hunter_translations_cache[lang_code] then
+        return _G.hunter_translations_cache[lang_code]
+    end
+
+    local c, d = mysql_direct_query("SELECT text_key, text_value FROM srv1_hunabku.hunter_translations WHERE lang_code='" .. lang_code .. "'")
+
+    if c > 0 then
+        _G.hunter_translations_cache[lang_code] = {}
+        for i = 1, c do
+            _G.hunter_translations_cache[lang_code][d[i].text_key] = d[i].text_value
+        end
+    else
+        _G.hunter_translations_cache[lang_code] = {}
+    end
+
+    return _G.hunter_translations_cache[lang_code]
+end
+
+-- Ottiene una traduzione specifica
+function hg_lib.get_translation(text_key, lang_code)
+    if not lang_code then
+        lang_code = hg_lib.get_player_language(pc.get_player_id())
+    end
+
+    -- Carica cache se necessario
+    if not _G.hunter_translations_cache[lang_code] then
+        hg_lib.load_translations_for_lang(lang_code)
+    end
+
+    local trans = _G.hunter_translations_cache[lang_code]
+    if trans and trans[text_key] then
+        return trans[text_key]
+    end
+
+    -- Fallback a italiano
+    if lang_code ~= "it" then
+        if not _G.hunter_translations_cache["it"] then
+            hg_lib.load_translations_for_lang("it")
+        end
+        if _G.hunter_translations_cache["it"] and _G.hunter_translations_cache["it"][text_key] then
+            return _G.hunter_translations_cache["it"][text_key]
+        end
+    end
+
+    -- Fallback: ritorna la chiave stessa
+    return text_key
+end
+
+-- Invia tutte le traduzioni al client (per caching lato client)
+function hg_lib.send_translations_to_client(lang_code)
+    local pid = pc.get_player_id()
+
+    if not lang_code then
+        lang_code = hg_lib.get_player_language(pid)
+    end
+
+    -- Se gia' inviate in questa sessione, non reinviare
+    if _G.hunter_translations_loaded[pid] == lang_code then
+        cmdchat("HunterTranslationsReady " .. lang_code)
+        return
+    end
+
+    -- Carica traduzioni
+    local trans = hg_lib.load_translations_for_lang(lang_code)
+
+    -- Costruisci stringa di traduzioni (formato: key1=value1|key2=value2|...)
+    -- Per evitare messaggi troppo lunghi, inviamo a blocchi per categoria
+    local categories = {"ui", "rank", "mission", "achievement", "event", "shop", "system", "stat"}
+
+    for _, cat in ipairs(categories) do
+        local c, d = mysql_direct_query("SELECT text_key, text_value FROM srv1_hunabku.hunter_translations WHERE lang_code='" .. lang_code .. "' AND category='" .. cat .. "'")
+
+        if c > 0 then
+            local parts = {}
+            for i = 1, c do
+                local key = d[i].text_key
+                local val = hg_lib.clean_str(d[i].text_value)
+                table.insert(parts, key .. "=" .. val)
+            end
+
+            local chunk = table.concat(parts, "|")
+            cmdchat("HunterTranslations " .. cat .. " " .. chunk)
+        end
+    end
+
+    -- Marca come caricate
+    _G.hunter_translations_loaded[pid] = lang_code
+
+    -- Notifica completamento
+    cmdchat("HunterTranslationsReady " .. lang_code)
+end
+
+-- Ottiene lista lingue disponibili
+function hg_lib.get_available_languages()
+    local c, d = mysql_direct_query("SELECT lang_code, lang_name, lang_name_en FROM srv1_hunabku.hunter_languages WHERE enabled=1 ORDER BY display_order")
+
+    local langs = {}
+    if c > 0 then
+        for i = 1, c do
+            table.insert(langs, {
+                code = d[i].lang_code,
+                name = d[i].lang_name,
+                name_en = d[i].lang_name_en
+            })
+        end
+    end
+
+    return langs
+end
+
+-- Invia lista lingue disponibili al client
+function hg_lib.send_available_languages()
+    local langs = hg_lib.get_available_languages()
+    local current_lang = hg_lib.get_player_language(pc.get_player_id())
+
+    local parts = {}
+    for _, lang in ipairs(langs) do
+        -- formato: code:name:name_en
+        table.insert(parts, lang.code .. ":" .. hg_lib.clean_str(lang.name) .. ":" .. hg_lib.clean_str(lang.name_en))
+    end
+
+    local data = table.concat(parts, "|")
+    cmdchat("HunterLanguages " .. current_lang .. " " .. data)
+end
+
+-- Handler per cambio lingua dal client
+function hg_lib.handle_language_change(new_lang)
+    local pid = pc.get_player_id()
+
+    if hg_lib.set_player_language(pid, new_lang) then
+        -- Reinvia traduzioni nella nuova lingua
+        hg_lib.send_translations_to_client(new_lang)
+        syschat("|cff00AAFF[HUNTER]|r Lingua cambiata!")
+    end
+end
+
+-- Forza ricaricamento cache traduzioni (per admin)
+function hg_lib.reload_translations_cache()
+    _G.hunter_translations_cache = {}
+    _G.hunter_translations_loaded = {}
+    syschat("|cffFFD700[ADMIN]|r Cache traduzioni resettata!")
+end

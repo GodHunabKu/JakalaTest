@@ -2434,6 +2434,11 @@ class GameWindow(ui.ScriptWindow):
 		serverCommandList["HunterChestItem"]     = self.__HunterChestItem
 		serverCommandList["HunterPartyChest"]    = self.__HunterPartyChest
 
+		# Multi-Language Translation System
+		serverCommandList["HunterTranslations"]       = self.__HunterTranslations
+		serverCommandList["HunterTranslationsReady"] = self.__HunterTranslationsReady
+		serverCommandList["HunterLanguages"]          = self.__HunterLanguages
+
 		if app.ENABLE_ODLAMKI_SYSTEM:
 			serverCommandList["OpenOdlamki"] = self.OpenOdlamki
 
@@ -3767,13 +3772,71 @@ class GameWindow(ui.ScriptWindow):
 				name = parts[0].replace("+", " ")
 				total_glory = int(parts[1])
 				member_count = int(parts[2])
-				
+
 				# Effetto party rapido
 				import uihunterlevel_gate_effects
 				uihunterlevel_gate_effects.ShowPartyChest(name, total_glory, member_count)
 		except Exception as e:
 			import dbg
 			dbg.TraceError("__HunterPartyChest error: " + str(e))
+
+	# ============================================================
+	# MULTI-LANGUAGE TRANSLATION HANDLERS
+	# ============================================================
+
+	def __HunterTranslations(self, data):
+		"""
+		Riceve blocco traduzioni: category key1=val1|key2=val2|...
+		"""
+		try:
+			# Formato: "category key1=val1|key2=val2|..."
+			space_idx = data.find(" ")
+			if space_idx > 0:
+				category = data[:space_idx]
+				trans_data = data[space_idx + 1:]
+
+				import hunter_translations
+				hunter_translations.OnReceiveTranslations(category, trans_data)
+		except Exception as e:
+			import dbg
+			dbg.TraceError("__HunterTranslations error: " + str(e))
+
+	def __HunterTranslationsReady(self, lang_code):
+		"""
+		Notifica che le traduzioni sono state caricate.
+		"""
+		try:
+			import hunter_translations
+			hunter_translations.OnTranslationsReady(str(lang_code))
+
+			# Aggiorna UI se aperta
+			if self.interface and self.interface.wndHunterLevel:
+				self.interface.wndHunterLevel.OnTranslationsReady()
+		except Exception as e:
+			import dbg
+			dbg.TraceError("__HunterTranslationsReady error: " + str(e))
+
+	def __HunterLanguages(self, data):
+		"""
+		Riceve lista lingue: current_lang code1:name1:name_en1|code2:name2:name_en2|...
+		"""
+		try:
+			# Formato: "current_lang code1:name1:name_en1|..."
+			space_idx = data.find(" ")
+			if space_idx > 0:
+				current_lang = data[:space_idx]
+				langs_data = data[space_idx + 1:]
+
+				import hunter_translations
+				hunter_translations.OnReceiveLanguages(current_lang, langs_data)
+
+				# Notifica UI per aggiornare language selector
+				if self.interface and self.interface.wndHunterLevel:
+					self.interface.wndHunterLevel.OnLanguagesReceived()
+		except Exception as e:
+			import dbg
+			dbg.TraceError("__HunterLanguages error: " + str(e))
+
 	# ============================================================
 	# FINE CHEST HANDLERS
 	# ============================================================
