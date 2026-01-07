@@ -979,119 +979,24 @@ class HunterLevelWindow(ui.ScriptWindow):
         return t
 
     # ========================================================================
-    #  LANGUAGE SELECTOR
+    #  LANGUAGE SELECTOR (gestito via Lua per semplicita')
     # ========================================================================
     def __CreateLanguageSelector(self, footerY):
-        """Crea il selettore lingua nel footer"""
+        """Crea il selettore lingua nel footer - click apre dialog Lua"""
         t = self.theme
 
-        # Default: italiano (la lingua viene aggiornata quando riceviamo i dati)
-        displayLang = "IT"
-
-        # Bottone lingua
+        # Bottone lingua - click invia comando a Lua che apre say_item
         self.langButton = SoloLevelingButton()
-        self.langButton.Create(self.baseWindow, WINDOW_WIDTH - 80, footerY + 5, 60, 26, displayLang, t)
+        self.langButton.Create(self.baseWindow, WINDOW_WIDTH - 80, footerY + 5, 60, 26, "LANG", t)
         self.langButton.SetEvent(ui.__mem_func__(self.__OnClickLangButton))
         self.footerElements.append(self.langButton)
 
     def __OnClickLangButton(self):
-        """Toggle dropdown lingua"""
-        if self.langDropdownVisible:
-            self.__HideLangDropdown()
-        else:
-            self.__ShowLangDropdown()
+        """Apre dialog selezione lingua via Lua"""
+        net.SendChatPacket("/hunter_select_language", 1)
 
-    def __ShowLangDropdown(self):
-        """Mostra dropdown lingue"""
-        if self.langDropdown:
-            self.__HideLangDropdown()
-
-        # Default values
-        langs = [
-            {"code": "it", "name": "Italiano", "name_en": "Italian"},
-            {"code": "en", "name": "English", "name_en": "English"},
-        ]
-        currentLang = "it"
-
-        try:
-            import hunter_translations
-            serverLangs = hunter_translations.GetAvailableLanguages()
-            if serverLangs:
-                langs = serverLangs
-            else:
-                hunter_translations.RequestLanguages()
-            currentLang = hunter_translations.GetCurrentLanguage()
-        except:
-            pass
-
-        self.availableLanguages = langs
-        t = self.theme
-        itemH = 26
-        dropH = len(langs) * itemH + 10
-        dropW = 120
-        footerY = WINDOW_HEIGHT - FOOTER_HEIGHT - 10
-        dropX = WINDOW_WIDTH - 80
-        dropY = footerY - dropH - 5
-
-        # Background dropdown
-        self.langDropdown = ui.Window()
-        self.langDropdown.SetParent(self.baseWindow)
-        self.langDropdown.SetPosition(dropX, dropY)
-        self.langDropdown.SetSize(dropW, dropH)
-        self.langDropdown.Show()
-
-        bg = ui.Bar()
-        bg.SetParent(self.langDropdown)
-        bg.SetPosition(0, 0)
-        bg.SetSize(dropW, dropH)
-        bg.SetColor(t["bg_dark"])
-        bg.Show()
-
-        border = ui.Bar()
-        border.SetParent(self.langDropdown)
-        border.SetPosition(0, 0)
-        border.SetSize(dropW, 2)
-        border.SetColor(t["accent"])
-        border.Show()
-
-        # Items lingua
-        for i, lang in enumerate(langs):
-            yPos = 5 + i * itemH
-            langCode = lang["code"]
-            langName = lang["name"]
-
-            # Highlight lingua corrente
-            if langCode == currentLang:
-                hl = ui.Bar()
-                hl.SetParent(self.langDropdown)
-                hl.SetPosition(2, yPos)
-                hl.SetSize(dropW - 4, itemH - 2)
-                hl.SetColor(t["glow"])
-                hl.Show()
-
-            btn = SoloLevelingButton()
-            btn.Create(self.langDropdown, 5, yPos, dropW - 10, itemH - 4, langName, t)
-            btn.SetEvent(ui.__mem_func__(self.__OnSelectLanguage), langCode)
-
-        self.langDropdownVisible = True
-
-    def __HideLangDropdown(self):
-        """Nasconde dropdown lingue"""
-        if self.langDropdown:
-            self.langDropdown.Hide()
-            self.langDropdown = None
-        self.langDropdownVisible = False
-
-    def __OnSelectLanguage(self, langCode):
-        """Cambia lingua"""
-        try:
-            import hunter_translations
-            hunter_translations.ChangeLanguage(langCode)
-        except:
-            pass
-        self.__HideLangDropdown()
-
-        # Aggiorna testo bottone
+    def UpdateLanguageButton(self, langCode):
+        """Aggiorna il testo del bottone lingua"""
         langNames = {"it": "IT", "en": "EN", "de": "DE", "es": "ES", "fr": "FR", "pt": "PT", "ru": "RU", "pl": "PL"}
         if self.langButton:
             self.langButton.SetText(langNames.get(langCode, langCode.upper()))
@@ -1099,24 +1004,13 @@ class HunterLevelWindow(ui.ScriptWindow):
     def OnTranslationsReady(self):
         """Callback quando le traduzioni sono pronte"""
         try:
-            # Ricarica la tab corrente per aggiornare i testi
             self.__LoadTabContent(self.currentTab)
         except:
             pass
 
     def OnLanguagesReceived(self):
-        """Callback quando riceviamo lista lingue"""
-        try:
-            import hunter_translations
-            self.availableLanguages = hunter_translations.GetAvailableLanguages()
-
-            # Aggiorna testo bottone con lingua corrente
-            currentLang = hunter_translations.GetCurrentLanguage()
-            langNames = {"it": "IT", "en": "EN", "de": "DE", "es": "ES", "fr": "FR", "pt": "PT", "ru": "RU", "pl": "PL"}
-            if self.langButton:
-                self.langButton.SetText(langNames.get(currentLang, currentLang.upper()))
-        except:
-            pass
+        """Callback - non usato, gestito via Lua"""
+        pass
 
     # ========================================================================
     #  CONTENT HELPERS
