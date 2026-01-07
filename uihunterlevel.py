@@ -16,6 +16,8 @@ from weakref import proxy
 import hunter_windows
 import hunter_effects
 import hunter_missions
+import hunter_translations
+from hunter_translations import T  # Shorthand per traduzioni
 
 # Import CENTRALIZZATO da hunter_core.py - NO DUPLICAZIONI
 from hunter_core import (
@@ -802,11 +804,19 @@ class HunterLevelWindow(ui.ScriptWindow):
     # ========================================================================
     def __CreateTabs(self):
         t = self.theme
-        tabNames = ["Stats", "Rank", "Shop", "Achiev", "Eventi", "Guida"]
+        # Usa traduzioni dal DB - fallback a italiano se non disponibili
+        tabNames = [
+            T("UI_TAB_STATS", "Stats"),
+            T("UI_TAB_RANK", "Rank"),
+            T("UI_TAB_SHOP", "Shop"),
+            T("UI_TAB_ACHIEV", "Achiev"),
+            T("UI_TAB_EVENTS", "Eventi"),
+            T("UI_TAB_GUIDE", "Guida")
+        ]
         tabY = HEADER_HEIGHT + 20
         tabW = 75
         startX = 15
-        
+
         for i, name in enumerate(tabNames):
             btn = SoloLevelingButton()
             btn.Create(self.baseWindow, startX + (i * (tabW + 5)), tabY, tabW, 24, name, t)
@@ -1032,11 +1042,28 @@ class HunterLevelWindow(ui.ScriptWindow):
             self.langButton.SetText(langNames.get(langCode, langCode.upper()))
 
     def OnTranslationsReady(self):
-        """Callback quando le traduzioni sono pronte"""
+        """Callback quando le traduzioni sono pronte - ricarica UI con nuove traduzioni"""
         try:
+            # Aggiorna i nomi dei tab
+            self.__RefreshTabNames()
+            # Ricarica il contenuto del tab corrente
             self.__LoadTabContent(self.currentTab)
         except:
             pass
+
+    def __RefreshTabNames(self):
+        """Aggiorna i nomi dei tab con le traduzioni correnti"""
+        tabNames = [
+            T("UI_TAB_STATS", "Stats"),
+            T("UI_TAB_RANK", "Rank"),
+            T("UI_TAB_SHOP", "Shop"),
+            T("UI_TAB_ACHIEV", "Achiev"),
+            T("UI_TAB_EVENTS", "Eventi"),
+            T("UI_TAB_GUIDE", "Guida")
+        ]
+        for i, btn in enumerate(self.tabButtons):
+            if i < len(tabNames):
+                btn.SetText(tabNames[i])
 
     def OnLanguagesReceived(self):
         """Callback - non usato"""
@@ -1415,9 +1442,9 @@ class HunterLevelWindow(ui.ScriptWindow):
 
         # HEADER TAB - Spiega che contiene MISSIONI + EVENTI
         self.__CBar(5, y, 420, 40, 0x33FFD700)
-        self.__CText("MISSIONI & EVENTI", 160, y + 3, GOLD_COLOR)
-        self.__CText("Questa schermata contiene:", 125, y + 18, t["text_value"])
-        self.__CText("Missioni Giornaliere + Eventi Programmati 24H", 65, y + 28, t["text_muted"])
+        self.__CText(T("EVENTS_HEADER", "MISSIONI & EVENTI"), 160, y + 3, GOLD_COLOR)
+        self.__CText(T("EVENTS_CONTAINS", "Questa schermata contiene:"), 125, y + 18, t["text_value"])
+        self.__CText(T("EVENTS_DESC", "Missioni Giornaliere + Eventi Programmati 24H"), 65, y + 28, t["text_muted"])
         y += 48
 
         # Se non abbiamo dati eventi E non stiamo refreshando dopo averli ricevuti
@@ -1428,14 +1455,14 @@ class HunterLevelWindow(ui.ScriptWindow):
         # SEZIONE MISSIONI GIORNALIERE
         # =====================================================
         self.__CBar(5, y, 420, 28, t["bg_dark"])
-        self.__CText("MISSIONI GIORNALIERE (Reset: 00:05)", 15, y + 6, 0xFF00CCFF)
-        self.__CButton(310, y + 2, "Apri Dettagli", ui.__mem_func__(self.__OnOpenMissions))
+        self.__CText(T("DAILY_MISSIONS_TITLE", "MISSIONI GIORNALIERE (Reset: 00:05)"), 15, y + 6, 0xFF00CCFF)
+        self.__CButton(310, y + 2, T("BTN_OPEN_DETAILS", "Apri Dettagli"), ui.__mem_func__(self.__OnOpenMissions))
         y += 35
 
         # Tooltip missioni
         self.__CBar(5, y, 420, 30, 0x33444444)
-        self.__CText("Il Terminale si apre automaticamente quando fai progresso!", 30, y + 2, 0xFF88FF88)
-        self.__CText("Completa TUTTE E 3 per bonus x1.5 Gloria!", 70, y + 16, GOLD_COLOR)
+        self.__CText(T("MISSION_AUTO_OPEN", "Il Terminale si apre automaticamente quando fai progresso!"), 30, y + 2, 0xFF88FF88)
+        self.__CText(T("MISSION_BONUS_TIP", "Completa TUTTE E 3 per bonus x1.5 Gloria!"), 70, y + 16, GOLD_COLOR)
         y += 35
 
         # Info missioni disponibili
@@ -1588,15 +1615,22 @@ class HunterLevelWindow(ui.ScriptWindow):
         t = self.theme
         y = 5
         self.currentGuideTab = getattr(self, 'currentGuideTab', 0)
-        
+
         # =====================================================
         # HEADER - TITOLO E TABS
         # =====================================================
-        self.__CText("GUIDA COMPLETA HUNTER SYSTEM", 100, y, GOLD_COLOR)
+        self.__CText(T("GUIDE_TITLE", "GUIDA COMPLETA HUNTER SYSTEM"), 100, y, GOLD_COLOR)
         y += 25
-        
-        # Tab buttons per sottosezioni
-        guideTabs = [("Ranghi", 0), ("Gloria", 1), ("Missioni", 2), ("Eventi", 3), ("Shop", 4), ("FAQ", 5)]
+
+        # Tab buttons per sottosezioni - con traduzioni
+        guideTabs = [
+            (T("GUIDE_TAB_RANKS", "Ranghi"), 0),
+            (T("GUIDE_TAB_GLORY", "Gloria"), 1),
+            (T("GUIDE_TAB_MISSIONS", "Missioni"), 2),
+            (T("GUIDE_TAB_EVENTS", "Eventi"), 3),
+            (T("GUIDE_TAB_SHOP", "Shop"), 4),
+            (T("GUIDE_TAB_FAQ", "FAQ"), 5)
+        ]
         tabX = 5
         for tabName, tabIdx in guideTabs:
             btn = self.__CButton(tabX, y, tabName, ui.__mem_func__(self.__OnGuideTab), tabIdx)
@@ -1634,13 +1668,13 @@ class HunterLevelWindow(ui.ScriptWindow):
     def __LoadGuideRanks(self, y):
         """Guida completa ai ranghi"""
         t = self.theme
-        
-        self.__CText("SISTEMA DEI RANGHI", 160, y, t["accent"])
+
+        self.__CText(T("GUIDE_RANKS_TITLE", "SISTEMA DEI RANGHI"), 160, y, t["accent"])
         y += 22
-        
-        self.__CText("Il tuo Rango determina il tuo prestigio e i contenuti", 30, y, t["text_muted"])
+
+        self.__CText(T("GUIDE_RANKS_DESC1", "Il tuo Rango determina il tuo prestigio e i contenuti"), 30, y, t["text_muted"])
         y += 16
-        self.__CText("a cui puoi accedere. Accumula Gloria per salire!", 50, y, t["text_muted"])
+        self.__CText(T("GUIDE_RANKS_DESC2", "a cui puoi accedere. Accumula Gloria per salire!"), 50, y, t["text_muted"])
         y += 25
         
         # Lista ranghi con dettagli

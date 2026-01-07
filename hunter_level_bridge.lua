@@ -234,6 +234,9 @@ when chat."/hunter_request_trial_data" begin
             local player_lang = hg_lib.get_player_language(pid)
             cmdchat("HunterPlayerLanguage " .. player_lang)
 
+            -- Invia le traduzioni nella lingua del player
+            hg_lib.send_translations_to_client(player_lang)
+
             if pc.getqf("hq_intro") == 0 then 
                 pc.setqf("hq_intro", 1)
                 hg_lib.show_awakening_sequence(pname)
