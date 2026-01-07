@@ -1,7 +1,3 @@
-# ==================== HUNTER GATE & TRIAL UI OPEN ====================
-# (Moved OpenGateTrialWindow to correct indentation inside a class)
-
-# ...existing code...
 # -*- coding: utf-8 -*-
 # ============================================================================
 #  HUNTER TERMINAL - SOLO LEVELING EDITION v3.0
@@ -14,7 +10,10 @@ import net
 import app
 import wndMgr
 import grp
-import uihunterlevel_whatif
+# Import nuovi moduli Hunter System
+import hunter_windows
+import hunter_effects
+import hunter_missions
 from weakref import proxy
 
 # ============================================================================
@@ -363,34 +362,92 @@ class HunterLevelWindow(ui.ScriptWindow):
 
     def UpdateGateStatus(self, gateId, gateName, remainingSeconds, colorCode):
         """Aggiorna la UI con lo stato del Gate"""
-        pass
+        try:
+            import uihunterlevel_gate_trial
+            uihunterlevel_gate_trial.UpdateGateStatus(gateId, gateName, remainingSeconds, colorCode)
+        except Exception as e:
+            import dbg
+            dbg.TraceError("UpdateGateStatus error: " + str(e))
 
     def HideGateTimer(self):
         """Nasconde il timer del Gate"""
-        pass
+        try:
+            import uihunterlevel_gate_trial
+            # Resetta lo stato del gate (nessun accesso)
+            uihunterlevel_gate_trial.UpdateGateStatus(0, "", 0, "GRAY")
+        except Exception as e:
+            import dbg
+            dbg.TraceError("HideGateTimer error: " + str(e))
 
     def OnGateComplete(self, success, gloriaChange):
         """Mostra il risultato del completamento Gate"""
-        pass
+        try:
+            import uihunterlevel_gate_trial
+            # Mostra messaggio sistema
+            if success:
+                uihunterlevel_gate_trial.ShowSystemMessage("GREEN", "Gate completato! +" + str(gloriaChange) + " Gloria")
+            else:
+                uihunterlevel_gate_trial.ShowSystemMessage("RED", "Gate fallito! -" + str(gloriaChange) + " Gloria")
+            # Resetta lo stato del gate
+            uihunterlevel_gate_trial.UpdateGateStatus(0, "", 0, "GRAY")
+        except Exception as e:
+            import dbg
+            dbg.TraceError("OnGateComplete error: " + str(e))
 
     def OnTrialStart(self, trialId, trialName, toRank, colorCode):
         """Mostra l'inizio di una nuova Trial"""
-        pass
+        try:
+            import uihunterlevel_gate_trial
+            uihunterlevel_gate_trial.ShowSystemMessage(colorCode, "Nuova Trial iniziata: " + trialName + " - Obiettivo Rank " + toRank)
+            # Apri automaticamente la finestra Gate/Trial
+            uihunterlevel_gate_trial.OpenGateTrialWindow()
+        except Exception as e:
+            import dbg
+            dbg.TraceError("OnTrialStart error: " + str(e))
 
     def OnTrialStatus(self, trialId, trialName, toRank, colorCode, remainingSeconds,
                       bossKills, bossReq, metinKills, metinReq,
                       fractureSeals, fractureReq, chestOpens, chestReq,
                       dailyMissions, dailyReq):
         """Aggiorna lo stato della Trial"""
-        pass
+        try:
+            import uihunterlevel_gate_trial
+            uihunterlevel_gate_trial.UpdateTrialStatus(
+                trialId, trialName, toRank, colorCode, remainingSeconds,
+                bossKills, bossReq, metinKills, metinReq,
+                fractureSeals, fractureReq, chestOpens, chestReq,
+                dailyMissions, dailyReq
+            )
+        except Exception as e:
+            import dbg
+            dbg.TraceError("OnTrialStatus error: " + str(e))
 
     def OnTrialProgress(self, trialId, bossKills, metinKills, fractureSeals, chestOpens, dailyMissions):
         """Aggiorna il progresso della Trial"""
-        pass
+        try:
+            import uihunterlevel_gate_trial
+            wnd = uihunterlevel_gate_trial.GetTrialStatusWindow()
+            if wnd and wnd.trialData:
+                # Aggiorna solo i valori di progresso mantenendo i requisiti
+                wnd.progressBars["boss"].SetProgress(bossKills, wnd.trialData["progress"]["boss"][1])
+                wnd.progressBars["metin"].SetProgress(metinKills, wnd.trialData["progress"]["metin"][1])
+                wnd.progressBars["fracture"].SetProgress(fractureSeals, wnd.trialData["progress"]["fracture"][1])
+                wnd.progressBars["chest"].SetProgress(chestOpens, wnd.trialData["progress"]["chest"][1])
+                wnd.progressBars["mission"].SetProgress(dailyMissions, wnd.trialData["progress"]["mission"][1])
+        except Exception as e:
+            import dbg
+            dbg.TraceError("OnTrialProgress error: " + str(e))
 
     def OnTrialComplete(self, newRank, gloriaReward, trialName):
         """Mostra il completamento della Trial"""
-        pass
+        try:
+            import uihunterlevel_gate_trial
+            uihunterlevel_gate_trial.ShowSystemMessage("GOLD", "Trial completata! Sei ora Rank " + newRank + "! +" + str(gloriaReward) + " Gloria")
+            # Resetta la Trial
+            uihunterlevel_gate_trial.UpdateTrialStatus(0, "", "", "GRAY", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        except Exception as e:
+            import dbg
+            dbg.TraceError("OnTrialComplete error: " + str(e))
     
     def __init__(self):
         ui.ScriptWindow.__init__(self)
@@ -472,24 +529,33 @@ class HunterLevelWindow(ui.ScriptWindow):
         self.missionCompleteWnd = None
         self.allMissionsCompleteWnd = None
         
-        self.systemMsgWnd = uihunterlevel_whatif.SystemMessageWindow()
-        self.emergencyWnd = uihunterlevel_whatif.EmergencyQuestWindow()
-        self.whatIfWnd = uihunterlevel_whatif.WhatIfChoiceWindow()
-        self.rivalWnd = uihunterlevel_whatif.RivalTrackerWindow()
-        self.eventWnd = uihunterlevel_whatif.EventStatusWindow()
-        self.bossAlertWnd = uihunterlevel_whatif.BossAlertWindow()
-        self.systemInitWnd = uihunterlevel_whatif.SystemInitWindow()
-        self.awakeningWnd = uihunterlevel_whatif.AwakeningWindow()
-        self.activationWnd = uihunterlevel_whatif.HunterActivationWindow()
-        self.rankUpWnd = uihunterlevel_whatif.RankUpWindow()
-        self.overtakeWnd = uihunterlevel_whatif.OvertakeWindow()
+        # Fracture Bonus System
+        self.fractureBonusActive = False
+        self.bonusIndicatorText = ""
         
-        # Daily Missions Windows
-        self.missionsWnd = uihunterlevel_whatif.DailyMissionsWindow()
-        self.eventsWnd = uihunterlevel_whatif.EventsScheduleWindow()
-        self.missionProgressWnd = uihunterlevel_whatif.MissionProgressPopup()
-        self.missionCompleteWnd = uihunterlevel_whatif.MissionCompleteWindow()
-        self.allMissionsCompleteWnd = uihunterlevel_whatif.AllMissionsCompleteWindow()
+        # Windows dal modulo hunter_windows
+        self.systemMsgWnd = hunter_windows.GetSystemMessageWindow()
+        self.emergencyWnd = hunter_windows.GetEmergencyQuestWindow()
+        self.whatIfWnd = hunter_windows.GetWhatIfChoiceWindow()
+        self.rivalWnd = hunter_windows.GetRivalTrackerWindow()
+        self.eventWnd = hunter_windows.GetEventStatusWindow()
+        self.overtakeWnd = hunter_windows.GetOvertakeWindow()
+        
+        # Windows dal modulo hunter_effects
+        self.bossAlertWnd = hunter_effects.GetBossAlertWindow()
+        self.systemInitWnd = hunter_effects.GetSystemInitWindow()
+        self.awakeningWnd = hunter_effects.GetAwakeningEffect()
+        self.rankUpWnd = hunter_effects.GetRankUpEffect()
+        
+        # Daily Missions Windows dal modulo hunter_missions
+        self.missionsWnd = hunter_missions.GetDailyMissionsWindow()
+        self.eventsWnd = hunter_missions.GetEventsScheduleWindow()
+        self.missionProgressWnd = hunter_missions.GetMissionProgressPopup()
+        self.missionCompleteWnd = hunter_missions.GetMissionCompleteWindow()
+        self.allMissionsCompleteWnd = hunter_missions.GetAllMissionsCompleteWindow()
+        
+        # Nota: HunterActivationWindow e' stata rimossa (era duplicato di SystemInitWindow)
+        self.activationWnd = self.systemInitWnd
         
         # Collega OvertakeWindow a EventStatusWindow per gestione posizione dinamica
         if self.overtakeWnd and self.eventWnd:
@@ -532,6 +598,9 @@ class HunterLevelWindow(ui.ScriptWindow):
         try:
             ui.PythonScriptLoader().LoadScriptFile(self, "uiscript/hunterlevel.py")
             self.baseWindow = self.GetChild("BaseWindow")
+            # Disabilita mouse pick sul baseWindow per permettere il drag della finestra principale
+            if self.baseWindow and hasattr(self.baseWindow, 'AddFlag'):
+                self.baseWindow.AddFlag("not_pick")
             self.__BuildInterface()
         except:
             import dbg
@@ -590,6 +659,15 @@ class HunterLevelWindow(ui.ScriptWindow):
     # ========================================================================
     #  BACKGROUND
     # ========================================================================
+    def _DisableMousePick(self, widget):
+        """Aggiunge il flag not_pick a un widget per permettere drag della finestra"""
+        if hasattr(widget, 'AddFlag'):
+            try:
+                widget.AddFlag("not_pick")
+            except:
+                pass
+        return widget
+    
     def __CreateBackground(self):
         t = self.theme
         
@@ -599,6 +677,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         bg.SetSize(WINDOW_WIDTH, WINDOW_HEIGHT)
         bg.SetColor(t["bg_dark"])
         bg.Show()
+        self._DisableMousePick(bg)
         self.bgElements.append(bg)
         
         for (x, y, w, h) in [(0, 0, WINDOW_WIDTH, 3), (0, WINDOW_HEIGHT - 3, WINDOW_WIDTH, 3),
@@ -609,6 +688,7 @@ class HunterLevelWindow(ui.ScriptWindow):
             border.SetSize(w, h)
             border.SetColor(t["border"])
             border.Show()
+            self._DisableMousePick(border)
             self.bgElements.append(border)
         
         closeBtn = SoloLevelingButton()
@@ -628,6 +708,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         headerBg.SetSize(WINDOW_WIDTH - 20, HEADER_HEIGHT)
         headerBg.SetColor(t["bg_medium"])
         headerBg.Show()
+        self._DisableMousePick(headerBg)
         self.headerElements.append(headerBg)
         
         glowTop = ui.Bar()
@@ -636,6 +717,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         glowTop.SetSize(WINDOW_WIDTH - 20, 2)
         glowTop.SetColor(t["glow"])
         glowTop.Show()
+        self._DisableMousePick(glowTop)
         self.headerElements.append(glowTop)
         
         self.__UpdateHeaderContent()
@@ -663,11 +745,21 @@ class HunterLevelWindow(ui.ScriptWindow):
         rankText = "[%s] %s - %s" % (self.currentRankKey, t["name"], t["title"])
         self.__HText(rankText, 20, 40, t["accent"])
         
-        self.__HText("Crediti:", 250, 40, t["text_muted"])
+        self.__HText("Spendibili:", 250, 40, t["text_muted"])
         self.__HText(FormatNumber(self.playerData["spendable_points"]), 305, 40, 0xFFFFA500)
         
         streak = self.playerData["login_streak"]
         bonus = self.playerData["streak_bonus"]
+        
+        # Calcola bonus streak client-side se il server non lo manda
+        if streak > 0 and bonus == 0:
+            if streak >= 30:
+                bonus = 20
+            elif streak >= 7:
+                bonus = 10
+            elif streak >= 3:
+                bonus = 5
+        
         if streak > 0:
             self.__HText("Streak: %dg (+%d%%)" % (streak, bonus), 400, 40, 0xFF00FF88)
         
@@ -680,6 +772,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         barBg.SetSize(barW, barH)
         barBg.SetColor(0xFF111111)
         barBg.Show()
+        self._DisableMousePick(barBg)
         self.headerElements.append(barBg)
         
         fillW = max(1, int(barW * progress / 100))
@@ -689,6 +782,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         barFill.SetSize(fillW, barH)
         barFill.SetColor(t["bar_fill"])
         barFill.Show()
+        self._DisableMousePick(barFill)
         self.headerElements.append(barFill)
         
         self.__HText("%d%%" % int(progress), 350, 63, t["accent"])
@@ -708,6 +802,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         t.SetText(str(text))
         t.SetPackedFontColor(color)
         t.Show()
+        self._DisableMousePick(t)
         self.headerElements.append(t)
     
     def __GetNextRankKey(self):
@@ -764,6 +859,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         contentBg.SetSize(WINDOW_WIDTH - 20, contentH)
         contentBg.SetColor(t["bg_light"])
         contentBg.Show()
+        self._DisableMousePick(contentBg)
         self.bgElements.append(contentBg)
         
         self.contentPanel = ui.Window()
@@ -771,12 +867,14 @@ class HunterLevelWindow(ui.ScriptWindow):
         self.contentPanel.SetPosition(15, contentY + 5)
         self.contentPanel.SetSize(WINDOW_WIDTH - 50, contentH - 10)
         self.contentPanel.Show()
+        self._DisableMousePick(self.contentPanel)
         
         self.scrollBar = ui.ScrollBar()
         self.scrollBar.SetParent(self.baseWindow)
         self.scrollBar.SetPosition(WINDOW_WIDTH - 30, contentY + 10)
         self.scrollBar.SetScrollBarSize(contentH - 20)
         self.scrollBar.SetScrollEvent(ui.__mem_func__(self.__OnScroll))
+        self._DisableMousePick(self.scrollBar)
         self.scrollBar.Hide()
     
     def __ClearContent(self):
@@ -874,6 +972,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         footerBg.SetSize(WINDOW_WIDTH - 20, FOOTER_HEIGHT)
         footerBg.SetColor(t["bg_medium"])
         footerBg.Show()
+        self._DisableMousePick(footerBg)
         self.footerElements.append(footerBg)
         
         self.__FText("Reset Daily:", 20, footerY + 10, t["text_muted"])
@@ -889,6 +988,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         t.SetText(str(text))
         t.SetPackedFontColor(color)
         t.Show()
+        self._DisableMousePick(t)
         self.footerElements.append(t)
         return t
     
@@ -902,6 +1002,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         t.SetText(str(txt))
         t.SetPackedFontColor(col)
         t.Show()
+        self._DisableMousePick(t)
         self.contentElements.append(t)
         return t
     
@@ -912,6 +1013,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         b.SetSize(w, h)
         b.SetColor(col)
         b.Show()
+        self._DisableMousePick(b)
         self.contentElements.append(b)
         return b
     
@@ -981,7 +1083,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         
         self.__CText("ECONOMIA", 5, y, 0xFFFFA500)
         y += 22
-        self.__CText("Crediti:", 15, y, t["text_muted"])
+        self.__CText("Spendibili:", 15, y, t["text_muted"])
         self.__CText(FormatNumber(self.playerData["spendable_points"]) + " CR", 100, y, 0xFFFFA500)
         y += 30
         
@@ -1001,7 +1103,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         self.__CText("[ MERCANTE HUNTER ]", 150, y, t["accent"])
         y += 28
         
-        self.__CText("Crediti disponibili:", 15, y, t["text_muted"])
+        self.__CText("Gloria disponibile:", 15, y, t["text_muted"])
         self.__CText(FormatNumber(self.playerData["spendable_points"]), 150, y, 0xFFFFA500)
         y += 25
         
@@ -1027,7 +1129,7 @@ class HunterLevelWindow(ui.ScriptWindow):
             
             self.__CText("Prezzo:", 15, y + 18, t["text_muted"])
             priceCol = 0xFFFFA500 if canBuy else 0xFFFF4444
-            self.__CText(FormatNumber(price) + " Crediti", 70, y + 18, priceCol)
+            self.__CText(FormatNumber(price) + " Gloria", 70, y + 18, priceCol)
             
             if canBuy:
                 self.__CButton(340, y + 5, "Acquista", ui.__mem_func__(self.__OnBuy), itemId)
@@ -1425,14 +1527,12 @@ class HunterLevelWindow(ui.ScriptWindow):
         self.__CText("Eventi: In base al calendario", 230, y + 20, 0xFFAAAAAA)
     
     def __OnOpenMissions(self):
-        """Apre finestra Missioni Giornaliere"""
-        # Sempre richiedi dati freschi dal server e apri la finestra
-        net.SendChatPacket("/hunter_missions")
+        """Apre direttamente la finestra popup delle missioni giornaliere"""
+        self.OpenMissionsPanel()
     
     def __OnOpenEvents(self):
-        """Apre finestra Eventi del Giorno"""
-        # Sempre richiedi dati freschi dal server e apri la finestra
-        net.SendChatPacket("/hunter_events")
+        """Apre direttamente la finestra popup degli eventi programmati"""
+        self.OpenEventsPanel()
     
     def __LoadGuide(self):
         t = self.theme
@@ -1527,7 +1627,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         return y
     
     def __LoadGuideGlory(self, y):
-        """Guida su come guadagnare Gloria e Crediti"""
+        """Guida su come guadagnare Gloria"""
         t = self.theme
         
         # =====================================================
@@ -1544,12 +1644,12 @@ class HunterLevelWindow(ui.ScriptWindow):
         y += 62
 
         gloryMethods = [
-            ("Fratture Dimensionali", "+200-1000", "Mob/Boss/Metin DENTRO le fratture"),
-            ("Missioni Giornaliere", "+50-300", "3 missioni giornaliere (vedi tab Eventi)"),
-            ("Emergency Quest", "+100-600", "40% chance ogni 100 kill normali"),
+            ("Fratture Dimensionali", "+50-500", "Boss/Metin DENTRO le fratture (base pts)"),
+            ("Missioni Giornaliere", "+50-3000", "3 missioni al giorno (reward scala col Rank)"),
+            ("Emergency Quest", "+150-1200", "40% chance dopo ~500 kill normali"),
             ("Eventi Programmati", "+100-2000", "Glory Rush, Metin Frenzy, Boss Massacre..."),
-            ("Streak Login", "+1-20% bonus", "Accedi ogni giorno per bonus Gloria"),
-            ("Bauli Hunter", "+25-100", "Bauli spawn nelle mappe normali"),
+            ("Streak Login", "+5/10/20%", "3gg=+5%, 7gg=+10%, 30gg=+20% Gloria"),
+            ("Bauli Hunter", "+20-100", "Bauli spawn nelle mappe normali"),
             ("Speed Kill Bonus", "x2 reward", "Boss 60s, Metin 300s = doppia Gloria"),
         ]
 
@@ -1565,24 +1665,88 @@ class HunterLevelWindow(ui.ScriptWindow):
         y += 15
         
         # =====================================================
-        # CREDITI
+        # GLORIA SPENDIBILE
         # =====================================================
-        self.__CText("COME GUADAGNARE CREDITI", 140, y, 0xFFFFA500)
+        self.__CText("GLORIA SPENDIBILE (SHOP)", 130, y, 0xFFFFA500)
         y += 25
         
-        creditMethods = [
-            ("Converti Gloria", "100 Gloria = 10 Crediti", "/hunter_convert"),
-            ("Classifica Daily", "Top 3 riceve Crediti", "Automatico a mezzanotte"),
-            ("Classifica Weekly", "Top 10 riceve Crediti", "Automatico ogni Lunedi"),
-            ("Eventi Speciali", "Premio partecipazione", "Controlla il calendario"),
+        self.__CBar(5, y, 420, 80, t["bg_dark"])
+        self.__CText("La Gloria e' divisa in due contatori:", 115, y + 5, t["text_value"])
+        self.__CText("- Gloria Totale: determina il tuo RANK (non scende mai)", 30, y + 22, GOLD_COLOR)
+        self.__CText("- Gloria Spendibile: usala nello SHOP senza perdere rank!", 15, y + 38, 0xFF00FF00)
+        self.__CText("Ogni Gloria guadagnata incrementa ENTRAMBI i contatori!", 35, y + 58, t["text_muted"])
+        y += 90
+        
+        y += 10
+        self.__CSep(5, y)
+        y += 15
+        
+        # =====================================================
+        # GLORIA IN PARTY
+        # =====================================================
+        self.__CBar(5, y, 420, 30, 0x3300FFFF)
+        self.__CText("GLORIA IN PARTY", 160, y + 5, 0xFF00FFFF)
+        y += 38
+        
+        self.__CBar(5, y, 420, 75, t["bg_dark"])
+        self.__CText("Quando giochi in GRUPPO (party), la Gloria va a", 70, y + 5, t["text_value"])
+        self.__CText("CHI COMPIE L'AZIONE!", 145, y + 20, GOLD_COLOR)
+        self.__CText("Bauli: chi apre | Boss/Metin: chi uccide | Fratture: chi conquista", 15, y + 37, 0xFF00FF00)
+        self.__CText("Il Power Rank serve per FORZARE fratture, non per dividere Gloria.", 20, y + 55, t["text_muted"])
+        y += 83
+        
+        self.__CText("COME FUNZIONA:", 5, y, t["accent"])
+        y += 20
+        
+        partySteps = [
+            "1. Boss/Metin ucciso = Gloria va al KILLER",
+            "2. Baule aperto = Gloria va a CHI APRE",
+            "3. Frattura conquistata = Gloria va al CONQUISTATORE",
+            "4. Si applicano i bonus personali (Streak, Focus, Evento...)",
+            "5. Si applicano i malus personali (Trial -50%)",
+            "6. Gloria finale assegnata!",
         ]
         
-        for method, info, note in creditMethods:
-            self.__CBar(5, y, 420, 28, t["bg_dark"])
-            self.__CText(method, 15, y + 6, t["text_value"])
-            self.__CText(info, 150, y + 6, 0xFFFFA500)
-            self.__CText(note, 320, y + 6, t["text_muted"])
-            y += 32
+        for step in partySteps:
+            self.__CText(step, 15, y, t["text_value"])
+            y += 16
+        y += 10
+        
+        # Info importante
+        self.__CBar(5, y, 420, 70, 0x33FFD700)
+        self.__CText("POWER RANK - A COSA SERVE?", 130, y + 5, GOLD_COLOR)
+        self.__CText("Il Power Rank del party serve per FORZARE fratture!", 50, y + 22, t["text_value"])
+        self.__CText("Fratture B/A/S/N richiedono tot Power Rank per entrare", 45, y + 38, t["text_value"])
+        self.__CText("se non hai abbastanza Gloria personale.", 100, y + 52, t["text_muted"])
+        y += 80
+        
+        # Bonus/Malus personali
+        self.__CBar(5, y, 420, 85, t["bg_dark"])
+        self.__CText("BONUS/MALUS PERSONALI:", 145, y + 5, t["accent"])
+        self.__CText("+ Streak Login: +5%/+10%/+20% (3/7/30 giorni)", 15, y + 22, 0xFF00FF00)
+        self.__CText("+ Focus Hunter: +20% (item consumabile)", 15, y + 36, 0xFF00FF00)
+        self.__CText("+ Fracture Bonus: +50% (missioni 3/3 complete)", 15, y + 50, 0xFF00FF00)
+        self.__CText("- Trial Attivo: -50% (fino a completamento prova)", 15, y + 66, 0xFFFF6666)
+        y += 95
+        
+        # =====================================================
+        # DETTAGLIO GLORIA - SYSCHAT
+        # =====================================================
+        self.__CBar(5, y, 420, 30, 0x33AAAAFF)
+        self.__CText("DETTAGLIO GLORIA IN CHAT", 140, y + 5, 0xFFAAAAFF)
+        y += 38
+        
+        self.__CBar(5, y, 420, 100, t["bg_dark"])
+        self.__CText("Quando uccidi Boss, Metin o apri Bauli, vedrai in chat:", 40, y + 5, t["text_value"])
+        self.__CText("========== DETTAGLIO GLORIA =========", 80, y + 22, 0xFF888888)
+        self.__CText("BOSS: Nome Del Boss", 100, y + 36, t["text_value"])
+        self.__CText("Gloria Base: 500", 100, y + 50, t["text_muted"])
+        self.__CText("Streak Bonus (+10%): +50", 100, y + 64, 0xFF00FF00)
+        self.__CText(">>> TOTALE: +550 Gloria <<<", 100, y + 78, GOLD_COLOR)
+        y += 110
+        
+        self.__CText("Cosi' puoi verificare TUTTI i bonus/malus applicati!", 55, y, 0xFF00CCFF)
+        y += 25
         
         return y
     
@@ -1592,6 +1756,12 @@ class HunterLevelWindow(ui.ScriptWindow):
         
         self.__CText("MISSIONI GIORNALIERE", 150, y, t["accent"])
         y += 25
+        
+        # Pulsante per aprire le missioni
+        self.__CBar(5, y, 420, 35, 0x3300CCFF)
+        self.__CText("Vuoi vedere le tue missioni attuali?", 100, y + 3, t["text_value"])
+        self.__CButton(150, y + 18, "APRI MISSIONI GIORNALIERE", ui.__mem_func__(self.__OnOpenMissions))
+        y += 45
         
         # Intro
         self.__CBar(5, y, 420, 80, t["bg_dark"])
@@ -1643,17 +1813,21 @@ class HunterLevelWindow(ui.ScriptWindow):
         y += 15
         
         # Penalita
-        self.__CBar(5, y, 420, 55, 0x33FF0000)
+        self.__CBar(5, y, 420, 70, 0x33FF0000)
         self.__CText("SISTEMA PENALITA'", 160, y + 5, 0xFFFF4444)
         self.__CText("Missioni NON completate entro mezzanotte:", 90, y + 22, t["text_value"])
-        self.__CText("= Perdi Gloria pari alla penalita' indicata!", 85, y + 38, 0xFFFF6666)
-        y += 65
+        self.__CText("= Perdi Gloria TOTALE (non spendibile)!", 85, y + 38, 0xFFFF6666)
+        self.__CText("La missione viene segnata come 'failed' nel DB.", 60, y + 53, t["text_muted"])
+        y += 80
         
         # Bonus completamento
-        self.__CBar(5, y, 420, 45, 0x3300FF00)
+        self.__CBar(5, y, 420, 80, 0x3300FF00)
         self.__CText("BONUS TUTTE COMPLETE", 155, y + 5, 0xFF00FF00)
-        self.__CText("Completa tutte e 3 le missioni = +50% Gloria extra!", 75, y + 25, 0xFF88FF88)
-        y += 55
+        self.__CText("Completa tutte e 3 le missioni:", 130, y + 22, 0xFF88FF88)
+        self.__CText("1. +50% Gloria extra (sulla somma ricompense missioni)", 30, y + 37, t["text_value"])
+        self.__CText("2. BONUS FRATTURE: +50% Gloria da Boss/Metin fratture!", 15, y + 52, 0xFFFFD700)
+        self.__CText("Il bonus e' visibile nel syschat dettagliato.", 80, y + 67, t["text_muted"])
+        y += 90
 
         y += 15
         self.__CSep(5, y)
@@ -1671,9 +1845,9 @@ class HunterLevelWindow(ui.ScriptWindow):
         y += 22
 
         emergencySteps = [
-            "1. Spawn RANDOM dopo aver ucciso ~2000 mob normali",
+            "1. Spawn RANDOM dopo aver ucciso ~500 mob normali",
             "2. 40% chance Emergency, 60% chance Frattura",
-            "3. Tempo limitato: 30-180 secondi per completare!",
+            "3. Tempo limitato: 60-180 secondi per completare!",
             "4. Obiettivi: 30-250 kill a seconda della difficolta'",
             "5. Premi: 150-1200 Gloria + item bonus",
             "6. Se fallisci, non c'e' penalita' (solo opportunita' persa)",
@@ -1690,11 +1864,11 @@ class HunterLevelWindow(ui.ScriptWindow):
         y += 22
 
         emergencyLevels = [
-            ("EASY", 0xFF00FF00, "30 kill/60s", "+150 Gloria"),
-            ("NORMAL", 0xFF00CCFF, "50 kill/60s", "+250 Gloria"),
-            ("HARD", 0xFFFFAA00, "60-120 kill/60-90s", "+300-600 Gloria"),
-            ("EXTREME", 0xFFFF6600, "120-250 kill/90-180s", "+600-1000 Gloria"),
-            ("GOD_MODE", 0xFFFF0000, "250+ kill/180s", "+1200 Gloria"),
+            ("EASY", 0xFF00FF00, "30 kill in 60s", "+150 Gloria"),
+            ("NORMAL", 0xFF00CCFF, "2-3 Boss/Metin in 120-150s", "+350-400 Gloria"),
+            ("HARD", 0xFFFFAA00, "60 kill/60s o 5 Metin/180s", "+300-500 Gloria"),
+            ("EXTREME", 0xFFFF6600, "120 kill/90s o 3 Boss/180s", "+600-1000 Gloria"),
+            ("GOD_MODE", 0xFFFF0000, "250 kill in 180s", "+1200 Gloria"),
         ]
 
         for diff, color, req, reward in emergencyLevels:
@@ -1710,8 +1884,8 @@ class HunterLevelWindow(ui.ScriptWindow):
         # Speed Kill bonus per Emergency
         self.__CBar(5, y, 420, 50, 0x3300FFFF)
         self.__CText("SPEED KILL BONUS", 165, y + 5, 0xFF00FFFF)
-        self.__CText("Boss: Uccidi entro 60 secondi = x2 Punti Gloria!", 45, y + 22, t["text_value"])
-        self.__CText("Metin: Distruggi entro 300 secondi = x2 Punti Gloria!", 35, y + 36, t["text_value"])
+        self.__CText("Boss: Uccidi entro 60 secondi = x2 Punti Gloria!", 50, y + 22, t["text_value"])
+        self.__CText("Metin: Distruggi entro 300 secondi = x2 Punti Gloria!", 40, y + 36, t["text_value"])
         y += 60
 
         y += 15
@@ -1753,46 +1927,78 @@ class HunterLevelWindow(ui.ScriptWindow):
         self.__CText("EVENTI PROGRAMMATI 24H", 145, y, t["accent"])
         y += 25
         
+        # Pulsante per aprire gli eventi
+        self.__CBar(5, y, 420, 35, 0x33FFD700)
+        self.__CText("Vuoi vedere gli eventi di oggi?", 120, y + 3, t["text_value"])
+        self.__CButton(150, y + 18, "APRI EVENTI DEL GIORNO", ui.__mem_func__(self.__OnOpenEvents))
+        y += 45
+        
         # Intro
         self.__CBar(5, y, 420, 55, t["bg_dark"])
         self.__CText("Gli eventi si attivano automaticamente ad orari", 70, y + 5, t["text_muted"])
-        self.__CText("prestabiliti configurati nel database.", 100, y + 20, t["text_muted"])
+        self.__CText("prestabiliti. L'iscrizione e' AUTOMATICA!", 100, y + 20, t["text_muted"])
         self.__CText("Clicca 'Apri Eventi' per vedere quelli di oggi!", 65, y + 37, 0xFF00CCFF)
         y += 65
+        
+        # =====================================================
+        # ISCRIZIONE AUTOMATICA - IMPORTANTE!
+        # =====================================================
+        self.__CBar(5, y, 420, 80, 0x3300FF00)
+        self.__CText("ISCRIZIONE AUTOMATICA", 155, y + 5, 0xFF00FF00)
+        self.__CText("NON devi cliccare nessun pulsante!", 110, y + 22, t["text_value"])
+        self.__CText("Conquista fratture, uccidi boss, metin o mob", 70, y + 38, t["text_value"])
+        self.__CText("per iscriverti automaticamente all'evento!", 80, y + 54, t["text_value"])
+        self.__CText("Vedrai: [EVENTO] Sei iscritto all'estrazione finale!", 50, y + 70, 0xFFFFD700)
+        y += 90
         
         # Tipi di eventi
         self.__CText("TIPI DI EVENTO:", 5, y, t["accent"])
         y += 22
         
         eventTypes = [
-            ("GLORY RUSH", 0xFFFFD700, "Gloria x2 per ogni kill!"),
-            ("RIFT HUNT", 0xFF9900FF, "Fratture +50% spawn"),
-            ("METIN FRENZY", 0xFFFF6600, "Metin Bonus +50%"),
-            ("BOSS MASSACRE", 0xFFFF0000, "Boss Gloria +50%"),
-            ("DOUBLE SPAWN", 0xFF00FF00, "Spawn Elite x2"),
+            ("GLORY RUSH", 0xFFFFD700, "Gloria x2 per ogni kill! Sorteggio finale."),
+            ("FRATTURA SERA", 0xFF9900FF, "PRIMO a conquistare frattura VINCE!"),
+            ("CACCIA BOSS", 0xFFFF0000, "PRIMO a uccidere un boss VINCE!"),
+            ("RIFT HUNT", 0xFF9900FF, "Fratture +50% spawn. Sorteggio finale."),
+            ("BOSS MASSACRE", 0xFFFF6600, "Boss Gloria +50%. Sorteggio finale."),
+            ("METIN FRENZY", 0xFFFF6600, "Metin Bonus +50%. Sorteggio finale."),
+            ("DOUBLE SPAWN", 0xFF00FF00, "Spawn Elite x2. Sorteggio finale."),
         ]
         
         for name, color, desc in eventTypes:
             self.__CBar(5, y, 420, 22, t["bg_dark"])
             self.__CBar(5, y, 4, 22, color)
             self.__CText(name, 15, y + 3, color)
-            self.__CText(desc, 150, y + 3, t["text_muted"])
+            self.__CText(desc, 140, y + 3, t["text_muted"])
             y += 24
         
         y += 10
         self.__CSep(5, y)
         y += 15
         
+        # =====================================================
+        # EVENTI "PRIMO VINCE"
+        # =====================================================
+        self.__CBar(5, y, 420, 95, 0x33FF4444)
+        self.__CText("EVENTI 'PRIMO VINCE'", 160, y + 5, 0xFFFF4444)
+        self.__CText("FRATTURA DELLA SERA (first_rift):", 15, y + 22, 0xFFFFD700)
+        self.__CText("Il PRIMO giocatore che conquista una frattura VINCE!", 25, y + 38, t["text_value"])
+        self.__CText("CACCIA AL BOSS (first_boss):", 15, y + 55, 0xFFFFD700)
+        self.__CText("Il PRIMO giocatore che uccide un boss VINCE!", 25, y + 71, t["text_value"])
+        self.__CText("Premio immediato + annuncio globale!", 80, y + 87, 0xFF00FF00)
+        y += 105
+        
         # Come funziona
         self.__CText("COME FUNZIONA:", 5, y, t["accent"])
         y += 22
         
         steps = [
-            "1. Gli eventi sono configurati nel DB",
-            "2. Si attivano automaticamente all'ora impostata",
-            "3. Il bonus si applica per tutta la durata",
-            "4. Puoi vedere gli eventi nella tab Eventi",
-            "5. 'Apri Eventi' mostra la lista completa",
+            "1. Gli eventi si attivano automaticamente",
+            "2. Fai azioni che danno Gloria = sei ISCRITTO!",
+            "3. Nella lista eventi vedrai [ISCRITTO] in verde",
+            "4. Per GLORY RUSH: sorteggio casuale a fine evento",
+            "5. Per PRIMO VINCE: chi fa l'azione per primo vince!",
+            "6. Il vincitore riceve il PREMIO FINALE!",
         ]
         
         for step in steps:
@@ -1801,12 +2007,13 @@ class HunterLevelWindow(ui.ScriptWindow):
         
         y += 15
         
-        # Box informativo
-        self.__CBar(5, y, 420, 55, 0x33FFD700)
-        self.__CText("COME PARTECIPARE", 160, y + 5, GOLD_COLOR)
-        self.__CText("Quando un evento e' [IN CORSO], clicca 'Partecipa'", 55, y + 22, t["text_value"])
-        self.__CText("Bonus Gloria attivo per tutta la durata dell'evento!", 50, y + 38, t["text_muted"])
-        y += 65
+        # Box informativo PREMI
+        self.__CBar(5, y, 420, 70, 0x33FFD700)
+        self.__CText("PREMI EVENTO", 180, y + 5, GOLD_COLOR)
+        self.__CText("Partecipazione: +50 Gloria base (varia per evento)", 60, y + 22, t["text_value"])
+        self.__CText("Sorteggio/Primo: +200-500 Gloria BONUS!", 80, y + 38, 0xFF00FF00)
+        self.__CText("Controlla la lista eventi per vedere i premi esatti!", 55, y + 54, t["text_muted"])
+        y += 80
 
 
         # =============================
@@ -1869,29 +2076,64 @@ class HunterLevelWindow(ui.ScriptWindow):
         self.__CText("Portali con mob potenti - Alta ricompensa!", 75, y + 20, t["text_muted"])
         y += 38
 
-        self.__CText("RANK FRATTURE:", 5, y, t["accent"])
+        self.__CText("COME FUNZIONANO:", 5, y, t["accent"])
         y += 22
 
-        fracturesInfo = [
-            ("E-Rank (Verde)", "0+ Gloria", "+200 Gloria", "Tutti possono aprire"),
-            ("D-Rank (Blu)", "2K+ Gloria", "+350 Gloria", ""),
-            ("C-Rank (Arancio)", "10K+ Gloria", "+500 Gloria", ""),
-            ("B-Rank (Rosso)", "50K+ Gloria", "+700 Gloria", ""),
-            ("A-Rank (Oro)", "150K+ Gloria", "+900 Gloria", "Solo rank A+"),
-            ("S-Rank (Viola)", "500K+ Gloria", "+1200 Gloria", "Solo rank S+"),
-            ("National (B/W)", "1.5M+ Gloria", "+2000 Gloria", "Solo National"),
+        fractureSteps = [
+            "1. Dopo ~500 kill normali: 65% chance spawna una Frattura",
+            "2. Clicca sulla Frattura per tentare di aprirla",
+            "3. Se non hai Gloria: usa il POWER RANK del Party!",
+            "4. Difendi la Frattura dalle ondate di mob nemici",
+            "5. Vinci la difesa = sblocchi il portale per 5 minuti",
+            "6. Tocca il portale per evocare Boss/Metin Elite!",
         ]
 
-        for fracName, reqGloria, reward, note in fracturesInfo:
-            self.__CBar(5, y, 420, 18, t["bg_dark"])
-            self.__CText(fracName, 15, y + 2, t["text_value"])
-            self.__CText(reqGloria, 140, y + 2, t["text_muted"])
-            self.__CText(reward, 250, y + 2, 0xFF00FF00)
-            if note:
-                self.__CText(note, 320, y + 2, 0xFFFF6666)
-            y += 20
-
+        for step in fractureSteps:
+            self.__CText(step, 15, y, t["text_value"])
+            y += 18
         y += 10
+
+        self.__CText("RANK FRATTURE (da DB):", 5, y, t["accent"])
+        y += 22
+
+        self.__CBar(5, y, 420, 55, t["bg_dark"])
+        self.__CText("Ogni Frattura ha un requisito di Gloria Totale!", 75, y + 5, GOLD_COLOR)
+        self.__CText("E-Rank: 0 | D: 2K | C: 10K | B: 50K | A: 150K | S: 500K | N: 1.5M", 15, y + 22, t["text_value"])
+        self.__CText("Spawn chance: E=35% | D=25% | C=15% | B=10% | A=8% | S=5% | N=2%", 15, y + 38, t["text_muted"])
+        y += 60
+
+        # Power Rank System
+        y += 5
+        self.__CBar(5, y, 420, 115, 0x33FF6600)
+        self.__CText("FORZARE SENZA GLORIA", 155, y + 5, 0xFFFF6600)
+        self.__CText("Non hai la Gloria richiesta? Puoi forzare!", 65, y + 22, t["text_value"])
+        y += 40
+        
+        self.__CText("FRATTURE E / D / C:", 5, y, 0xFF00FF00)
+        self.__CText("Party di 4+ membri vicini", 155, y, t["text_value"])
+        y += 18
+        
+        self.__CText("FRATTURE B / A / S / N:", 5, y, 0xFFFFAA00)
+        self.__CText("Sistema POWER RANK", 175, y, t["text_value"])
+        y += 18
+        
+        self.__CText("Il Power Rank e' la somma della forza di tutti i membri", 40, y, t["text_muted"])
+        y += 25
+
+        # Power Rank Values
+        self.__CBar(5, y, 420, 45, t["bg_dark"])
+        self.__CText("VALORE POWER RANK PER GRADO HUNTER:", 90, y + 5, t["accent"])
+        self.__CText("E=1 | D=5 | C=15 | B=40 | A=80 | S=150 | N=250 punti", 55, y + 25, t["text_value"])
+        y += 55
+
+        # Power Rank Requirements
+        self.__CBar(5, y, 420, 80, t["bg_dark"])
+        self.__CText("REQUISITI POWER RANK FRATTURE:", 110, y + 5, 0xFFFFAA00)
+        self.__CText("B-Rank: 100 PR (es: 3 B = 120, o 1 A + 1 B = 120)", 45, y + 22, t["text_value"])
+        self.__CText("A-Rank: 200 PR (es: 2 A + 1 B = 200, o 1 S + 1 B = 190)", 30, y + 38, t["text_value"])
+        self.__CText("S-Rank: 350 PR (es: 1 N + 1 S = 400, o 3 S = 450)", 45, y + 52, t["text_value"])
+        self.__CText("N-Rank: 500 PR (es: 2 N = 500, o 1 N + 2 S = 550)", 45, y + 66, t["text_value"])
+        y += 90
 
         self.__CBar(5, y, 420, 45, 0x33FFD700)
         self.__CText("ATTENZIONE!", 180, y + 5, GOLD_COLOR)
@@ -1909,15 +2151,16 @@ class HunterLevelWindow(ui.ScriptWindow):
         y += 25
         
         # Intro
-        self.__CText("Usa i tuoi Crediti per acquistare oggetti esclusivi!", 60, y, t["text_muted"])
+        self.__CText("Usa la tua Gloria Spendibile per acquistare oggetti!", 60, y, t["text_muted"])
         y += 25
         
-        # Come ottenere crediti
-        self.__CBar(5, y, 420, 50, t["bg_dark"])
-        self.__CText("COME OTTENERE CREDITI:", 140, y + 5, 0xFFFFA500)
-        self.__CText("- Converti Gloria: /hunter_convert [quantita]", 15, y + 22, t["text_value"])
-        self.__CText("- Premi classifica giornaliera e settimanale", 15, y + 36, t["text_value"])
-        y += 60
+        # Come funziona la Gloria Spendibile
+        self.__CBar(5, y, 420, 65, t["bg_dark"])
+        self.__CText("GLORIA SPENDIBILE:", 155, y + 5, 0xFFFFA500)
+        self.__CText("Ogni Gloria guadagnata e' anche Gloria Spendibile.", 55, y + 22, t["text_value"])
+        self.__CText("Puoi spenderla nello Shop senza perdere il Rank!", 60, y + 36, t["text_value"])
+        self.__CText("La Gloria Totale determina il Rank, quella Spendibile lo Shop.", 25, y + 50, t["text_muted"])
+        y += 75
         
         # Categorie shop
         self.__CText("CATEGORIE DISPONIBILI:", 5, y, t["accent"])
@@ -1946,7 +2189,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         y += 22
         
         tips = [
-            "- Non sprecare Crediti su consumabili comuni",
+            "- Non sprecare Gloria Spendibile su consumabili comuni",
             "- Gli item speciali cambiano ogni settimana",
             "- Risparmia per equipaggiamento di alto rank",
             "- I cosmetici sono permanenti, buon investimento!",
@@ -1976,10 +2219,10 @@ class HunterLevelWindow(ui.ScriptWindow):
              "NO! Solo Fratture, Missioni, Emergency Quest ed Eventi danno Gloria!"),
 
             ("Perche' perdo Gloria?",
-             "Non hai completato le missioni giornaliere entro mezzanotte."),
+             "Missioni non completate: perdi Gloria TOTALE (non spendibile)."),
 
             ("Cos'e' il Bonus x1.5?",
-             "Se completi TUTTE E 3 le missioni, ricevi +50% Gloria extra!"),
+             "Completi 3 missioni = +50% Gloria missioni + 50% bonus fratture!"),
 
             ("Come salgo di Rank?",
              "Accumula Gloria! E->D: 2000, D->C: 10000, C->B: 50000, etc."),
@@ -1991,34 +2234,61 @@ class HunterLevelWindow(ui.ScriptWindow):
              "Usa /hunter_events per vedere gli eventi, poi clicca 'Partecipa'."),
 
             ("Cosa sono le Fratture?",
-             "Portali dimensionali con mob potenti. Danno +200-1000 Gloria!"),
+             "Portali dimensionali con Boss/Metin Elite. Gloria scala col rank!"),
 
             ("Quando si resettano le missioni?",
-             "Ogni giorno alle 00:05. Le missioni non complete danno penalita'."),
+             "Alle 00:05. Missioni incomplete = penalita' su Gloria TOTALE!"),
 
             ("Come funziona lo streak bonus?",
-             "Login consecutivi: 3gg=+5%, 7gg=+10%, 30gg=+20% Gloria extra!"),
+             "Accessi consecutivi: 3 giorni=+5%, 7 giorni=+10%, 30 giorni=+20%!"),
 
             ("Cos'e' l'Emergency Quest?",
-             "Missioni speciali che spawnano random! Tempo limitato, premi ALTI."),
+             "Missioni speciali dopo ~500 kill! 40% chance, tempo limitato."),
 
             ("Come ottengo Speed Kill Bonus?",
-             "Uccidi Boss in 60s o Metin in 300s = x2 Punti Gloria!"),
+             "Boss: uccidi in 60s. Metin: distruggi in 300s = x2 Gloria!"),
 
             ("Perche' il Terminale si apre da solo?",
              "Quando fai progresso missioni si apre automaticamente per 5 secondi!"),
 
-            ("Cosa succede se fallisco 3 missioni?",
-             "Ricevi uno Strike. A 3 Strike = 24h di penalty (no Gloria)."),
+            ("Cosa succede se non completo le missioni?",
+             "Perdi Gloria TOTALE (non spendibile). Missione segnata come 'failed'."),
+
+            ("Le missioni si perdono se cambio mappa?",
+             "NO! Le missioni persistono anche cambiando mappa o riloggando."),
 
             ("Come funziona il sistema Rival?",
              "Se qualcuno ti supera in classifica, ricevi una notifica!"),
 
             ("Cosa sono i Bauli Dimensionali?",
-             "Spawn random dopo kill. Danno item rari + Buoni Gloria!"),
+             "Spawn random nelle fratture. Danno item rari + Gloria bonus!"),
 
             ("Posso aprire Fratture da E-Rank?",
-             "SI, ma quelle Rank A+ richiedono 500K+ Gloria per entrare."),
+             "SI! Tutti possono aprirle, ma rank A+ hanno fratture esclusive."),
+
+            ("Cos'e' la Prova d'Esame?",
+             "Trial per rank-up: -50% Gloria finche' non completi gli obiettivi!"),
+
+            ("Perche' guadagno meno Gloria del solito?",
+             "Prova d'Esame attiva? Guarda il syschat dettagliato con tutti i bonus/malus!"),
+
+            ("Come funziona la Gloria in party?",
+             "Va a CHI FA L'AZIONE: killer, chi apre bauli, chi conquista fratture!"),
+
+            ("Come vedo il calcolo dettagliato Gloria?",
+             "Ogni kill Boss/Metin/Baule mostra syschat con tutti i bonus e malus!"),
+
+            ("Cos'e' il Power Rank?",
+             "La somma della forza del party: E=1, D=5, C=15, B=40, A=80, S=150, N=250."),
+
+            ("Come forzo fratture B/A/S/N senza Gloria?",
+             "Servono tot Power Rank: B=100, A=200, S=350, N=500. Fai party con rank alti!"),
+
+            ("Cosa sono i Quick Access nel Trial?",
+             "Pulsanti rapidi per aprire RankUp/Gate e Missioni/Eventi senza uscire!"),
+
+            ("Cos'e' il Fracture Bonus +50%?",
+             "3/3 missioni = +50% Gloria da Boss/Metin delle fratture! Visibile nel dettaglio."),
         ]
 
         for q, a in faqs:
@@ -2036,7 +2306,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         y += 15
 
         # Comandi utili
-        self.__CBar(5, y, 420, 130, t["bg_dark"])
+        self.__CBar(5, y, 420, 115, t["bg_dark"])
         self.__CText("COMANDI E SCORCIATOIE:", 155, y + 5, t["accent"])
         y += 22
 
@@ -2044,9 +2314,10 @@ class HunterLevelWindow(ui.ScriptWindow):
             ("Tasto N", "Apre/Chiude il Terminale Hunter"),
             ("/hunter_missions", "Apre pannello missioni giornaliere"),
             ("/hunter_events", "Mostra eventi programmati di oggi"),
-            ("/hunter_stats", "Mostra le tue statistiche complete"),
-            ("/hunter_convert [qty]", "Converti Gloria in Crediti (ratio 10:1)"),
-            ("/hunter_shop", "Apre il Mercante Hunter"),
+            ("/hunter_join_event [id]", "Partecipa all'evento con ID specificato"),
+            ("/hunter_buy [id]", "Acquista item dallo shop con Gloria"),
+            ("/hunter_claim [id]", "Riscuoti ricompensa achievement"),
+            ("/hunter_smart_claim", "Riscuoti tutte le ricompense disponibili"),
         ]
 
         for cmd, desc in commands:
@@ -2057,15 +2328,17 @@ class HunterLevelWindow(ui.ScriptWindow):
         y += 20
 
         # Consigli finali
-        self.__CBar(5, y, 420, 110, 0x33FFD700)
+        self.__CBar(5, y, 420, 145, 0x33FFD700)
         self.__CText("CONSIGLI PER NUOVI HUNTER:", 130, y + 5, GOLD_COLOR)
         self.__CText("1. Completa SEMPRE le 3 missioni giornaliere (evita penalty)", 15, y + 22, t["text_value"])
-        self.__CText("2. Emergency Quest = opportunita' MASSIMA! Non perderle!", 15, y + 36, t["text_value"])
+        self.__CText("2. Emergency Quest dopo ~500 kill = opportunita' MASSIMA!", 15, y + 36, t["text_value"])
         self.__CText("3. Speed Kill Boss (60s) e Metin (300s) = DOPPI PUNTI!", 15, y + 50, t["text_value"])
-        self.__CText("4. Accedi ogni giorno per streak bonus (fino a +20%)", 15, y + 64, t["text_value"])
+        self.__CText("4. Accedi ogni giorno per streak bonus (3gg/7gg/30gg)", 15, y + 64, t["text_value"])
         self.__CText("5. Weekend = eventi speciali con Gloria x2/x3!", 15, y + 78, t["text_value"])
-        self.__CText("6. Fratture danno PIU' Gloria dei mob normali", 15, y + 92, t["text_value"])
-        y += 120
+        self.__CText("6. Fratture danno PIU' Gloria dei mob normali (200-2000)", 15, y + 92, t["text_value"])
+        self.__CText("7. In PARTY la Gloria va a chi fa l'azione (killer/opener)!", 15, y + 106, 0xFF00FFFF)
+        self.__CText("8. Usa Quick Access nel Trial per Rank Up e Missioni!", 15, y + 120, 0xFF00FFFF)
+        y += 155
 
         return y
     
@@ -2116,9 +2389,6 @@ class HunterLevelWindow(ui.ScriptWindow):
         """Mostra messaggio del Sistema con colore basato sul rank"""
         if self.systemMsgWnd:
             color = self.RANK_COLORS.get(rankKey, 0xFF808080)
-            # DEBUG: Log color lookup
-            import dbg
-            dbg.TraceError("[PY-DEBUG] ShowSystemMessage: rankKey='%s', color=0x%X" % (rankKey, color))
             self.systemMsgWnd.ShowMessage(msg, color)
             # REMOVED: SetRankColor() era ridondante e causava override del colore
     
@@ -2164,7 +2434,8 @@ class HunterLevelWindow(ui.ScriptWindow):
     
     def EndEmergencyQuest(self, success):
         if self.emergencyWnd:
-            self.emergencyWnd.EndMission(success)
+            status = "SUCCESS" if success else "FAILED"
+            self.emergencyWnd.EndMission(status)
     
     def UpdateRival(self, name, points, label="Gloria", mode="VICINO"):
         if self.rivalWnd:
@@ -2184,30 +2455,36 @@ class HunterLevelWindow(ui.ScriptWindow):
         if self.systemInitWnd:
             self.systemInitWnd.StartLoading()
     
-    def ShowAwakening(self, playerName):
-        """Mostra effetto risveglio al Lv 5 (misterioso)"""
+    def ShowAwakening(self, level):
+        """Mostra effetto awakening per un livello specifico"""
+        # level puo' essere int o stringa (retrocompatibilita)
+        try:
+            lvl = int(level)
+        except:
+            lvl = 5  # Default se viene passato un nome (vecchio sistema)
+        
         if self.awakeningWnd:
-            self.awakeningWnd.StartAwakening(playerName)
+            self.awakeningWnd.Start(lvl)
     
     def ShowHunterActivation(self, playerName):
-        """Mostra effetto attivazione Hunter al Lv 30"""
-        if self.activationWnd:
-            self.activationWnd.StartActivation(playerName)
+        """Mostra effetto attivazione Hunter al Lv 30 - usa Awakening Lv30"""
+        if self.awakeningWnd:
+            self.awakeningWnd.Start(30)
     
     def ShowRankUp(self, oldRank, newRank):
         """Mostra effetto salita di rank"""
         if self.rankUpWnd:
-            self.rankUpWnd.ShowRankUp(oldRank, newRank)
+            self.rankUpWnd.Start(oldRank, newRank)
     
     def ShowOvertake(self, overtakenName, newPosition):
         """Mostra effetto sorpasso in classifica"""
         if self.overtakeWnd:
             self.overtakeWnd.ShowOvertake(overtakenName, newPosition)
     
-    def ShowEventStatus(self, eventName, duration, eventType="default"):
+    def ShowEventStatus(self, eventName, duration, eventType="default", desc="", reward=""):
         """Mostra finestra stato evento"""
         if self.eventWnd:
-            self.eventWnd.ShowEvent(eventName, duration, eventType)
+            self.eventWnd.ShowEvent(eventName, duration, eventType, desc, reward)
     
     def CloseEventStatus(self):
         """Chiude la finestra stato evento"""
@@ -2302,24 +2579,48 @@ class HunterLevelWindow(ui.ScriptWindow):
         if self.missionsWnd and self.missionsWnd.IsShow():
             self.missionsWnd.SetMissionComplete(missionId)
     
-    def OnAllMissionsComplete(self, bonus):
-        """Notifica tutte le missioni complete - bonus x1.5"""
+    def OnAllMissionsComplete(self, bonus, hasFractureBonus=False):
+        """Notifica tutte le missioni complete - bonus x1.5 per le fratture"""
         bonus = int(bonus)
         if self.allMissionsCompleteWnd:
-            self.allMissionsCompleteWnd.ShowBonus(bonus, self.theme)
+            self.allMissionsCompleteWnd.ShowBonus(bonus, self.theme, hasFractureBonus)
+        
+        # Se il bonus fratture è attivo, mostra indicatore
+        if hasFractureBonus:
+            # Aggiorna il titolo o aggiunge visual indicator
+            if self.theme == "awakening":
+                self.bonusIndicatorText = "BONUS FRATTURE ATTIVO +50%"
+            else:
+                self.bonusIndicatorText = "BONUS SEAL +50%"
+            self.fractureBonusActive = True
     
     def OpenMissionsPanel(self):
         """Apre pannello missioni giornaliere"""
         if self.missionsWnd:
             self.missionsWnd.Open(self.missionsData, self.theme)
     
+    def OpenRankUpPanel(self):
+        """Apre pannello Rank Up - mostra finestra principale con tab RankUp"""
+        try:
+            # Apre la finestra principale Hunter
+            self.Show()
+            self.SetTop()
+            # Imposta la tab su RankUp se esiste
+            if hasattr(self, 'tabButtons') and self.tabButtons:
+                # Cerca la tab RankUp/Rank
+                for tabName, btn in self.tabButtons.items():
+                    if "rank" in tabName.lower():
+                        self.__OnTabClick(tabName)
+                        break
+        except Exception as e:
+            import dbg
+            dbg.TraceError("OpenRankUpPanel error: " + str(e))
+    
     # ========================================================================
     #  EVENTS SCHEDULE SYSTEM
     # ========================================================================
     def SetEventsCount(self, count):
         """Prepara per ricevere dati eventi"""
-        import dbg
-        dbg.TraceError("SetEventsCount: expecting %s events" % str(count))
         self.eventsCount = int(count)
         self.eventsData = []
     
@@ -2339,7 +2640,8 @@ class HunterLevelWindow(ui.ScriptWindow):
                     "status": eventData.get("status", "upcoming"),
                     "desc": eventData.get("desc", ""),
                     "color": eventData.get("color", "GOLD"),
-                    "min_rank": eventData.get("min_rank", "E")
+                    "min_rank": eventData.get("min_rank", "E"),
+                    "winner_prize": eventData.get("winner_prize", 200)
                 }
             else:
                 # Fallback vecchio formato stringa
@@ -2355,19 +2657,16 @@ class HunterLevelWindow(ui.ScriptWindow):
                         "status": parts[6],
                         "desc": parts[7] if len(parts) > 7 else "",
                         "color": parts[8] if len(parts) > 8 else "GOLD",
-                        "min_rank": parts[9] if len(parts) > 9 else "E"
+                        "min_rank": parts[9] if len(parts) > 9 else "E",
+                        "winner_prize": int(parts[10]) if len(parts) > 10 else 200
                     }
                 else:
                     return
                     
             self.eventsData.append(event)
             
-            import dbg
-            dbg.TraceError("AddEventData: received event %d/%d: %s" % (len(self.eventsData), self.eventsCount, event.get("name", "?")))
-            
             # Quando abbiamo tutti i dati, aggiorna UI
             if len(self.eventsData) >= self.eventsCount:
-                dbg.TraceError("All events received! Total: %d events" % len(self.eventsData))
                 # Aggiorna finestra eventi popup se esiste
                 if self.eventsWnd:
                     self.eventsWnd.SetEvents(self.eventsData, self.theme)
@@ -2402,14 +2701,31 @@ class HunterLevelWindow(ui.ScriptWindow):
     
     def OpenEventsPanel(self):
         """Apre pannello eventi programmati"""
-        import dbg
-        dbg.TraceError("OpenEventsPanel called, eventsData count: " + str(len(self.eventsData)))
         if self.eventsWnd:
-            dbg.TraceError("eventsWnd exists, calling Open")
             self.eventsWnd.Open(self.eventsData, self.theme)
-        else:
-            dbg.TraceError("eventsWnd is None!")
-    
+
+    def OnNewDay(self):
+        """E' passata la mezzanotte - resetta cache eventi e aggiorna UI"""
+        import chat
+        
+        # Pulisci cache eventi vecchi
+        self.eventsData = []
+        self.eventsCount = 0
+        
+        # Chiudi popup eventi se aperto (mostrera' dati vecchi)
+        if self.eventsWnd and self.eventsWnd.IsShow():
+            self.eventsWnd.Hide()
+        
+        # Notifica player
+        chat.AppendChat(chat.CHAT_TYPE_INFO, "|cff00FFFF[HUNTER]|r Nuovo giorno! Lista eventi aggiornata.")
+        
+        # Se siamo nel tab eventi, forza refresh
+        if self.currentTab == 4:
+            self.__ClearContent()
+            self.__LoadEvents(skipRequest=False)  # Richiedi nuovi dati
+            self.__SavePositions()
+            self.__UpdateScroll()
+
     # ========================================================================
     #  DATA SETTERS
     # ========================================================================
@@ -2513,15 +2829,6 @@ class HunterLevelWindow(ui.ScriptWindow):
         self.SetTop()
         self.Show()
 
-        # Richiedi automaticamente i dati del player quando l'UI si apre
-        # Questo assicura che i dati siano sempre aggiornati
-        try:
-            import hunterlevel_v2
-            hunterlevel_v2.RequestPlayerData()
-        except:
-            # Fallback: usa comando chat diretto
-            net.SendChatPacket("/hunter_data")
-
         # Se il player apre manualmente mentre c'è un timer auto-close, disabilitalo
         # Questo evita che la finestra si chiuda se il player vuole tenerla aperta
         if self.IsShow() and self.autoCloseTimer > 0.0:
@@ -2553,6 +2860,28 @@ class HunterLevelWindow(ui.ScriptWindow):
             chat.AppendChat(chat.CHAT_TYPE_INFO, "[SPEED KILL SUCCESS] GLORIA x2!")
         else:
             chat.AppendChat(chat.CHAT_TYPE_INFO, "[SPEED KILL FAILED] Gloria normale")
+
+    # ========================================================================
+    #  FRACTURE DEFENSE SYSTEM - Metodi richiesti per difesa fratture
+    # ========================================================================
+    def StartFractureDefense(self, fractureName, duration, color):
+        """Avvia difesa frattura"""
+        import chat
+        minutes = duration / 60
+        chat.AppendChat(chat.CHAT_TYPE_INFO, "[DIFESA FRATTURA] %s - Difendi per %d:%02d!" % (fractureName, minutes, duration % 60))
+
+    def UpdateFractureDefenseTimer(self, remainingSeconds):
+        """Aggiorna timer difesa (chiamato ogni secondo)"""
+        # Non stampiamo nulla per non spammare la chat
+        pass
+
+    def CompleteFractureDefense(self, success, message):
+        """Termina difesa frattura"""
+        import chat
+        if success == 1 or success == "1":
+            chat.AppendChat(chat.CHAT_TYPE_INFO, "[DIFESA RIUSCITA] %s" % message)
+        else:
+            chat.AppendChat(chat.CHAT_TYPE_INFO, "[DIFESA FALLITA] %s" % message)
 
 # ============================================================================
 #  WINDOW MANAGER

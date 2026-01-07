@@ -23,45 +23,6 @@ import constInfo
 import exchange
 import ime
 
-# ============================================================
-# QUEST SYSTEM FIX - Applica PRIMA del caricamento di uiCharacter
-# ============================================================
-_quest_GetQuestProperties_ORIGINAL = None
-
-def _SafeGetQuestProperties(questIndex, propertyIndex=0):
-	"""Fix per IndexError in quest.GetQuestProperties"""
-	try:
-		if questIndex < 0:
-			return ""
-
-		questName = quest.GetQuestName(questIndex)
-		if not questName:
-			return ""
-
-		# Usa la funzione originale se disponibile
-		if _quest_GetQuestProperties_ORIGINAL:
-			try:
-				result = _quest_GetQuestProperties_ORIGINAL(questIndex)
-				if result and len(result) > propertyIndex:
-					return result[propertyIndex]
-			except:
-				pass
-
-		# Fallback: ritorna nome quest
-		return questName if propertyIndex == 0 else ""
-
-	except Exception as e:
-		dbg.TraceError("SafeGetQuestProperties error for quest %d: %s" % (questIndex, str(e)))
-		return ""
-
-# Applica il patch IMMEDIATAMENTE, prima che uiCharacter venga caricato
-if hasattr(quest, 'GetQuestProperties'):
-	if not hasattr(quest, 'GetQuestProperties_PATCHED'):
-		_quest_GetQuestProperties_ORIGINAL = quest.GetQuestProperties
-		quest.GetQuestProperties = _SafeGetQuestProperties
-		quest.GetQuestProperties_PATCHED = True
-		dbg.LogBox("[QUEST FIX] Quest module patched successfully BEFORE uiCharacter import")
-
 # UI imports
 import ui
 import uiCommon
@@ -100,15 +61,10 @@ if app.ENABLE_PREMIUM_PRIVATE_SHOP_OFFICIAL:
 from _weakref import proxy
 
 # ============================================================
-# 1. IMPORT HUNTER SYSTEM (v1 + v2 COMPLETO)
+# 1. IMPORT HUNTER SYSTEM
 # ============================================================
 import uihunterlevel
-import hunterlevel_v2
-import hunter_v2_integration
-import uihunterlevel_gate_effects
 import uihunterlevel_gate_trial
-import uihunterlevel_awakening
-import uihunterlevel_whatif
 
 # SCREENSHOT_CWDSAVE
 SCREENSHOT_CWDSAVE = True
@@ -2428,7 +2384,6 @@ class GameWindow(ui.ScriptWindow):
 		serverCommandList["HunterActiveEvent"]   = self.__HunterActiveEvent
 		serverCommandList["HunterTimers"]        = self.__HunterTimers
 		serverCommandList["HunterOpenWindow"]    = self.__HunterOpenWindow
-		serverCommandList["HunterOpenUI"]        = self.__HunterOpenUI
 		serverCommandList["HunterMessage"]       = self.__HunterMessage
 		serverCommandList["HunterFractures"]     = self.__HunterFractures
 
@@ -2470,6 +2425,15 @@ class GameWindow(ui.ScriptWindow):
 		serverCommandList["HunterEventBatch"]        = self.__HunterEventBatch
 		serverCommandList["HunterEventJoined"]       = self.__HunterEventJoined
 		serverCommandList["HunterEventsOpen"]        = self.__HunterEventsOpen
+		serverCommandList["HunterNewDay"]            = self.__HunterNewDay
+		serverCommandList["HunterOpenRankUp"]        = self.__HunterOpenRankUp
+
+		# Chest/Baule System
+		serverCommandList["HunterChestOpening"]  = self.__HunterChestOpening
+		serverCommandList["HunterChestOpened"]   = self.__HunterChestOpened
+		serverCommandList["HunterChestItem"]     = self.__HunterChestItem
+		serverCommandList["HunterPartyChest"]    = self.__HunterPartyChest
+
 		if app.ENABLE_ODLAMKI_SYSTEM:
 			serverCommandList["OpenOdlamki"] = self.OpenOdlamki
 
@@ -2491,10 +2455,7 @@ class GameWindow(ui.ScriptWindow):
 			"botcontrolname" : self.UpdateBotControlRealName,
 			"botcontrolrof" : self.UpdateBotControlRof,
 		})
-
-		# Registra comandi Hunter v2.0 (sovrascrive quelli vecchi se necessario)
-		hunter_v2_integration.RegisterV2Commands(serverCommandList, self)
-
+		
 		self.serverCommander=stringCommander.Analyzer()
 		for serverCommandItem in serverCommandList.items():
 			self.serverCommander.SAFE_RegisterCallBack(
@@ -3468,10 +3429,6 @@ class GameWindow(ui.ScriptWindow):
 	def __HunterOpenWindow(self):
 		uihunterlevel.OpenHunterLevelWindow()
 
-	def __HunterOpenUI(self):
-		"""Apre Hunter UI (chiamato da quest letter)"""
-		uihunterlevel.OpenHunterLevelWindow()
-
 	def __HunterMessage(self, msgStr):
 		chat.AppendChat(chat.CHAT_TYPE_INFO, msgStr.replace("+", " "))
 
@@ -3505,9 +3462,6 @@ class GameWindow(ui.ScriptWindow):
 				parts = msg.split("|", 1)
 				rank_key = parts[0].strip()  # FIX: strip() whitespace per lookup corretto
 				actual_msg = parts[1] if len(parts) > 1 else ""
-				# DEBUG: Log rankKey per diagnosi colori
-				import dbg
-				dbg.TraceError("[PY-DEBUG] HunterSystemSpeak: rankKey='%s', msg='%s'" % (rank_key, actual_msg[:50]))
 				self.interface.HunterSystemSpeak(actual_msg, rank_key)
 			else:
 				# Retrocompatibilita: vecchio formato senza rank
@@ -3656,10 +3610,16 @@ class GameWindow(ui.ScriptWindow):
 				eventName = parts[0].replace("+", " ")
 				duration = int(parts[1])
 				eventType = "default"
+				desc = ""
+				reward = ""
 				if len(parts) >= 3:
 					eventType = parts[2]
+				if len(parts) >= 4:
+					desc = parts[3].replace("+", " ")
+				if len(parts) >= 5:
+					reward = parts[4].replace("+", " ")
 				if self.interface:
-					self.interface.HunterEventStatus(eventName, duration, eventType)
+					self.interface.HunterEventStatus(eventName, duration, eventType, desc, reward)
 		except:
 			pass
 
@@ -3732,13 +3692,17 @@ class GameWindow(ui.ScriptWindow):
 			pass
 	
 	def __HunterAllMissionsComplete(self, data):
-		"""Tutte le missioni complete - bonus x1.5"""
+		"""Tutte le missioni complete - bonus x1.5 + bonus fratture attivato"""
 		try:
-			bonus = int(data)
+			parts = data.split("|")
+			bonus = int(parts[0])
+			hasFractureBonus = len(parts) > 1 and parts[1] == "FRACTURE_BONUS_ACTIVE"
+			
 			if self.interface:
-				self.interface.HunterAllMissionsComplete(bonus)
-		except:
-			pass
+				self.interface.HunterAllMissionsComplete(bonus, hasFractureBonus)
+		except Exception as e:
+			import dbg
+			dbg.TraceError("HunterAllMissionsComplete error: " + str(e))
 	
 	def __HunterMissionsOpen(self):
 		"""Apre pannello missioni"""
@@ -3747,6 +3711,72 @@ class GameWindow(ui.ScriptWindow):
 				self.interface.HunterMissionsOpen()
 		except:
 			pass
+	
+	def __HunterOpenRankUp(self):
+		"""Apre pannello Rank Up dalla finestra Trial"""
+		try:
+			if self.interface:
+				self.interface.HunterOpenRankUp()
+		except Exception as e:
+			import dbg
+			dbg.TraceError("__HunterOpenRankUp error: " + str(e))
+
+	# ============================================================
+	# CHEST/BAULE HANDLERS
+	# ============================================================
+	def __HunterChestOpening(self, data):
+		"""Effetto visivo pre-apertura baule: vid"""
+		try:
+			vid = int(data)
+			# Suono apertura baule
+			import snd
+			snd.PlaySound("sound/ui/drop.wav")
+		except Exception as e:
+			import dbg
+			dbg.TraceError("__HunterChestOpening error: " + str(e))
+
+	def __HunterChestOpened(self, data):
+		"""Mostra effetto EPICO apertura baule: vnum|glory|name|color|itemName|jackpotGlory|jackpotItems"""
+		try:
+			parts = data.split("|")
+			if len(parts) >= 4:
+				vnum = int(parts[0])
+				glory = int(parts[1])
+				name = parts[2].replace("+", " ")
+				color = parts[3] if len(parts) > 3 else "GOLD"
+				itemName = parts[4].replace("+", " ") if len(parts) > 4 and parts[4] else ""
+				jackpotGlory = int(parts[5]) if len(parts) > 5 and parts[5] else 0
+				jackpotItems = parts[6].replace("+", " ") if len(parts) > 6 and parts[6] else ""
+				
+				# EFFETTO EPICO!
+				import uihunterlevel_gate_effects
+				uihunterlevel_gate_effects.ShowChestOpen(name, glory, color, itemName, jackpotGlory, jackpotItems)
+		except Exception as e:
+			import dbg
+			dbg.TraceError("__HunterChestOpened error: " + str(e))
+
+	def __HunterChestItem(self, data):
+		"""Item bonus dal baule - gestito gia' in ChestOpened"""
+		pass  # L'item viene mostrato nell'effetto principale
+
+	def __HunterPartyChest(self, data):
+		"""Notifica party chest: name|total_glory|member_count"""
+		try:
+			parts = data.split("|")
+			if len(parts) >= 3:
+				name = parts[0].replace("+", " ")
+				total_glory = int(parts[1])
+				member_count = int(parts[2])
+				
+				# Effetto party rapido
+				import uihunterlevel_gate_effects
+				uihunterlevel_gate_effects.ShowPartyChest(name, total_glory, member_count)
+		except Exception as e:
+			import dbg
+			dbg.TraceError("__HunterPartyChest error: " + str(e))
+	# ============================================================
+	# FINE CHEST HANDLERS
+	# ============================================================
 	
 	def __HunterEventsCount(self, data):
 		"""Riceve numero eventi"""
@@ -3781,7 +3811,7 @@ class GameWindow(ui.ScriptWindow):
 			pass
 	
 	def __HunterEventBatch(self, data):
-		"""Riceve batch di eventi: event1;event2;event3... dove ogni evento e' id~name~start~end~type~reward~status~min_rank"""
+		"""Riceve batch di eventi: event1;event2;event3... dove ogni evento e' id~name~start~end~type~reward~status~min_rank~winner_prize"""
 		try:
 			events = data.split(";")
 			for eventStr in events:
@@ -3797,7 +3827,8 @@ class GameWindow(ui.ScriptWindow):
 						"status": parts[6],
 						"desc": "",
 						"color": "GOLD",
-						"min_rank": parts[7] if len(parts) > 7 else "E"
+						"min_rank": parts[7] if len(parts) > 7 else "E",
+						"winner_prize": int(parts[8]) if len(parts) > 8 else 200
 					}
 					if self.interface:
 						self.interface.HunterEventData(eventData)
@@ -3822,6 +3853,14 @@ class GameWindow(ui.ScriptWindow):
 		try:
 			if self.interface:
 				self.interface.HunterEventsOpen()
+		except:
+			pass
+
+	def __HunterNewDay(self):
+		"""E' passata la mezzanotte - resetta cache eventi e aggiorna UI"""
+		try:
+			if self.interface:
+				self.interface.HunterNewDay()
 		except:
 			pass
 
@@ -4086,14 +4125,16 @@ class GameWindow(ui.ScriptWindow):
 	# ============================================================
 
 	def __HunterGateEntry(self, args):
-		"""Effetto entrata Gate - Occhi demoniaci nel buio"""
+		import chat
 		try:
 			parts = args.split("|")
 			gateName = parts[0].replace("+", " ") if len(parts) > 0 else "Gate"
 			colorCode = parts[1] if len(parts) > 1 else "RED"
 			
+			# Importa il file che hai appena creato
 			import uihunterlevel_gate_effects
 			uihunterlevel_gate_effects.ShowGateEntry(gateName, colorCode)
+			
 		except Exception as e:
 			import dbg
 			dbg.TraceError("HunterGateEntry error: " + str(e))
@@ -4143,27 +4184,25 @@ class GameWindow(ui.ScriptWindow):
 			oldRank = parts[0] if len(parts) > 0 else "E"
 			newRank = parts[1] if len(parts) > 1 else "D"
 			
-			import uihunterlevel_awakening
-			uihunterlevel_awakening.ShowRankUp(oldRank, newRank)
+			# Usa l'interfaccia per chiamare la finestra corretta
+			if self.interface:
+				self.interface.HunterRankUp(oldRank, newRank)
 		except Exception as e:
 			import dbg
 			dbg.TraceError("HunterRankUp error: " + str(e))
 
 	def __HunterAwakening(self, args):
-		"""Effetto risveglio livello - compatibile con vecchio e nuovo sistema"""
+		"""Effetto risveglio livello - usa nuovo sistema hunter_effects"""
 		try:
-			# Nuovo sistema: args e' un numero (livello)
-			# Vecchio sistema: args e' un nome player
+			# args e' un numero (livello)
 			level = 5  # default
 			try:
 				level = int(args)
 			except:
-				# args non e' un numero, e' il vecchio sistema (nome player)
-				# Usa livello 5 come default
 				level = 5
 			
-			import uihunterlevel_awakening
-			uihunterlevel_awakening.ShowAwakening(level)
+			import hunter_effects
+			hunter_effects.ShowAwakening(level)
 		except Exception as e:
 			import dbg
 			dbg.TraceError("HunterAwakening error: " + str(e))

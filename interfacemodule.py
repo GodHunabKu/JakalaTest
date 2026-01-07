@@ -3548,10 +3548,10 @@ class Interface(object):
 		if self.wndHunterLevel:
 			self.wndHunterLevel.ShowSystemMessage(msg, color)
 
-	def HunterEventStatus(self, eventName, duration, eventType="default"):
+	def HunterEventStatus(self, eventName, duration, eventType="default", desc="", reward=""):
 		"""Mostra finestra stato evento"""
 		if self.wndHunterLevel:
-			self.wndHunterLevel.ShowEventStatus(eventName, duration, eventType)
+			self.wndHunterLevel.ShowEventStatus(eventName, duration, eventType, desc, reward)
 
 	def HunterEventClose(self):
 		"""Chiude la finestra stato evento"""
@@ -3582,15 +3582,20 @@ class Interface(object):
 		if self.wndHunterLevel:
 			self.wndHunterLevel.OnMissionComplete(missionId, name, reward)
 	
-	def HunterAllMissionsComplete(self, bonus):
-		"""Notifica tutte missioni complete"""
+	def HunterAllMissionsComplete(self, bonus, hasFractureBonus=False):
+		"""Notifica tutte missioni complete + bonus fratture attivato"""
 		if self.wndHunterLevel:
-			self.wndHunterLevel.OnAllMissionsComplete(bonus)
+			self.wndHunterLevel.OnAllMissionsComplete(bonus, hasFractureBonus)
 	
 	def HunterMissionsOpen(self):
 		"""Apre pannello missioni"""
 		if self.wndHunterLevel:
 			self.wndHunterLevel.OpenMissionsPanel()
+	
+	def HunterOpenRankUp(self):
+		"""Apre pannello Rank Up dalla finestra Trial"""
+		if self.wndHunterLevel:
+			self.wndHunterLevel.OpenRankUpPanel()
 	
 	# ============================================================
 	# EVENTS SYSTEM
@@ -3615,6 +3620,11 @@ class Interface(object):
 		"""Apre pannello eventi"""
 		if self.wndHunterLevel:
 			self.wndHunterLevel.OpenEventsPanel()
+
+	def HunterNewDay(self):
+		"""E' passata la mezzanotte - resetta cache eventi"""
+		if self.wndHunterLevel:
+			self.wndHunterLevel.OnNewDay()
 
 	# ============================================================
 	# FRACTURE DEFENSE SYSTEM
