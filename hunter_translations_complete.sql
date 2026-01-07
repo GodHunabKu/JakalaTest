@@ -1033,5 +1033,406 @@ INSERT INTO hunter_translations (translation_key, lang_code, text_value) VALUES
 ON DUPLICATE KEY UPDATE text_value = VALUES(text_value);
 
 -- ═══════════════════════════════════════════════════════════════════════════════
+-- SERVER-SIDE MESSAGES (Lua syschat, notice_all, etc.)
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+-- EMERGENCY SYSTEM
+INSERT INTO hunter_translations (translation_key, lang_code, text_value) VALUES
+('EMERG_COMPLETED_TITLE', 'it', '[!!!] SFIDA EMERGENZA COMPLETATA [!!!]'),
+('EMERG_COMPLETED_TITLE', 'en', '[!!!] EMERGENCY CHALLENGE COMPLETED [!!!]'),
+('EMERG_COMPLETED_TITLE', 'de', '[!!!] NOTFALL-HERAUSFORDERUNG ABGESCHLOSSEN [!!!]'),
+('EMERG_COMPLETED_TITLE', 'es', '[!!!] DESAFIO DE EMERGENCIA COMPLETADO [!!!]'),
+('EMERG_COMPLETED_TITLE', 'fr', '[!!!] DEFI D''URGENCE COMPLETE [!!!]'),
+('EMERG_COMPLETED_TITLE', 'pt', '[!!!] DESAFIO DE EMERGENCIA COMPLETO [!!!]'),
+
+('EMERG_REWARD', 'it', 'Gloria Ricompensa: +{PTS}'),
+('EMERG_REWARD', 'en', 'Glory Reward: +{PTS}'),
+('EMERG_REWARD', 'de', 'Ruhm Belohnung: +{PTS}'),
+('EMERG_REWARD', 'es', 'Recompensa de Gloria: +{PTS}'),
+('EMERG_REWARD', 'fr', 'Recompense de Gloire: +{PTS}'),
+('EMERG_REWARD', 'pt', 'Recompensa de Gloria: +{PTS}'),
+
+('EMERG_TOTAL', 'it', '>>> TOTALE: +{PTS} Gloria <<<'),
+('EMERG_TOTAL', 'en', '>>> TOTAL: +{PTS} Glory <<<'),
+('EMERG_TOTAL', 'de', '>>> GESAMT: +{PTS} Ruhm <<<'),
+('EMERG_TOTAL', 'es', '>>> TOTAL: +{PTS} Gloria <<<'),
+('EMERG_TOTAL', 'fr', '>>> TOTAL: +{PTS} Gloire <<<'),
+('EMERG_TOTAL', 'pt', '>>> TOTAL: +{PTS} Gloria <<<'),
+
+('EMERG_VICTORY_MSG', 'it', '[VITTORIA] SFIDA SUPERATA! +{PTS} GLORIA EXTRA'),
+('EMERG_VICTORY_MSG', 'en', '[VICTORY] CHALLENGE PASSED! +{PTS} EXTRA GLORY'),
+('EMERG_VICTORY_MSG', 'de', '[SIEG] HERAUSFORDERUNG BESTANDEN! +{PTS} EXTRA RUHM'),
+('EMERG_VICTORY_MSG', 'es', '[VICTORIA] DESAFIO SUPERADO! +{PTS} GLORIA EXTRA'),
+('EMERG_VICTORY_MSG', 'fr', '[VICTOIRE] DEFI REUSSI! +{PTS} GLOIRE EN PLUS'),
+('EMERG_VICTORY_MSG', 'pt', '[VITORIA] DESAFIO SUPERADO! +{PTS} GLORIA EXTRA'),
+
+('EMERG_COMPLETED', 'it', 'SFIDA COMPLETATA!'),
+('EMERG_COMPLETED', 'en', 'CHALLENGE COMPLETED!'),
+('EMERG_COMPLETED', 'de', 'HERAUSFORDERUNG ABGESCHLOSSEN!'),
+('EMERG_COMPLETED', 'es', 'DESAFIO COMPLETADO!'),
+('EMERG_COMPLETED', 'fr', 'DEFI COMPLETE!'),
+('EMERG_COMPLETED', 'pt', 'DESAFIO COMPLETO!')
+ON DUPLICATE KEY UPDATE text_value = VALUES(text_value);
+
+-- EVENT SYSTEM
+INSERT INTO hunter_translations (translation_key, lang_code, text_value) VALUES
+('EVENT', 'it', 'EVENTO'),
+('EVENT', 'en', 'EVENT'),
+('EVENT', 'de', 'EVENT'),
+('EVENT', 'es', 'EVENTO'),
+('EVENT', 'fr', 'EVENEMENT'),
+('EVENT', 'pt', 'EVENTO'),
+
+('EVENT_FIRST_WIN', 'it', 'SEI IL PRIMO! HAI VINTO +{PTS} GLORIA!'),
+('EVENT_FIRST_WIN', 'en', 'YOU ARE FIRST! YOU WON +{PTS} GLORY!'),
+('EVENT_FIRST_WIN', 'de', 'DU BIST ERSTER! DU HAST +{PTS} RUHM GEWONNEN!'),
+('EVENT_FIRST_WIN', 'es', 'ERES EL PRIMERO! GANASTE +{PTS} GLORIA!'),
+('EVENT_FIRST_WIN', 'fr', 'TU ES PREMIER! TU AS GAGNE +{PTS} GLOIRE!'),
+('EVENT_FIRST_WIN', 'pt', 'VOCE E O PRIMEIRO! GANHOU +{PTS} GLORIA!'),
+
+('EVENT_FIRST_RIFT_TITLE', 'it', '[!] PRIMO A CONQUISTARE LA FRATTURA [!]'),
+('EVENT_FIRST_RIFT_TITLE', 'en', '[!] FIRST TO CONQUER THE RIFT [!]'),
+('EVENT_FIRST_RIFT_TITLE', 'de', '[!] ERSTER DER DIE FRAKTUR EROBERT [!]'),
+('EVENT_FIRST_RIFT_TITLE', 'es', '[!] PRIMERO EN CONQUISTAR LA FRACTURA [!]'),
+('EVENT_FIRST_RIFT_TITLE', 'fr', '[!] PREMIER A CONQUERIR LA FAILLE [!]'),
+('EVENT_FIRST_RIFT_TITLE', 'pt', '[!] PRIMEIRO A CONQUISTAR A FRATURA [!]'),
+
+('EVENT_PRIZE', 'it', 'Premio: +{PTS} Gloria!'),
+('EVENT_PRIZE', 'en', 'Prize: +{PTS} Glory!'),
+('EVENT_PRIZE', 'de', 'Preis: +{PTS} Ruhm!'),
+('EVENT_PRIZE', 'es', 'Premio: +{PTS} Gloria!'),
+('EVENT_PRIZE', 'fr', 'Prix: +{PTS} Gloire!'),
+('EVENT_PRIZE', 'pt', 'Premio: +{PTS} Gloria!'),
+
+('EVENT_FIRST_RIFT_ANNOUNCE', 'it', '{NAME} e'' il PRIMO a conquistare una frattura!'),
+('EVENT_FIRST_RIFT_ANNOUNCE', 'en', '{NAME} is the FIRST to conquer a rift!'),
+('EVENT_FIRST_RIFT_ANNOUNCE', 'de', '{NAME} ist der ERSTE der eine Fraktur erobert!'),
+('EVENT_FIRST_RIFT_ANNOUNCE', 'es', '{NAME} es el PRIMERO en conquistar una fractura!'),
+('EVENT_FIRST_RIFT_ANNOUNCE', 'fr', '{NAME} est le PREMIER a conquerir une faille!'),
+('EVENT_FIRST_RIFT_ANNOUNCE', 'pt', '{NAME} e o PRIMEIRO a conquistar uma fratura!'),
+
+('EVENT_FIRST_WINNER_TITLE', 'it', '[!!!] PRIMO CLASSIFICATO EVENTO [!!!]'),
+('EVENT_FIRST_WINNER_TITLE', 'en', '[!!!] FIRST PLACE EVENT WINNER [!!!]'),
+('EVENT_FIRST_WINNER_TITLE', 'de', '[!!!] ERSTER PLATZ EVENT GEWINNER [!!!]'),
+('EVENT_FIRST_WINNER_TITLE', 'es', '[!!!] PRIMER CLASIFICADO EVENTO [!!!]'),
+('EVENT_FIRST_WINNER_TITLE', 'fr', '[!!!] PREMIER CLASSE EVENEMENT [!!!]'),
+('EVENT_FIRST_WINNER_TITLE', 'pt', '[!!!] PRIMEIRO CLASSIFICADO EVENTO [!!!]'),
+
+('EVENT_YOU_WERE_FIRST', 'it', 'Sei stato il PRIMO!'),
+('EVENT_YOU_WERE_FIRST', 'en', 'You were the FIRST!'),
+('EVENT_YOU_WERE_FIRST', 'de', 'Du warst der ERSTE!'),
+('EVENT_YOU_WERE_FIRST', 'es', 'Fuiste el PRIMERO!'),
+('EVENT_YOU_WERE_FIRST', 'fr', 'Tu etais le PREMIER!'),
+('EVENT_YOU_WERE_FIRST', 'pt', 'Voce foi o PRIMEIRO!'),
+
+('EVENT_GLORY_PRIZE', 'it', 'Premio Gloria: +{PTS}'),
+('EVENT_GLORY_PRIZE', 'en', 'Glory Prize: +{PTS}'),
+('EVENT_GLORY_PRIZE', 'de', 'Ruhm Preis: +{PTS}'),
+('EVENT_GLORY_PRIZE', 'es', 'Premio Gloria: +{PTS}'),
+('EVENT_GLORY_PRIZE', 'fr', 'Prix Gloire: +{PTS}'),
+('EVENT_GLORY_PRIZE', 'pt', 'Premio Gloria: +{PTS}'),
+
+('EVENT_TOTAL', 'it', '>>> TOTALE: +{PTS} Gloria <<<'),
+('EVENT_TOTAL', 'en', '>>> TOTAL: +{PTS} Glory <<<'),
+('EVENT_TOTAL', 'de', '>>> GESAMT: +{PTS} Ruhm <<<'),
+('EVENT_TOTAL', 'es', '>>> TOTAL: +{PTS} Gloria <<<'),
+('EVENT_TOTAL', 'fr', '>>> TOTAL: +{PTS} Gloire <<<'),
+('EVENT_TOTAL', 'pt', '>>> TOTAL: +{PTS} Gloria <<<'),
+
+('EVENT_FIRST_BOSS_ANNOUNCE', 'it', '{NAME} e'' il PRIMO a uccidere un boss! +{PTS} Gloria!'),
+('EVENT_FIRST_BOSS_ANNOUNCE', 'en', '{NAME} is the FIRST to kill a boss! +{PTS} Glory!'),
+('EVENT_FIRST_BOSS_ANNOUNCE', 'de', '{NAME} ist der ERSTE der einen Boss totet! +{PTS} Ruhm!'),
+('EVENT_FIRST_BOSS_ANNOUNCE', 'es', '{NAME} es el PRIMERO en matar un jefe! +{PTS} Gloria!'),
+('EVENT_FIRST_BOSS_ANNOUNCE', 'fr', '{NAME} est le PREMIER a tuer un boss! +{PTS} Gloire!'),
+('EVENT_FIRST_BOSS_ANNOUNCE', 'pt', '{NAME} e o PRIMEIRO a matar um chefe! +{PTS} Gloria!'),
+
+('HUNTER_LOTTERY', 'it', 'HUNTER ESTRAZIONE'),
+('HUNTER_LOTTERY', 'en', 'HUNTER LOTTERY'),
+('HUNTER_LOTTERY', 'de', 'JAGER VERLOSUNG'),
+('HUNTER_LOTTERY', 'es', 'SORTEO CAZADOR'),
+('HUNTER_LOTTERY', 'fr', 'TIRAGE CHASSEUR'),
+('HUNTER_LOTTERY', 'pt', 'SORTEIO CACADOR'),
+
+('EVENT_LOTTERY_WIN', 'it', '{NAME} ha vinto +{PTS} Gloria!'),
+('EVENT_LOTTERY_WIN', 'en', '{NAME} won +{PTS} Glory!'),
+('EVENT_LOTTERY_WIN', 'de', '{NAME} hat +{PTS} Ruhm gewonnen!'),
+('EVENT_LOTTERY_WIN', 'es', '{NAME} gano +{PTS} Gloria!'),
+('EVENT_LOTTERY_WIN', 'fr', '{NAME} a gagne +{PTS} Gloire!'),
+('EVENT_LOTTERY_WIN', 'pt', '{NAME} ganhou +{PTS} Gloria!'),
+
+('EVENT_CONGRATS', 'it', 'Congratulazioni al vincitore dell''evento {EVENT}!'),
+('EVENT_CONGRATS', 'en', 'Congratulations to the winner of {EVENT} event!'),
+('EVENT_CONGRATS', 'de', 'Herzlichen Gluckwunsch an den Gewinner des {EVENT} Events!'),
+('EVENT_CONGRATS', 'es', 'Felicitaciones al ganador del evento {EVENT}!'),
+('EVENT_CONGRATS', 'fr', 'Felicitations au gagnant de l''evenement {EVENT}!'),
+('EVENT_CONGRATS', 'pt', 'Parabens ao vencedor do evento {EVENT}!'),
+
+('EVENT_LOTTERY_TITLE', 'it', '[!!!] HAI VINTO L''ESTRAZIONE! [!!!]'),
+('EVENT_LOTTERY_TITLE', 'en', '[!!!] YOU WON THE LOTTERY! [!!!]'),
+('EVENT_LOTTERY_TITLE', 'de', '[!!!] DU HAST DIE VERLOSUNG GEWONNEN! [!!!]'),
+('EVENT_LOTTERY_TITLE', 'es', '[!!!] GANASTE EL SORTEO! [!!!]'),
+('EVENT_LOTTERY_TITLE', 'fr', '[!!!] TU AS GAGNE LE TIRAGE! [!!!]'),
+('EVENT_LOTTERY_TITLE', 'pt', '[!!!] VOCE GANHOU O SORTEIO! [!!!]'),
+
+('EVENT_LOTTERY_EXTRACTED', 'it', 'Sei stato estratto tra i partecipanti!'),
+('EVENT_LOTTERY_EXTRACTED', 'en', 'You were drawn among the participants!'),
+('EVENT_LOTTERY_EXTRACTED', 'de', 'Du wurdest unter den Teilnehmern ausgelost!'),
+('EVENT_LOTTERY_EXTRACTED', 'es', 'Fuiste sorteado entre los participantes!'),
+('EVENT_LOTTERY_EXTRACTED', 'fr', 'Tu as ete tire au sort parmi les participants!'),
+('EVENT_LOTTERY_EXTRACTED', 'pt', 'Voce foi sorteado entre os participantes!')
+ON DUPLICATE KEY UPDATE text_value = VALUES(text_value);
+
+-- DEFENSE SYSTEM
+INSERT INTO hunter_translations (translation_key, lang_code, text_value) VALUES
+('DEFENSE_PARTY_START', 'it', '[HUNTER] DIFESA INIZIATA! Uccidete {MOBS} mob in {SECONDS} secondi!'),
+('DEFENSE_PARTY_START', 'en', '[HUNTER] DEFENSE STARTED! Kill {MOBS} mobs in {SECONDS} seconds!'),
+('DEFENSE_PARTY_START', 'de', '[HUNTER] VERTEIDIGUNG GESTARTET! Totet {MOBS} Mobs in {SECONDS} Sekunden!'),
+('DEFENSE_PARTY_START', 'es', '[HUNTER] DEFENSA INICIADA! Mata {MOBS} mobs en {SECONDS} segundos!'),
+('DEFENSE_PARTY_START', 'fr', '[HUNTER] DEFENSE COMMENCEE! Tuez {MOBS} mobs en {SECONDS} secondes!'),
+('DEFENSE_PARTY_START', 'pt', '[HUNTER] DEFESA INICIADA! Mate {MOBS} mobs em {SECONDS} segundos!'),
+
+('DEFENSE_SUCCESS', 'it', '[HUNTER] DIFESA COMPLETATA CON SUCCESSO!'),
+('DEFENSE_SUCCESS', 'en', '[HUNTER] DEFENSE COMPLETED SUCCESSFULLY!'),
+('DEFENSE_SUCCESS', 'de', '[HUNTER] VERTEIDIGUNG ERFOLGREICH ABGESCHLOSSEN!'),
+('DEFENSE_SUCCESS', 'es', '[HUNTER] DEFENSA COMPLETADA CON EXITO!'),
+('DEFENSE_SUCCESS', 'fr', '[HUNTER] DEFENSE TERMINEE AVEC SUCCES!'),
+('DEFENSE_SUCCESS', 'pt', '[HUNTER] DEFESA COMPLETA COM SUCESSO!'),
+
+('DEFENSE_FAILED_DESTROYED', 'it', '[HUNTER] DIFESA FALLITA! {REASON} - La Frattura Rank {RANK} e'' stata DISTRUTTA!'),
+('DEFENSE_FAILED_DESTROYED', 'en', '[HUNTER] DEFENSE FAILED! {REASON} - The {RANK} Rank Rift has been DESTROYED!'),
+('DEFENSE_FAILED_DESTROYED', 'de', '[HUNTER] VERTEIDIGUNG FEHLGESCHLAGEN! {REASON} - Die {RANK} Rang Fraktur wurde ZERSTORT!'),
+('DEFENSE_FAILED_DESTROYED', 'es', '[HUNTER] DEFENSA FALLIDA! {REASON} - La Fractura Rango {RANK} ha sido DESTRUIDA!'),
+('DEFENSE_FAILED_DESTROYED', 'fr', '[HUNTER] DEFENSE ECHOUEE! {REASON} - La Faille Rang {RANK} a ete DETRUITE!'),
+('DEFENSE_FAILED_DESTROYED', 'pt', '[HUNTER] DEFESA FALHOU! {REASON} - A Fratura Rank {RANK} foi DESTRUIDA!'),
+
+('DEFENSE_FAILED_RETRY', 'it', '[HUNTER] DIFESA FALLITA! {REASON} - La Frattura Rank {RANK} e'' ancora li, puoi riprovare!'),
+('DEFENSE_FAILED_RETRY', 'en', '[HUNTER] DEFENSE FAILED! {REASON} - The {RANK} Rank Rift is still there, you can retry!'),
+('DEFENSE_FAILED_RETRY', 'de', '[HUNTER] VERTEIDIGUNG FEHLGESCHLAGEN! {REASON} - Die {RANK} Rang Fraktur ist noch da, du kannst es erneut versuchen!'),
+('DEFENSE_FAILED_RETRY', 'es', '[HUNTER] DEFENSA FALLIDA! {REASON} - La Fractura Rango {RANK} sigue ahi, puedes reintentar!'),
+('DEFENSE_FAILED_RETRY', 'fr', '[HUNTER] DEFENSE ECHOUEE! {REASON} - La Faille Rang {RANK} est toujours la, tu peux reessayer!'),
+('DEFENSE_FAILED_RETRY', 'pt', '[HUNTER] DEFESA FALHOU! {REASON} - A Fratura Rank {RANK} ainda esta la, voce pode tentar novamente!'),
+
+('DEFENSE_FAILED', 'it', 'DIFESA FALLITA!'),
+('DEFENSE_FAILED', 'en', 'DEFENSE FAILED!'),
+('DEFENSE_FAILED', 'de', 'VERTEIDIGUNG FEHLGESCHLAGEN!'),
+('DEFENSE_FAILED', 'es', 'DEFENSA FALLIDA!'),
+('DEFENSE_FAILED', 'fr', 'DEFENSE ECHOUEE!'),
+('DEFENSE_FAILED', 'pt', 'DEFESA FALHOU!'),
+
+('DEFENSE_DESTROYED', 'it', 'La Frattura {RANK} e'' stata DISTRUTTA!'),
+('DEFENSE_DESTROYED', 'en', 'The {RANK} Rift has been DESTROYED!'),
+('DEFENSE_DESTROYED', 'de', 'Die {RANK} Fraktur wurde ZERSTORT!'),
+('DEFENSE_DESTROYED', 'es', 'La Fractura {RANK} ha sido DESTRUIDA!'),
+('DEFENSE_DESTROYED', 'fr', 'La Faille {RANK} a ete DETRUITE!'),
+('DEFENSE_DESTROYED', 'pt', 'A Fratura {RANK} foi DESTRUIDA!'),
+
+('DEFENSE_HIGH_RANK_WARNING1', 'it', 'Le fratture di Rank B e superiori'),
+('DEFENSE_HIGH_RANK_WARNING1', 'en', 'Rank B and higher rifts'),
+('DEFENSE_HIGH_RANK_WARNING1', 'de', 'Rang B und hohere Frakturen'),
+('DEFENSE_HIGH_RANK_WARNING1', 'es', 'Las fracturas de Rango B y superiores'),
+('DEFENSE_HIGH_RANK_WARNING1', 'fr', 'Les failles de Rang B et superieur'),
+('DEFENSE_HIGH_RANK_WARNING1', 'pt', 'As fraturas de Rank B e superiores'),
+
+('DEFENSE_HIGH_RANK_WARNING2', 'it', 'vengono distrutte se fallisci la difesa.'),
+('DEFENSE_HIGH_RANK_WARNING2', 'en', 'are destroyed if you fail the defense.'),
+('DEFENSE_HIGH_RANK_WARNING2', 'de', 'werden zerstort wenn du die Verteidigung nicht schaffst.'),
+('DEFENSE_HIGH_RANK_WARNING2', 'es', 'son destruidas si fallas la defensa.'),
+('DEFENSE_HIGH_RANK_WARNING2', 'fr', 'sont detruites si tu echoues la defense.'),
+('DEFENSE_HIGH_RANK_WARNING2', 'pt', 'sao destruidas se voce falhar na defesa.'),
+
+('DEFENSE_SORRY', 'it', 'Mi dispiace, Hunter. Buona caccia!'),
+('DEFENSE_SORRY', 'en', 'Sorry, Hunter. Good hunting!'),
+('DEFENSE_SORRY', 'de', 'Tut mir leid, Jager. Gute Jagd!'),
+('DEFENSE_SORRY', 'es', 'Lo siento, Cazador. Buena caza!'),
+('DEFENSE_SORRY', 'fr', 'Desole, Chasseur. Bonne chasse!'),
+('DEFENSE_SORRY', 'pt', 'Desculpe, Cacador. Boa caca!'),
+
+('DEFENSE_STILL_AVAILABLE', 'it', 'La Frattura {RANK} e'' ancora disponibile.'),
+('DEFENSE_STILL_AVAILABLE', 'en', 'The {RANK} Rift is still available.'),
+('DEFENSE_STILL_AVAILABLE', 'de', 'Die {RANK} Fraktur ist noch verfugbar.'),
+('DEFENSE_STILL_AVAILABLE', 'es', 'La Fractura {RANK} aun esta disponible.'),
+('DEFENSE_STILL_AVAILABLE', 'fr', 'La Faille {RANK} est encore disponible.'),
+('DEFENSE_STILL_AVAILABLE', 'pt', 'A Fratura {RANK} ainda esta disponivel.'),
+
+('DEFENSE_CAN_RETRY', 'it', 'Puoi riprovare la difesa!'),
+('DEFENSE_CAN_RETRY', 'en', 'You can retry the defense!'),
+('DEFENSE_CAN_RETRY', 'de', 'Du kannst die Verteidigung erneut versuchen!'),
+('DEFENSE_CAN_RETRY', 'es', 'Puedes reintentar la defensa!'),
+('DEFENSE_CAN_RETRY', 'fr', 'Tu peux reessayer la defense!'),
+('DEFENSE_CAN_RETRY', 'pt', 'Voce pode tentar a defesa novamente!')
+ON DUPLICATE KEY UPDATE text_value = VALUES(text_value);
+
+-- ITEM MESSAGES (hunter_items.lua)
+INSERT INTO hunter_translations (translation_key, lang_code, text_value) VALUES
+('ITEM_SCANNER_ACTIVE', 'it', 'Scanner in funzione... Frattura rilevata!'),
+('ITEM_SCANNER_ACTIVE', 'en', 'Scanner active... Rift detected!'),
+('ITEM_SCANNER_ACTIVE', 'de', 'Scanner aktiv... Fraktur entdeckt!'),
+('ITEM_SCANNER_ACTIVE', 'es', 'Escaner activo... Fractura detectada!'),
+('ITEM_SCANNER_ACTIVE', 'fr', 'Scanner actif... Faille detectee!'),
+('ITEM_SCANNER_ACTIVE', 'pt', 'Scanner ativo... Fratura detectada!'),
+
+('ITEM_STABILIZER_TITLE', 'it', 'STABILIZZATORE DI RANGO'),
+('ITEM_STABILIZER_TITLE', 'en', 'RANK STABILIZER'),
+('ITEM_STABILIZER_TITLE', 'de', 'RANG STABILISATOR'),
+('ITEM_STABILIZER_TITLE', 'es', 'ESTABILIZADOR DE RANGO'),
+('ITEM_STABILIZER_TITLE', 'fr', 'STABILISATEUR DE RANG'),
+('ITEM_STABILIZER_TITLE', 'pt', 'ESTABILIZADOR DE RANK'),
+
+('ITEM_STABILIZER_DESC1', 'it', 'L''artefatto risuona, pronto a piegare la realta''.'),
+('ITEM_STABILIZER_DESC1', 'en', 'The artifact resonates, ready to bend reality.'),
+('ITEM_STABILIZER_DESC1', 'de', 'Das Artefakt resoniert, bereit die Realitat zu biegen.'),
+('ITEM_STABILIZER_DESC1', 'es', 'El artefacto resuena, listo para doblar la realidad.'),
+('ITEM_STABILIZER_DESC1', 'fr', 'L''artefact resonne, pret a plier la realite.'),
+('ITEM_STABILIZER_DESC1', 'pt', 'O artefato ressoa, pronto para dobrar a realidade.'),
+
+('ITEM_STABILIZER_DESC2', 'it', 'Focalizzati sull''energia che desideri richiamare.'),
+('ITEM_STABILIZER_DESC2', 'en', 'Focus on the energy you wish to summon.'),
+('ITEM_STABILIZER_DESC2', 'de', 'Fokussiere auf die Energie die du beschworen mochtest.'),
+('ITEM_STABILIZER_DESC2', 'es', 'Concentrate en la energia que deseas invocar.'),
+('ITEM_STABILIZER_DESC2', 'fr', 'Concentre-toi sur l''energie que tu souhaites invoquer.'),
+('ITEM_STABILIZER_DESC2', 'pt', 'Foque na energia que voce deseja invocar.'),
+
+('ITEM_NO_FRACTURES', 'it', 'Nessuna frattura disponibile nei registri.'),
+('ITEM_NO_FRACTURES', 'en', 'No rifts available in the registry.'),
+('ITEM_NO_FRACTURES', 'de', 'Keine Frakturen in den Registern verfugbar.'),
+('ITEM_NO_FRACTURES', 'es', 'No hay fracturas disponibles en los registros.'),
+('ITEM_NO_FRACTURES', 'fr', 'Aucune faille disponible dans les registres.'),
+('ITEM_NO_FRACTURES', 'pt', 'Nenhuma fratura disponivel nos registros.'),
+
+('RANK', 'it', 'Rango'),
+('RANK', 'en', 'Rank'),
+('RANK', 'de', 'Rang'),
+('RANK', 'es', 'Rango'),
+('RANK', 'fr', 'Rang'),
+('RANK', 'pt', 'Rank'),
+
+('CANCEL', 'it', 'Annulla'),
+('CANCEL', 'en', 'Cancel'),
+('CANCEL', 'de', 'Abbrechen'),
+('CANCEL', 'es', 'Cancelar'),
+('CANCEL', 'fr', 'Annuler'),
+('CANCEL', 'pt', 'Cancelar'),
+
+('ITEM_FRACTURE_SUMMONED', 'it', 'Frattura {RANK} evocata!'),
+('ITEM_FRACTURE_SUMMONED', 'en', '{RANK} Rift summoned!'),
+('ITEM_FRACTURE_SUMMONED', 'de', '{RANK} Fraktur beschworen!'),
+('ITEM_FRACTURE_SUMMONED', 'es', 'Fractura {RANK} invocada!'),
+('ITEM_FRACTURE_SUMMONED', 'fr', 'Faille {RANK} invoquee!'),
+('ITEM_FRACTURE_SUMMONED', 'pt', 'Fratura {RANK} invocada!'),
+
+('ITEM_FOCUS_SPEAK', 'it', 'I tuoi sensi si acuiscono. Il flusso di Gloria dalla prossima minaccia sara'' amplificato.'),
+('ITEM_FOCUS_SPEAK', 'en', 'Your senses sharpen. Glory flow from the next threat will be amplified.'),
+('ITEM_FOCUS_SPEAK', 'de', 'Deine Sinne verscharfen sich. Der Ruhmfluss von der nachsten Bedrohung wird verstarkt.'),
+('ITEM_FOCUS_SPEAK', 'es', 'Tus sentidos se agudizan. El flujo de Gloria de la proxima amenaza sera amplificado.'),
+('ITEM_FOCUS_SPEAK', 'fr', 'Tes sens s''aiguisent. Le flux de Gloire de la prochaine menace sera amplifie.'),
+('ITEM_FOCUS_SPEAK', 'pt', 'Seus sentidos se aguçam. O fluxo de Gloria da proxima ameaca sera amplificado.'),
+
+('ITEM_FOCUS_SYSCHAT', 'it', 'Effetto Focus attivo: la tua percezione delle ricompense e'' aumentata.'),
+('ITEM_FOCUS_SYSCHAT', 'en', 'Focus effect active: your reward perception is increased.'),
+('ITEM_FOCUS_SYSCHAT', 'de', 'Fokus Effekt aktiv: Deine Belohnungswahrnehmung ist erhoht.'),
+('ITEM_FOCUS_SYSCHAT', 'es', 'Efecto Foco activo: tu percepcion de recompensas ha aumentado.'),
+('ITEM_FOCUS_SYSCHAT', 'fr', 'Effet Focus actif: ta perception des recompenses est augmentee.'),
+('ITEM_FOCUS_SYSCHAT', 'pt', 'Efeito Foco ativo: sua percepcao de recompensas foi aumentada.'),
+
+('ITEM_DIMKEY_SPEAK', 'it', 'La Chiave Dimensionale si attiva... Il prossimo baule rivelera'' i suoi tesori nascosti!'),
+('ITEM_DIMKEY_SPEAK', 'en', 'The Dimensional Key activates... The next chest will reveal its hidden treasures!'),
+('ITEM_DIMKEY_SPEAK', 'de', 'Der Dimensionsschlussel aktiviert sich... Die nachste Truhe wird ihre verborgenen Schatze enthullen!'),
+('ITEM_DIMKEY_SPEAK', 'es', 'La Llave Dimensional se activa... El proximo cofre revelara sus tesoros ocultos!'),
+('ITEM_DIMKEY_SPEAK', 'fr', 'La Cle Dimensionnelle s''active... Le prochain coffre revelera ses tresors caches!'),
+('ITEM_DIMKEY_SPEAK', 'pt', 'A Chave Dimensional se ativa... O proximo bau revelara seus tesouros escondidos!'),
+
+('ITEM_DIMKEY_SYSCHAT', 'it', 'Il prossimo baule garantira'' un bonus Gloria extra!'),
+('ITEM_DIMKEY_SYSCHAT', 'en', 'The next chest will guarantee extra Glory bonus!'),
+('ITEM_DIMKEY_SYSCHAT', 'de', 'Die nachste Truhe wird einen extra Ruhm Bonus garantieren!'),
+('ITEM_DIMKEY_SYSCHAT', 'es', 'El proximo cofre garantizara un bonus de Gloria extra!'),
+('ITEM_DIMKEY_SYSCHAT', 'fr', 'Le prochain coffre garantira un bonus de Gloire supplementaire!'),
+('ITEM_DIMKEY_SYSCHAT', 'pt', 'O proximo bau garantira um bonus de Gloria extra!'),
+
+('ITEM_SEAL_SPEAK', 'it', 'Il Sigillo pulsa con potere... La prossima Frattura che toccherai verra'' immediatamente soggiogata.'),
+('ITEM_SEAL_SPEAK', 'en', 'The Seal pulses with power... The next Rift you touch will be immediately subdued.'),
+('ITEM_SEAL_SPEAK', 'de', 'Das Siegel pulsiert mit Kraft... Die nachste Fraktur die du beruhrst wird sofort unterworfen.'),
+('ITEM_SEAL_SPEAK', 'es', 'El Sello pulsa con poder... La proxima Fractura que toques sera inmediatamente sometida.'),
+('ITEM_SEAL_SPEAK', 'fr', 'Le Sceau pulse de pouvoir... La prochaine Faille que tu touches sera immediatement soumise.'),
+('ITEM_SEAL_SPEAK', 'pt', 'O Selo pulsa com poder... A proxima Fratura que voce tocar sera imediatamente subjugada.'),
+
+('ITEM_SEAL_SYSCHAT', 'it', 'L''energia del Sigillo ti permettera'' di saltare la fase di difesa.'),
+('ITEM_SEAL_SYSCHAT', 'en', 'The Seal''s energy will allow you to skip the defense phase.'),
+('ITEM_SEAL_SYSCHAT', 'de', 'Die Energie des Siegels ermoglicht es dir die Verteidigungsphase zu uberspringen.'),
+('ITEM_SEAL_SYSCHAT', 'es', 'La energia del Sello te permitira saltarte la fase de defensa.'),
+('ITEM_SEAL_SYSCHAT', 'fr', 'L''energie du Sceau te permettra de sauter la phase de defense.'),
+('ITEM_SEAL_SYSCHAT', 'pt', 'A energia do Selo permitira que voce pule a fase de defesa.'),
+
+('ITEM_SIGNAL_SPEAK', 'it', 'Il segnale inviato al Sistema. La prossima minaccia sara'' designata come bersaglio ad alta priorita''.'),
+('ITEM_SIGNAL_SPEAK', 'en', 'Signal sent to the System. The next threat will be designated as high priority target.'),
+('ITEM_SIGNAL_SPEAK', 'de', 'Signal an das System gesendet. Die nachste Bedrohung wird als hochprioritares Ziel markiert.'),
+('ITEM_SIGNAL_SPEAK', 'es', 'Senal enviada al Sistema. La proxima amenaza sera designada como objetivo de alta prioridad.'),
+('ITEM_SIGNAL_SPEAK', 'fr', 'Signal envoye au Systeme. La prochaine menace sera designee comme cible haute priorite.'),
+('ITEM_SIGNAL_SPEAK', 'pt', 'Sinal enviado ao Sistema. A proxima ameaca sera designada como alvo de alta prioridade.'),
+
+('ITEM_SIGNAL_SYSCHAT', 'it', 'Una Missione d''Emergenza verra'' attivata contro il prossimo bersaglio Elite.'),
+('ITEM_SIGNAL_SYSCHAT', 'en', 'An Emergency Mission will be activated against the next Elite target.'),
+('ITEM_SIGNAL_SYSCHAT', 'de', 'Eine Notfallmission wird gegen das nachste Elite Ziel aktiviert.'),
+('ITEM_SIGNAL_SYSCHAT', 'es', 'Una Mision de Emergencia sera activada contra el proximo objetivo Elite.'),
+('ITEM_SIGNAL_SYSCHAT', 'fr', 'Une Mission d''Urgence sera activee contre la prochaine cible Elite.'),
+('ITEM_SIGNAL_SYSCHAT', 'pt', 'Uma Missao de Emergencia sera ativada contra o proximo alvo Elite.'),
+
+('ITEM_RESONATOR_NOPARTY', 'it', 'Devi essere in un party per usare questo oggetto!'),
+('ITEM_RESONATOR_NOPARTY', 'en', 'You must be in a party to use this item!'),
+('ITEM_RESONATOR_NOPARTY', 'de', 'Du musst in einer Gruppe sein um diesen Gegenstand zu benutzen!'),
+('ITEM_RESONATOR_NOPARTY', 'es', 'Debes estar en un grupo para usar este objeto!'),
+('ITEM_RESONATOR_NOPARTY', 'fr', 'Tu dois etre dans un groupe pour utiliser cet objet!'),
+('ITEM_RESONATOR_NOPARTY', 'pt', 'Voce deve estar em um grupo para usar este item!'),
+
+('ITEM_RESONATOR_SPEAK', 'it', 'RISONANZA DI GRUPPO ATTIVATA! +20% Gloria per il party sulla prossima kill elite!'),
+('ITEM_RESONATOR_SPEAK', 'en', 'GROUP RESONANCE ACTIVATED! +20% Glory for party on next elite kill!'),
+('ITEM_RESONATOR_SPEAK', 'de', 'GRUPPENRESONANZ AKTIVIERT! +20% Ruhm fur die Gruppe beim nachsten Elite Kill!'),
+('ITEM_RESONATOR_SPEAK', 'es', 'RESONANCIA DE GRUPO ACTIVADA! +20% Gloria para el grupo en la proxima muerte elite!'),
+('ITEM_RESONATOR_SPEAK', 'fr', 'RESONANCE DE GROUPE ACTIVEE! +20% Gloire pour le groupe sur le prochain kill elite!'),
+('ITEM_RESONATOR_SPEAK', 'pt', 'RESSONANCIA DE GRUPO ATIVADA! +20% Gloria para o grupo na proxima morte elite!'),
+
+('ITEM_RESONATOR_SYSCHAT', 'it', 'Risonatore attivato! Il party riceve +20% Gloria sulla prossima kill elite!'),
+('ITEM_RESONATOR_SYSCHAT', 'en', 'Resonator activated! Party receives +20% Glory on next elite kill!'),
+('ITEM_RESONATOR_SYSCHAT', 'de', 'Resonator aktiviert! Gruppe erhalt +20% Ruhm beim nachsten Elite Kill!'),
+('ITEM_RESONATOR_SYSCHAT', 'es', 'Resonador activado! El grupo recibe +20% Gloria en la proxima muerte elite!'),
+('ITEM_RESONATOR_SYSCHAT', 'fr', 'Resonateur active! Le groupe recoit +20% Gloire sur le prochain kill elite!'),
+('ITEM_RESONATOR_SYSCHAT', 'pt', 'Ressoador ativado! O grupo recebe +20% Gloria na proxima morte elite!'),
+
+('ITEM_CALIBRATOR_SPEAK', 'it', 'Il Calibratore altera le costanti. Le anomalie di basso livello verranno filtrate dal prossimo scan.'),
+('ITEM_CALIBRATOR_SPEAK', 'en', 'The Calibrator alters constants. Low level anomalies will be filtered from the next scan.'),
+('ITEM_CALIBRATOR_SPEAK', 'de', 'Der Kalibrator verandert Konstanten. Niedrige Anomalien werden beim nachsten Scan gefiltert.'),
+('ITEM_CALIBRATOR_SPEAK', 'es', 'El Calibrador altera las constantes. Las anomalias de bajo nivel seran filtradas del proximo escaneo.'),
+('ITEM_CALIBRATOR_SPEAK', 'fr', 'Le Calibrateur modifie les constantes. Les anomalies de bas niveau seront filtrees du prochain scan.'),
+('ITEM_CALIBRATOR_SPEAK', 'pt', 'O Calibrador altera as constantes. As anomalias de baixo nivel serao filtradas do proximo scan.'),
+
+('ITEM_CALIBRATOR_SYSCHAT', 'it', 'Il Calibratore e'' attivo: la prossima frattura casuale sara'' di Rango C o superiore.'),
+('ITEM_CALIBRATOR_SYSCHAT', 'en', 'Calibrator is active: the next random rift will be Rank C or higher.'),
+('ITEM_CALIBRATOR_SYSCHAT', 'de', 'Kalibrator ist aktiv: die nachste zufallige Fraktur wird Rang C oder hoher sein.'),
+('ITEM_CALIBRATOR_SYSCHAT', 'es', 'El Calibrador esta activo: la proxima fractura aleatoria sera de Rango C o superior.'),
+('ITEM_CALIBRATOR_SYSCHAT', 'fr', 'Le Calibrateur est actif: la prochaine faille aleatoire sera de Rang C ou superieur.'),
+('ITEM_CALIBRATOR_SYSCHAT', 'pt', 'O Calibrador esta ativo: a proxima fratura aleatoria sera Rank C ou superior.'),
+
+('ITEM_MONARCH_DETECTED', 'it', 'Potere assoluto. Una Frattura {RANK} squarcia la realta''.'),
+('ITEM_MONARCH_DETECTED', 'en', 'Absolute power. A {RANK} Rift tears through reality.'),
+('ITEM_MONARCH_DETECTED', 'de', 'Absolute Macht. Eine {RANK} Fraktur zerreist die Realitat.'),
+('ITEM_MONARCH_DETECTED', 'es', 'Poder absoluto. Una Fractura {RANK} desgarra la realidad.'),
+('ITEM_MONARCH_DETECTED', 'fr', 'Pouvoir absolu. Une Faille {RANK} dechire la realite.'),
+('ITEM_MONARCH_DETECTED', 'pt', 'Poder absoluto. Uma Fratura {RANK} rasga a realidade.'),
+
+('FOCUS_ACTIVE', 'it', 'FOCUS ATTIVO.'),
+('FOCUS_ACTIVE', 'en', 'FOCUS ACTIVE.'),
+('FOCUS_ACTIVE', 'de', 'FOKUS AKTIV.'),
+('FOCUS_ACTIVE', 'es', 'FOCO ACTIVO.'),
+('FOCUS_ACTIVE', 'fr', 'FOCUS ACTIF.'),
+('FOCUS_ACTIVE', 'pt', 'FOCO ATIVO.'),
+
+('ITEM_NO_SRANK', 'it', 'Nessuna Frattura di Rango S trovata nei registri del Sistema.'),
+('ITEM_NO_SRANK', 'en', 'No S-Rank Rift found in System registry.'),
+('ITEM_NO_SRANK', 'de', 'Keine S-Rang Fraktur im Systemregister gefunden.'),
+('ITEM_NO_SRANK', 'es', 'No se encontro ninguna Fractura Rango S en los registros del Sistema.'),
+('ITEM_NO_SRANK', 'fr', 'Aucune Faille Rang S trouvee dans les registres du Systeme.'),
+('ITEM_NO_SRANK', 'pt', 'Nenhuma Fratura Rank S encontrada nos registros do Sistema.')
+ON DUPLICATE KEY UPDATE text_value = VALUES(text_value);
+
+-- ═══════════════════════════════════════════════════════════════════════════════
 -- End of translation file
 -- ═══════════════════════════════════════════════════════════════════════════════
