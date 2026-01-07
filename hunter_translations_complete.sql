@@ -1434,5 +1434,303 @@ INSERT INTO hunter_translations (translation_key, lang_code, text_value) VALUES
 ON DUPLICATE KEY UPDATE text_value = VALUES(text_value);
 
 -- ═══════════════════════════════════════════════════════════════════════════════
+-- ADDITIONAL SERVER-SIDE MESSAGES (Glory, Shop, Achievements, etc.)
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+-- COMMON WORDS
+INSERT INTO hunter_translations (translation_key, lang_code, text_value) VALUES
+('GLORY', 'it', 'Gloria'),
+('GLORY', 'en', 'Glory'),
+('GLORY', 'de', 'Ruhm'),
+('GLORY', 'es', 'Gloria'),
+('GLORY', 'fr', 'Gloire'),
+('GLORY', 'pt', 'Gloria'),
+
+('TOTAL', 'it', 'TOTALE'),
+('TOTAL', 'en', 'TOTAL'),
+('TOTAL', 'de', 'GESAMT'),
+('TOTAL', 'es', 'TOTAL'),
+('TOTAL', 'fr', 'TOTAL'),
+('TOTAL', 'pt', 'TOTAL'),
+
+('SYSTEM', 'it', 'SISTEMA'),
+('SYSTEM', 'en', 'SYSTEM'),
+('SYSTEM', 'de', 'SYSTEM'),
+('SYSTEM', 'es', 'SISTEMA'),
+('SYSTEM', 'fr', 'SYSTEME'),
+('SYSTEM', 'pt', 'SISTEMA'),
+
+('KILLED', 'it', 'ucciso'),
+('KILLED', 'en', 'killed'),
+('KILLED', 'de', 'getotet'),
+('KILLED', 'es', 'matado'),
+('KILLED', 'fr', 'tue'),
+('KILLED', 'pt', 'morto'),
+
+('COMPLETED', 'it', 'completato'),
+('COMPLETED', 'en', 'completed'),
+('COMPLETED', 'de', 'abgeschlossen'),
+('COMPLETED', 'es', 'completado'),
+('COMPLETED', 'fr', 'complete'),
+('COMPLETED', 'pt', 'completo'),
+
+('REWARD', 'it', 'RICOMPENSA'),
+('REWARD', 'en', 'REWARD'),
+('REWARD', 'de', 'BELOHNUNG'),
+('REWARD', 'es', 'RECOMPENSA'),
+('REWARD', 'fr', 'RECOMPENSE'),
+('REWARD', 'pt', 'RECOMPENSA'),
+
+('ACHIEVEMENT', 'it', 'TRAGUARDO'),
+('ACHIEVEMENT', 'en', 'ACHIEVEMENT'),
+('ACHIEVEMENT', 'de', 'ERFOLG'),
+('ACHIEVEMENT', 'es', 'LOGRO'),
+('ACHIEVEMENT', 'fr', 'SUCCES'),
+('ACHIEVEMENT', 'pt', 'CONQUISTA'),
+
+('LOTTERY', 'it', 'ESTRAZIONE'),
+('LOTTERY', 'en', 'LOTTERY'),
+('LOTTERY', 'de', 'VERLOSUNG'),
+('LOTTERY', 'es', 'SORTEO'),
+('LOTTERY', 'fr', 'TIRAGE'),
+('LOTTERY', 'pt', 'SORTEIO'),
+
+('RESONANCE', 'it', 'RISONANZA'),
+('RESONANCE', 'en', 'RESONANCE'),
+('RESONANCE', 'de', 'RESONANZ'),
+('RESONANCE', 'es', 'RESONANCIA'),
+('RESONANCE', 'fr', 'RESONANCE'),
+('RESONANCE', 'pt', 'RESSONANCIA')
+ON DUPLICATE KEY UPDATE text_value = VALUES(text_value);
+
+-- GLORY DETAILS
+INSERT INTO hunter_translations (translation_key, lang_code, text_value) VALUES
+('GLORY_DETAIL_HEADER', 'it', '========== DETTAGLIO GLORIA ========='),
+('GLORY_DETAIL_HEADER', 'en', '========== GLORY DETAILS ========='),
+('GLORY_DETAIL_HEADER', 'de', '========== RUHM DETAILS ========='),
+('GLORY_DETAIL_HEADER', 'es', '========== DETALLE DE GLORIA ========='),
+('GLORY_DETAIL_HEADER', 'fr', '========== DETAILS GLOIRE ========='),
+('GLORY_DETAIL_HEADER', 'pt', '========== DETALHES DE GLORIA ========='),
+
+('GLORY_DETAIL_FOOTER', 'it', '======================================'),
+('GLORY_DETAIL_FOOTER', 'en', '======================================'),
+('GLORY_DETAIL_FOOTER', 'de', '======================================'),
+('GLORY_DETAIL_FOOTER', 'es', '======================================'),
+('GLORY_DETAIL_FOOTER', 'fr', '======================================'),
+('GLORY_DETAIL_FOOTER', 'pt', '======================================'),
+
+('GLORY_BASE', 'it', 'Gloria Base'),
+('GLORY_BASE', 'en', 'Base Glory'),
+('GLORY_BASE', 'de', 'Basis Ruhm'),
+('GLORY_BASE', 'es', 'Gloria Base'),
+('GLORY_BASE', 'fr', 'Gloire de Base'),
+('GLORY_BASE', 'pt', 'Gloria Base'),
+
+('GLORY_EXTRA', 'it', 'Gloria Extra'),
+('GLORY_EXTRA', 'en', 'Extra Glory'),
+('GLORY_EXTRA', 'de', 'Extra Ruhm'),
+('GLORY_EXTRA', 'es', 'Gloria Extra'),
+('GLORY_EXTRA', 'fr', 'Gloire Bonus'),
+('GLORY_EXTRA', 'pt', 'Gloria Extra'),
+
+('MERITOCRACY_DIST', 'it', '--- Distribuzione per Meritocrazia (Power Rank) ---'),
+('MERITOCRACY_DIST', 'en', '--- Meritocracy Distribution (Power Rank) ---'),
+('MERITOCRACY_DIST', 'de', '--- Leistungsbasierte Verteilung (Power Rank) ---'),
+('MERITOCRACY_DIST', 'es', '--- Distribucion por Meritocracia (Power Rank) ---'),
+('MERITOCRACY_DIST', 'fr', '--- Distribution par Meritocratie (Power Rank) ---'),
+('MERITOCRACY_DIST', 'pt', '--- Distribuicao por Meritocracia (Power Rank) ---')
+ON DUPLICATE KEY UPDATE text_value = VALUES(text_value);
+
+-- EVENT MESSAGES
+INSERT INTO hunter_translations (translation_key, lang_code, text_value) VALUES
+('EVENT_REGISTERED', 'it', 'Sei iscritto all''estrazione finale!'),
+('EVENT_REGISTERED', 'en', 'You are registered for the final draw!'),
+('EVENT_REGISTERED', 'de', 'Du bist fur die Endauslosung registriert!'),
+('EVENT_REGISTERED', 'es', 'Estas inscrito en el sorteo final!'),
+('EVENT_REGISTERED', 'fr', 'Tu es inscrit au tirage final!'),
+('EVENT_REGISTERED', 'pt', 'Voce esta inscrito no sorteio final!'),
+
+('EVENT_LOTTERY_END', 'it', 'Sorteggio a fine evento: +{PTS} Gloria!'),
+('EVENT_LOTTERY_END', 'en', 'Draw at event end: +{PTS} Glory!'),
+('EVENT_LOTTERY_END', 'de', 'Auslosung am Eventende: +{PTS} Ruhm!'),
+('EVENT_LOTTERY_END', 'es', 'Sorteo al final del evento: +{PTS} Gloria!'),
+('EVENT_LOTTERY_END', 'fr', 'Tirage en fin d''evenement: +{PTS} Gloire!'),
+('EVENT_LOTTERY_END', 'pt', 'Sorteio no final do evento: +{PTS} Gloria!'),
+
+('EVENT_ENDED', 'it', 'L''evento {EVENT} e'' terminato!'),
+('EVENT_ENDED', 'en', 'The {EVENT} event has ended!'),
+('EVENT_ENDED', 'de', 'Das {EVENT} Event ist beendet!'),
+('EVENT_ENDED', 'es', 'El evento {EVENT} ha terminado!'),
+('EVENT_ENDED', 'fr', 'L''evenement {EVENT} est termine!'),
+('EVENT_ENDED', 'pt', 'O evento {EVENT} terminou!'),
+
+('LOTTERY_IN_PROGRESS', 'it', 'Sorteggio vincitore in corso...'),
+('LOTTERY_IN_PROGRESS', 'en', 'Winner draw in progress...'),
+('LOTTERY_IN_PROGRESS', 'de', 'Gewinnerauslosung lauft...'),
+('LOTTERY_IN_PROGRESS', 'es', 'Sorteo del ganador en curso...'),
+('LOTTERY_IN_PROGRESS', 'fr', 'Tirage du gagnant en cours...'),
+('LOTTERY_IN_PROGRESS', 'pt', 'Sorteio do vencedor em andamento...'),
+
+('NO_PARTICIPANTS', 'it', 'Nessun partecipante oggi. Nessun vincitore.'),
+('NO_PARTICIPANTS', 'en', 'No participants today. No winner.'),
+('NO_PARTICIPANTS', 'de', 'Keine Teilnehmer heute. Kein Gewinner.'),
+('NO_PARTICIPANTS', 'es', 'Sin participantes hoy. Sin ganador.'),
+('NO_PARTICIPANTS', 'fr', 'Aucun participant aujourd''hui. Pas de gagnant.'),
+('NO_PARTICIPANTS', 'pt', 'Nenhum participante hoje. Nenhum vencedor.')
+ON DUPLICATE KEY UPDATE text_value = VALUES(text_value);
+
+-- SPEED KILL & RESONANCE
+INSERT INTO hunter_translations (translation_key, lang_code, text_value) VALUES
+('SPEEDKILL_ACTIVATED', 'it', 'SPEED KILL ATTIVATO! Uccidi in 60s per x2 Gloria!'),
+('SPEEDKILL_ACTIVATED', 'en', 'SPEED KILL ACTIVATED! Kill in 60s for x2 Glory!'),
+('SPEEDKILL_ACTIVATED', 'de', 'SPEED KILL AKTIVIERT! Tote in 60s fur x2 Ruhm!'),
+('SPEEDKILL_ACTIVATED', 'es', 'SPEED KILL ACTIVADO! Mata en 60s para x2 Gloria!'),
+('SPEEDKILL_ACTIVATED', 'fr', 'SPEED KILL ACTIVE! Tue en 60s pour x2 Gloire!'),
+('SPEEDKILL_ACTIVATED', 'pt', 'SPEED KILL ATIVADO! Mate em 60s para x2 Gloria!'),
+
+('RESONANCE_BONUS', 'it', '+20% Gloria di Gruppo! (+{BONUS})'),
+('RESONANCE_BONUS', 'en', '+20% Group Glory! (+{BONUS})'),
+('RESONANCE_BONUS', 'de', '+20% Gruppen Ruhm! (+{BONUS})'),
+('RESONANCE_BONUS', 'es', '+20% Gloria de Grupo! (+{BONUS})'),
+('RESONANCE_BONUS', 'fr', '+20% Gloire de Groupe! (+{BONUS})'),
+('RESONANCE_BONUS', 'pt', '+20% Gloria de Grupo! (+{BONUS})')
+ON DUPLICATE KEY UPDATE text_value = VALUES(text_value);
+
+-- CHEST MESSAGES
+INSERT INTO hunter_translations (translation_key, lang_code, text_value) VALUES
+('DIMKEY_TREASURE', 'it', 'Tesoro nascosto rivelato!'),
+('DIMKEY_TREASURE', 'en', 'Hidden treasure revealed!'),
+('DIMKEY_TREASURE', 'de', 'Verborgener Schatz enthullt!'),
+('DIMKEY_TREASURE', 'es', 'Tesoro oculto revelado!'),
+('DIMKEY_TREASURE', 'fr', 'Tresor cache revele!'),
+('DIMKEY_TREASURE', 'pt', 'Tesouro escondido revelado!'),
+
+('CHEST_OPENED', 'it', 'Hai aperto {NAME} - +{PTS} Gloria'),
+('CHEST_OPENED', 'en', 'You opened {NAME} - +{PTS} Glory'),
+('CHEST_OPENED', 'de', 'Du hast {NAME} geoffnet - +{PTS} Ruhm'),
+('CHEST_OPENED', 'es', 'Abriste {NAME} - +{PTS} Gloria'),
+('CHEST_OPENED', 'fr', 'Tu as ouvert {NAME} - +{PTS} Gloire'),
+('CHEST_OPENED', 'pt', 'Voce abriu {NAME} - +{PTS} Gloria'),
+
+('CHEST_OPENED_ITEM', 'it', 'BAULE APERTO: OTTENUTO {ITEM}'),
+('CHEST_OPENED_ITEM', 'en', 'CHEST OPENED: OBTAINED {ITEM}'),
+('CHEST_OPENED_ITEM', 'de', 'TRUHE GEOFFNET: {ITEM} ERHALTEN'),
+('CHEST_OPENED_ITEM', 'es', 'COFRE ABIERTO: OBTENIDO {ITEM}'),
+('CHEST_OPENED_ITEM', 'fr', 'COFFRE OUVERT: {ITEM} OBTENU'),
+('CHEST_OPENED_ITEM', 'pt', 'BAU ABERTO: OBTIDO {ITEM}')
+ON DUPLICATE KEY UPDATE text_value = VALUES(text_value);
+
+-- SHOP MESSAGES
+INSERT INTO hunter_translations (translation_key, lang_code, text_value) VALUES
+('SHOP_NOT_AVAILABLE', 'it', 'Oggetto non disponibile.'),
+('SHOP_NOT_AVAILABLE', 'en', 'Item not available.'),
+('SHOP_NOT_AVAILABLE', 'de', 'Gegenstand nicht verfugbar.'),
+('SHOP_NOT_AVAILABLE', 'es', 'Objeto no disponible.'),
+('SHOP_NOT_AVAILABLE', 'fr', 'Objet non disponible.'),
+('SHOP_NOT_AVAILABLE', 'pt', 'Item nao disponivel.'),
+
+('SHOP_NOT_HUNTER', 'it', 'Non sei un Hunter!'),
+('SHOP_NOT_HUNTER', 'en', 'You are not a Hunter!'),
+('SHOP_NOT_HUNTER', 'de', 'Du bist kein Jager!'),
+('SHOP_NOT_HUNTER', 'es', 'No eres un Cazador!'),
+('SHOP_NOT_HUNTER', 'fr', 'Tu n''es pas un Chasseur!'),
+('SHOP_NOT_HUNTER', 'pt', 'Voce nao e um Cacador!'),
+
+('SHOP_INSUFFICIENT', 'it', 'Gloria insufficiente! Hai {HAVE}, serve {NEED}'),
+('SHOP_INSUFFICIENT', 'en', 'Insufficient Glory! You have {HAVE}, need {NEED}'),
+('SHOP_INSUFFICIENT', 'de', 'Nicht genug Ruhm! Du hast {HAVE}, brauchst {NEED}'),
+('SHOP_INSUFFICIENT', 'es', 'Gloria insuficiente! Tienes {HAVE}, necesitas {NEED}'),
+('SHOP_INSUFFICIENT', 'fr', 'Gloire insuffisante! Tu as {HAVE}, besoin {NEED}'),
+('SHOP_INSUFFICIENT', 'pt', 'Gloria insuficiente! Voce tem {HAVE}, precisa {NEED}'),
+
+('SHOP_INV_FULL', 'it', 'Inventario pieno!'),
+('SHOP_INV_FULL', 'en', 'Inventory full!'),
+('SHOP_INV_FULL', 'de', 'Inventar voll!'),
+('SHOP_INV_FULL', 'es', 'Inventario lleno!'),
+('SHOP_INV_FULL', 'fr', 'Inventaire plein!'),
+('SHOP_INV_FULL', 'pt', 'Inventario cheio!'),
+
+('SHOP_PURCHASED', 'it', 'Acquistato: {ITEM} x{COUNT}'),
+('SHOP_PURCHASED', 'en', 'Purchased: {ITEM} x{COUNT}'),
+('SHOP_PURCHASED', 'de', 'Gekauft: {ITEM} x{COUNT}'),
+('SHOP_PURCHASED', 'es', 'Comprado: {ITEM} x{COUNT}'),
+('SHOP_PURCHASED', 'fr', 'Achete: {ITEM} x{COUNT}'),
+('SHOP_PURCHASED', 'pt', 'Comprado: {ITEM} x{COUNT}'),
+
+('SPENDABLE_GLORY', 'it', 'Gloria Spendibile'),
+('SPENDABLE_GLORY', 'en', 'Spendable Glory'),
+('SPENDABLE_GLORY', 'de', 'Verfugbarer Ruhm'),
+('SPENDABLE_GLORY', 'es', 'Gloria Gastable'),
+('SPENDABLE_GLORY', 'fr', 'Gloire Depensable'),
+('SPENDABLE_GLORY', 'pt', 'Gloria Gastavel')
+ON DUPLICATE KEY UPDATE text_value = VALUES(text_value);
+
+-- ACHIEVEMENT MESSAGES
+INSERT INTO hunter_translations (translation_key, lang_code, text_value) VALUES
+('ACH_NOT_FOUND', 'it', 'Non trovato.'),
+('ACH_NOT_FOUND', 'en', 'Not found.'),
+('ACH_NOT_FOUND', 'de', 'Nicht gefunden.'),
+('ACH_NOT_FOUND', 'es', 'No encontrado.'),
+('ACH_NOT_FOUND', 'fr', 'Non trouve.'),
+('ACH_NOT_FOUND', 'pt', 'Nao encontrado.'),
+
+('ACH_ALREADY_CLAIMED', 'it', 'Gia'' riscosso!'),
+('ACH_ALREADY_CLAIMED', 'en', 'Already claimed!'),
+('ACH_ALREADY_CLAIMED', 'de', 'Bereits eingelost!'),
+('ACH_ALREADY_CLAIMED', 'es', 'Ya reclamado!'),
+('ACH_ALREADY_CLAIMED', 'fr', 'Deja reclame!'),
+('ACH_ALREADY_CLAIMED', 'pt', 'Ja resgatado!'),
+
+('ACH_NOT_HUNTER', 'it', 'Non sei un Hunter!'),
+('ACH_NOT_HUNTER', 'en', 'You are not a Hunter!'),
+('ACH_NOT_HUNTER', 'de', 'Du bist kein Jager!'),
+('ACH_NOT_HUNTER', 'es', 'No eres un Cazador!'),
+('ACH_NOT_HUNTER', 'fr', 'Tu n''es pas un Chasseur!'),
+('ACH_NOT_HUNTER', 'pt', 'Voce nao e um Cacador!'),
+
+('ACH_NOT_UNLOCKED', 'it', 'Non ancora sbloccato! {PROG}/{REQ}'),
+('ACH_NOT_UNLOCKED', 'en', 'Not yet unlocked! {PROG}/{REQ}'),
+('ACH_NOT_UNLOCKED', 'de', 'Noch nicht freigeschaltet! {PROG}/{REQ}'),
+('ACH_NOT_UNLOCKED', 'es', 'Aun no desbloqueado! {PROG}/{REQ}'),
+('ACH_NOT_UNLOCKED', 'fr', 'Pas encore debloque! {PROG}/{REQ}'),
+('ACH_NOT_UNLOCKED', 'pt', 'Ainda nao desbloqueado! {PROG}/{REQ}'),
+
+('ACH_INV_FULL', 'it', 'Inventario pieno!'),
+('ACH_INV_FULL', 'en', 'Inventory full!'),
+('ACH_INV_FULL', 'de', 'Inventar voll!'),
+('ACH_INV_FULL', 'es', 'Inventario lleno!'),
+('ACH_INV_FULL', 'fr', 'Inventaire plein!'),
+('ACH_INV_FULL', 'pt', 'Inventario cheio!'),
+
+('ACH_RECEIVED', 'it', 'Ricevuto x{COUNT} oggetto!'),
+('ACH_RECEIVED', 'en', 'Received x{COUNT} item!'),
+('ACH_RECEIVED', 'de', 'x{COUNT} Gegenstand erhalten!'),
+('ACH_RECEIVED', 'es', 'Recibido x{COUNT} objeto!'),
+('ACH_RECEIVED', 'fr', 'Recu x{COUNT} objet!'),
+('ACH_RECEIVED', 'pt', 'Recebido x{COUNT} item!'),
+
+('SMART_INV_FULL', 'it', 'Inventario pieno! Riscossi {COUNT} traguardi.'),
+('SMART_INV_FULL', 'en', 'Inventory full! Claimed {COUNT} achievements.'),
+('SMART_INV_FULL', 'de', 'Inventar voll! {COUNT} Erfolge eingelost.'),
+('SMART_INV_FULL', 'es', 'Inventario lleno! Reclamados {COUNT} logros.'),
+('SMART_INV_FULL', 'fr', 'Inventaire plein! {COUNT} succes reclames.'),
+('SMART_INV_FULL', 'pt', 'Inventario cheio! {COUNT} conquistas resgatadas.'),
+
+('SMART_CLAIMED', 'it', 'Riscossi {COUNT} traguardi!'),
+('SMART_CLAIMED', 'en', 'Claimed {COUNT} achievements!'),
+('SMART_CLAIMED', 'de', '{COUNT} Erfolge eingelost!'),
+('SMART_CLAIMED', 'es', 'Reclamados {COUNT} logros!'),
+('SMART_CLAIMED', 'fr', '{COUNT} succes reclames!'),
+('SMART_CLAIMED', 'pt', '{COUNT} conquistas resgatadas!'),
+
+('SMART_NONE', 'it', 'Nessun traguardo da riscuotere.'),
+('SMART_NONE', 'en', 'No achievements to claim.'),
+('SMART_NONE', 'de', 'Keine Erfolge zum Einlosen.'),
+('SMART_NONE', 'es', 'Ningun logro para reclamar.'),
+('SMART_NONE', 'fr', 'Aucun succes a reclamer.'),
+('SMART_NONE', 'pt', 'Nenhuma conquista para resgatar.')
+ON DUPLICATE KEY UPDATE text_value = VALUES(text_value);
+
+-- ═══════════════════════════════════════════════════════════════════════════════
 -- End of translation file
 -- ═══════════════════════════════════════════════════════════════════════════════

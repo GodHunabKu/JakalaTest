@@ -1443,17 +1443,17 @@ end
 
 -- Mostra syschat dettagliato dei modificatori gloria
 function hg_lib.show_glory_details(source_type, source_name, base_glory, final_glory, modifier_log)
-    syschat("|cff888888========== DETTAGLIO GLORIA =========|r")
+    hg_lib.syschat_t("GLORY_DETAIL_HEADER", "========== DETTAGLIO GLORIA =========", nil, "888888")
     syschat("|cffFFFFFF" .. source_type .. ": |r|cffFFD700" .. source_name .. "|r")
-    syschat("|cffAAAAAAGloria Base: |r|cffFFFFFF" .. base_glory .. "|r")
+    syschat("|cffAAAAAA" .. hg_lib.get_text("GLORY_BASE", nil, "Gloria Base") .. ": |r|cffFFFFFF" .. base_glory .. "|r")
     for i = 1, table.getn(modifier_log) do
         local m = modifier_log[i]
         local color = m.add >= 0 and "|cff00FF00" or "|cffFF4444"
         local sign = m.add >= 0 and "+" or ""
         syschat("|cffAAAAAA" .. m.name .. " (" .. m.value .. "): |r" .. color .. sign .. m.add .. "|r")
     end
-    syschat("|cffFFD700>>> TOTALE: +" .. final_glory .. " Gloria <<<|r")
-    syschat("|cff888888======================================|r")
+    syschat("|cffFFD700>>> " .. hg_lib.get_text("TOTAL", nil, "TOTALE") .. ": +" .. final_glory .. " " .. hg_lib.get_text("GLORY", nil, "Gloria") .. " <<<|r")
+    hg_lib.syschat_t("GLORY_DETAIL_FOOTER", "======================================", nil, "888888")
 end
 
 -- Applica i modificatori personali di Gloria (wrapper per compatibilita')
@@ -1536,18 +1536,20 @@ function hg_lib.distribute_party_glory_elite(base_glory, mob_info)
     }}
     
     -- Notifica
-    syschat("|cffFFD700[ELITE]|r " .. mob_name .. " - |cffFFD700+" .. final_glory .. " Gloria|r")
-    
+    syschat("|cffFFD700[ELITE]|r " .. mob_name .. " - |cffFFD700+" .. final_glory .. " " .. hg_lib.get_text("GLORY", nil, "Gloria") .. "|r")
+
     return distribution_log
 end
 
 -- Notifica speciale per distribuzione meritocratica
 function hg_lib.notify_party_glory_meritocracy(distribution_log, total_glory, source_name)
     -- Costruisci messaggio dettagliato
-    local msg_header = "|cffFFD700[PARTY GLORIA]|r " .. source_name .. " ucciso! Totale: " .. total_glory
-    
+    local killed_txt = hg_lib.get_text("KILLED", nil, "ucciso")
+    local total_txt = hg_lib.get_text("TOTAL", nil, "Totale")
+    local msg_header = "|cffFFD700[PARTY " .. hg_lib.get_text("GLORY", nil, "GLORIA") .. "]|r " .. source_name .. " " .. killed_txt .. "! " .. total_txt .. ": " .. total_glory
+
     syschat(msg_header)
-    syschat("|cff00FFFF--- Distribuzione per Meritocrazia (Power Rank) ---|r")
+    hg_lib.syschat_t("MERITOCRACY_DIST", "--- Distribuzione per Meritocrazia (Power Rank) ---", nil, "00FFFF")
     
     -- Per ogni membro, mostra la sua quota
     for i = 1, table.getn(distribution_log) do
@@ -1749,8 +1751,8 @@ function hg_lib.register_event_participant()
         mysql_direct_query(insert_q)
         
         -- Notifica iscrizione con dettagli
-        syschat("|cffFFD700[EVENTO]|r Sei iscritto all'estrazione finale!")
-        syschat("|cff00FF00[EVENTO]|r Sorteggio a fine evento: +" .. winner_prize .. " Gloria!")
+        hg_lib.syschat_t("EVENT_REGISTERED", "Sei iscritto all'estrazione finale!", nil, "FFD700")
+        syschat("|cff00FF00[" .. hg_lib.get_text("EVENT", nil, "EVENTO") .. "]|r " .. hg_lib.get_text("EVENT_LOTTERY_END", {PTS = winner_prize}, "Sorteggio a fine evento: +" .. winner_prize .. " Gloria!"))
         cmdchat("HunterEventJoined " .. event_id .. "|" .. hg_lib.clean_str(event_name) .. "|0")
     end
 end
@@ -1995,12 +1997,12 @@ function hg_lib.check_event_end_and_draw()
                 
                 if wc == 0 then
                     -- Non ancora estratto, procedi
-                    notice_all("|cffFFD700[HUNTER EVENTO]|r L'evento " .. e.event_name .. " e terminato!")
-                    notice_all("|cff00FF00[ESTRAZIONE]|r Sorteggio vincitore in corso...")
-                    
+                    notice_all("|cffFFD700[HUNTER " .. hg_lib.get_text("EVENT", nil, "EVENTO") .. "]|r " .. hg_lib.get_text("EVENT_ENDED", {EVENT = e.event_name}, "L'evento " .. e.event_name .. " e terminato!"))
+                    notice_all("|cff00FF00[" .. hg_lib.get_text("LOTTERY", nil, "ESTRAZIONE") .. "]|r " .. hg_lib.get_text("LOTTERY_IN_PROGRESS", nil, "Sorteggio vincitore in corso..."))
+
                     local winner, prize = hg_lib.draw_event_winner(event_id)
                     if not winner then
-                        notice_all("|cffFF6600[EVENTO]|r Nessun partecipante oggi. Nessun vincitore.")
+                        notice_all("|cffFF6600[" .. hg_lib.get_text("EVENT", nil, "EVENTO") .. "]|r " .. hg_lib.get_text("NO_PARTICIPANTS", nil, "Nessun partecipante oggi. Nessun vincitore."))
                     end
                 end
             end
@@ -2381,7 +2383,7 @@ function hg_lib.process_elite_kill(vnum)
         pc.setqf("hq_speedkill_start", get_time())
         pc.setqf("hq_speedkill_duration", 60)  -- 60 secondi per kill veloce
         game.set_event_flag("hq_force_speedkill_"..pid, 0)  -- Consuma il buff
-        syschat("|cffFF0000[SEGNALE D'EMERGENZA]|r SPEED KILL ATTIVATO! Uccidi in 60s per x2 Gloria!")
+        hg_lib.syschat_t("SPEEDKILL_ACTIVATED", "SPEED KILL ATTIVATO! Uccidi in 60s per x2 Gloria!", nil, "FF0000")
         cmdchat("HunterSpeedKillStart " .. vnum .. "|60|" .. hg_lib.clean_str(mob_info.name))
         cleartimer("hq_speedkill_timer")
         loop_timer("hq_speedkill_timer", 1)
@@ -2424,7 +2426,7 @@ function hg_lib.process_elite_kill(vnum)
             local focus_bonus = math.floor(base_pts * 0.20)
             base_pts = base_pts + focus_bonus
             game.set_event_flag("hq_party_focus_"..leader_pid, 0)  -- Consuma il buff (una volta per party)
-            syschat("|cff00FFFF[RISONANZA]|r +20% Gloria di Gruppo! (+" .. focus_bonus .. ")")
+            syschat("|cff00FFFF[" .. hg_lib.get_text("RESONANCE", nil, "RISONANZA") .. "]|r " .. hg_lib.get_text("RESONANCE_BONUS", {BONUS = focus_bonus}, "+20% Gloria di Gruppo! (+" .. focus_bonus .. ")"))
         end
     end
     -- ======================================================
@@ -2813,14 +2815,14 @@ function hg_lib.open_chest(chest_vnum)
     
     -- Messaggio chiave dimensionale (solo se usata)
     if has_key then
-        syschat("|cffFFD700[CHIAVE DIMENSIONALE]|r Tesoro nascosto rivelato!")
+        hg_lib.syschat_t("DIMKEY_TREASURE", "Tesoro nascosto rivelato!", nil, "FFD700")
     end
-    
+
     -- Notifica party (semplice)
     if party.is_party() then
-        syschat("|cff00A8FF[SISTEMA]|r Hai aperto " .. chest_name .. " - |cffFFD700+" .. final_glory .. " Gloria|r")
+        syschat("|cff00A8FF[" .. hg_lib.get_text("SYSTEM", nil, "SISTEMA") .. "]|r " .. hg_lib.get_text("CHEST_OPENED", {NAME = chest_name, PTS = final_glory}, "Hai aperto " .. chest_name .. " - +" .. final_glory .. " Gloria"))
         if jackpot_glory > 0 then
-            syschat("|cffFF00FF*** JACKPOT! +|r|cffFFD700" .. jackpot_glory .. " Gloria Extra!|r")
+            syschat("|cffFF00FF*** JACKPOT! +|r|cffFFD700" .. jackpot_glory .. " " .. hg_lib.get_text("GLORY_EXTRA", nil, "Gloria Extra") .. "!|r")
         end
         if jackpot_items ~= "" then
             syschat("|cffFF00FF*** BONUS! |r|cff00FF00" .. jackpot_items .. "|r")
@@ -2878,14 +2880,14 @@ function hg_lib.distribute_chest_glory(base_glory, chest_name, color_code, got_i
     cmdchat("HunterChestOpened " .. effect_data)
     
     -- Notifica
-    syschat("|cff00A8FF[SISTEMA]|r " .. chest_name .. " - |cffFFD700+" .. final_glory .. " Gloria|r")
+    syschat("|cff00A8FF[" .. hg_lib.get_text("SYSTEM", nil, "SISTEMA") .. "]|r " .. chest_name .. " - |cffFFD700+" .. final_glory .. " " .. hg_lib.get_text("GLORY", nil, "Gloria") .. "|r")
     if opener_jackpot_glory > 0 then
-        syschat("|cffFF00FF*** JACKPOT! +|r|cffFFD700" .. opener_jackpot_glory .. " Gloria Extra!|r")
+        syschat("|cffFF00FF*** JACKPOT! +|r|cffFFD700" .. opener_jackpot_glory .. " " .. hg_lib.get_text("GLORY_EXTRA", nil, "Gloria Extra") .. "!|r")
     end
     if opener_jackpot_items ~= "" then
         syschat("|cffFF00FF*** BONUS! |r|cff00FF00" .. opener_jackpot_items .. "|r")
     end
-    
+
     return distribution_log
 end
 -- ============================================================
@@ -2895,24 +2897,24 @@ end
 function hg_lib.give_chest_reward()
     local pid = pc.get_player_id()
     local c, d = mysql_direct_query("SELECT item_vnum, item_quantity, bonus_points FROM srv1_hunabku.hunter_quest_jackpot_rewards WHERE type_name='BAULE' ORDER BY RAND() LIMIT 1")
-    
+
     if c > 0 and d[1] then
         local v, q, b = tonumber(d[1].item_vnum), tonumber(d[1].item_quantity), tonumber(d[1].bonus_points) or 0
         pc.give_item2(v, q)
-        
-        local msg = hg_lib.get_text("chest_opened", {ITEM = hg_lib.item_name(v)}) or ("BAULE APERTO: OTTENUTO " .. hg_lib.item_name(v))
+
+        local msg = hg_lib.get_text("CHEST_OPENED_ITEM", {ITEM = hg_lib.item_name(v)}, "BAULE APERTO: OTTENUTO " .. hg_lib.item_name(v))
         hg_lib.hunter_speak(msg)
-        
+
         -- === CHIAVE DIMENSIONALE: Forza bonus se flag attivo ===
         local force_bonus = game.get_event_flag("hq_force_chest_"..pid) or 0
         if force_bonus == 1 then
-            if b == 0 or b == nil then 
+            if b == 0 or b == nil then
                 b = math.random(500, 2000)  -- Garantisce bonus se non c'era
             else
                 b = math.floor(b * 1.5)  -- Aumenta bonus esistente del 50%
             end
             game.set_event_flag("hq_force_chest_"..pid, 0)  -- Consuma il buff
-            syschat("|cffFFD700[CHIAVE DIMENSIONALE]|r Tesoro nascosto rivelato!")
+            hg_lib.syschat_t("DIMKEY_TREASURE", "Tesoro nascosto rivelato!", nil, "FFD700")
         end
         -- === FINE CHIAVE DIMENSIONALE ===
         
@@ -5036,42 +5038,42 @@ function hg_lib.shop_buy_item(item_id)
     local c, d = mysql_direct_query(q)
     
     if c == 0 then
-        syschat("|cffFF0000[SHOP]|r Oggetto non disponibile.")
+        hg_lib.syschat_t("SHOP_NOT_AVAILABLE", "Oggetto non disponibile.", nil, "FF0000")
         return
     end
-    
+
     local item_name = d[1].description or "Item"
     local price = tonumber(d[1].price_points) or 0
     local item_vnum = tonumber(d[1].item_vnum) or 0
     local item_count = tonumber(d[1].item_count) or 1
-    
+
     -- Controlla gloria spendibile
     local rc, rd = mysql_direct_query("SELECT spendable_points FROM srv1_hunabku.hunter_quest_ranking WHERE player_id=" .. pid)
     if rc == 0 then
-        syschat("|cffFF0000[SHOP]|r Non sei un Hunter!")
+        hg_lib.syschat_t("SHOP_NOT_HUNTER", "Non sei un Hunter!", nil, "FF0000")
         return
     end
-    
+
     local spendable = tonumber(rd[1].spendable_points) or 0
-    
+
     -- Controlla gloria spendibile
     if spendable < price then
-        syschat("|cffFF0000[SHOP]|r Gloria insufficiente! Hai " .. spendable .. ", serve " .. price)
+        syschat("|cffFF0000[SHOP]|r " .. hg_lib.get_text("SHOP_INSUFFICIENT", {HAVE = spendable, NEED = price}, "Gloria insufficiente! Hai " .. spendable .. ", serve " .. price))
         return
     end
-    
+
     -- Controlla inventario
     if pc.count_empty_inventory(0) < 1 then
-        syschat("|cffFF0000[SHOP]|r Inventario pieno!")
+        hg_lib.syschat_t("SHOP_INV_FULL", "Inventario pieno!", nil, "FF0000")
         return
     end
-    
+
     -- Esegui acquisto
     mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET spendable_points = spendable_points - " .. price .. " WHERE player_id=" .. pid)
     pc.give_item2(item_vnum, item_count)
-    
-    syschat("|cff00FF00[SHOP]|r Acquistato: " .. item_name .. " x" .. item_count)
-    syschat("|cffFFD700[SHOP]|r -" .. price .. " Gloria Spendibile")
+
+    syschat("|cff00FF00[SHOP]|r " .. hg_lib.get_text("SHOP_PURCHASED", {ITEM = item_name, COUNT = item_count}, "Acquistato: " .. item_name .. " x" .. item_count))
+    syschat("|cffFFD700[SHOP]|r -" .. price .. " " .. hg_lib.get_text("SPENDABLE_GLORY", nil, "Gloria Spendibile"))
     
     -- Aggiorna UI
     hg_lib.send_player_data()
@@ -5144,53 +5146,53 @@ function hg_lib.claim_achievement(ach_id)
     local c, d = mysql_direct_query(q)
     
     if c == 0 then
-        syschat("|cffFF0000[TRAGUARDO]|r Non trovato.")
+        hg_lib.syschat_t("ACH_NOT_FOUND", "Non trovato.", nil, "FF0000")
         return
     end
-    
+
     local ach_name = d[1].name or "Achievement"
     local ach_type = tonumber(d[1].type) or 1
     local req = tonumber(d[1].requirement) or 0
     local reward_vnum = tonumber(d[1].reward_vnum) or 0
     local reward_count = tonumber(d[1].reward_count) or 1
-    
+
     -- Controlla se gia riscosso
     local check_q = "SELECT id FROM srv1_hunabku.hunter_achievements_claimed WHERE player_id=" .. pid .. " AND achievement_id=" .. ach_id
     local cc = mysql_direct_query(check_q)
     if cc > 0 then
-        syschat("|cffFF6600[TRAGUARDO]|r Gia' riscosso!")
+        hg_lib.syschat_t("ACH_ALREADY_CLAIMED", "Gia' riscosso!", nil, "FF6600")
         return
     end
-    
+
     -- Controlla progresso
     local sq = "SELECT total_kills, total_points FROM srv1_hunabku.hunter_quest_ranking WHERE player_id=" .. pid
     local sc, sd = mysql_direct_query(sq)
     if sc == 0 then
-        syschat("|cffFF0000[TRAGUARDO]|r Non sei un Hunter!")
+        hg_lib.syschat_t("ACH_NOT_HUNTER", "Non sei un Hunter!", nil, "FF0000")
         return
     end
-    
+
     local kills = tonumber(sd[1].total_kills) or 0
     local points = tonumber(sd[1].total_points) or 0
     local progress = (ach_type == 1) and kills or points
-    
+
     if progress < req then
-        syschat("|cffFF0000[TRAGUARDO]|r Non ancora sbloccato! " .. progress .. "/" .. req)
+        syschat("|cffFF0000[" .. hg_lib.get_text("ACHIEVEMENT", nil, "TRAGUARDO") .. "]|r " .. hg_lib.get_text("ACH_NOT_UNLOCKED", {PROG = progress, REQ = req}, "Non ancora sbloccato! " .. progress .. "/" .. req))
         return
     end
-    
+
     -- Controlla inventario
     if pc.count_empty_inventory(0) < 1 then
-        syschat("|cffFF0000[TRAGUARDO]|r Inventario pieno!")
+        hg_lib.syschat_t("ACH_INV_FULL", "Inventario pieno!", nil, "FF0000")
         return
     end
-    
+
     -- Riscuoti
     mysql_direct_query("INSERT INTO srv1_hunabku.hunter_achievements_claimed (player_id, achievement_id, claimed_at) VALUES (" .. pid .. ", " .. ach_id .. ", NOW())")
     pc.give_item2(reward_vnum, reward_count)
-    
-    syschat("|cff00FF00[TRAGUARDO]|r " .. ach_name .. " completato!")
-    syschat("|cffFFD700[RICOMPENSA]|r Ricevuto x" .. reward_count .. " oggetto!")
+
+    syschat("|cff00FF00[" .. hg_lib.get_text("ACHIEVEMENT", nil, "TRAGUARDO") .. "]|r " .. ach_name .. " " .. hg_lib.get_text("COMPLETED", nil, "completato") .. "!")
+    syschat("|cffFFD700[" .. hg_lib.get_text("REWARD", nil, "RICOMPENSA") .. "]|r " .. hg_lib.get_text("ACH_RECEIVED", {COUNT = reward_count}, "Ricevuto x" .. reward_count .. " oggetto!"))
     
     -- Aggiorna UI
     cmdchat("HunterAchievementClaimed " .. ach_id)
@@ -5205,10 +5207,10 @@ function hg_lib.smart_claim_all()
         if a.unlocked and not a.claimed then
             -- Controlla inventario
             if pc.count_empty_inventory(0) < 1 then
-                syschat("|cffFF6600[SMART CLAIM]|r Inventario pieno! Riscossi " .. claimed_count .. " traguardi.")
+                syschat("|cffFF6600[SMART CLAIM]|r " .. hg_lib.get_text("SMART_INV_FULL", {COUNT = claimed_count}, "Inventario pieno! Riscossi " .. claimed_count .. " traguardi."))
                 return
             end
-            
+
             -- Riscuoti
             mysql_direct_query("INSERT INTO srv1_hunabku.hunter_achievements_claimed (player_id, achievement_id, claimed_at) VALUES (" .. pid .. ", " .. a.id .. ", NOW())")
             pc.give_item2(a.reward_vnum, a.reward_count)
@@ -5217,9 +5219,9 @@ function hg_lib.smart_claim_all()
     end
     
     if claimed_count > 0 then
-        syschat("|cff00FF00[SMART CLAIM]|r Riscossi " .. claimed_count .. " traguardi!")
+        syschat("|cff00FF00[SMART CLAIM]|r " .. hg_lib.get_text("SMART_CLAIMED", {COUNT = claimed_count}, "Riscossi " .. claimed_count .. " traguardi!"))
     else
-        syschat("|cffFFD700[SMART CLAIM]|r Nessun traguardo da riscuotere.")
+        hg_lib.syschat_t("SMART_NONE", "Nessun traguardo da riscuotere.", nil, "FFD700")
     end
 end
 
