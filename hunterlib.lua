@@ -1300,48 +1300,99 @@ function hg_lib.distribute_party_glory(base_glory, source_type)
     return distribution_log
 end
 
--- Applica i modificatori personali di Gloria (streak, rank bonus, trial, eventi, etc.)
--- NOTA: Questa funzione viene chiamata nel contesto del player (pc.*)
-function hg_lib.apply_personal_glory_modifiers(player_id, base_glory)
+-- ============================================================
+-- FUNZIONE UNIFICATA CALCOLO MODIFICATORI GLORIA
+-- Centralizza TUTTA la logica dei bonus/malus in un unico punto
+-- Ritorna: final_glory, modifier_log (per syschat dettagliato)
+-- ============================================================
+function hg_lib.calculate_glory_with_modifiers(base_glory, options)
+    options = options or {}
+    local pid = options.player_id or pc.get_player_id()
+    local consume_focus = (options.consume_focus ~= false)  -- Default: consuma
+    local register_event = (options.register_event ~= false)  -- Default: registra
+
     local final_glory = base_glory
-    
-    -- STREAK BONUS (login consecutivi)
+    local modifier_log = {}
+
+    -- 1. STREAK BONUS (login consecutivi)
     local streak_bonus = pc.getqf("hq_streak_bonus") or 0
     if streak_bonus > 0 then
-        final_glory = final_glory + math.floor(final_glory * streak_bonus / 100)
+        local streak_add = math.floor(final_glory * streak_bonus / 100)
+        final_glory = final_glory + streak_add
+        table.insert(modifier_log, {name = "Streak Bonus", value = "+" .. streak_bonus .. "%", add = streak_add})
     end
-    
-    -- RANK BONUS (rank alto = bonus extra)
+
+    -- 2. RANK BONUS (rank alto = bonus extra)
     local player_pts = pc.getqf("hq_total_points") or 0
     local rank_bonus = hg_lib.get_rank_bonus(player_pts)
     if rank_bonus > 0 then
-        final_glory = final_glory + math.floor(final_glory * rank_bonus / 100)
+        local rank_add = math.floor(final_glory * rank_bonus / 100)
+        final_glory = final_glory + rank_add
+        table.insert(modifier_log, {name = "Rank Bonus", value = "+" .. rank_bonus .. "%", add = rank_add})
     end
-    
-    -- TRIAL MALUS (-50% se ha una prova attiva)
+
+    -- 3. FOCUS HUNTER (+20%)
+    local has_focus = game.get_event_flag("hq_hunter_focus_"..pid) or 0
+    if has_focus == 1 then
+        local focus_add = math.floor(final_glory * 0.20)
+        final_glory = final_glory + focus_add
+        if consume_focus then
+            game.set_event_flag("hq_hunter_focus_"..pid, 0)  -- Consuma il buff
+        end
+        table.insert(modifier_log, {name = "Focus Hunter", value = "+20%", add = focus_add})
+    end
+
+    -- 4. FRACTURE BONUS (+50% se missioni complete)
+    if hg_lib.has_fracture_bonus() then
+        local frac_add = math.floor(final_glory * 0.50)
+        final_glory = final_glory + frac_add
+        table.insert(modifier_log, {name = "Bonus Missioni", value = "+50%", add = frac_add})
+    end
+
+    -- 5. EVENTO ATTIVO (moltiplicatore evento)
+    local evt_name, evt_mult, evt_type = hg_lib.get_active_event()
+    if evt_type == "points" and evt_mult ~= 1.0 then
+        local before_evt = final_glory
+        final_glory = math.floor(final_glory * evt_mult)
+        local evt_diff = final_glory - before_evt
+        table.insert(modifier_log, {name = "Evento " .. (evt_name or ""), value = "x" .. evt_mult, add = evt_diff})
+        -- Registra partecipazione all'evento
+        if register_event then
+            hg_lib.register_event_participant()
+        end
+    end
+
+    -- 6. TRIAL MALUS (-50% se ha una prova attiva) - SEMPRE PER ULTIMO
     local trial_mult = hg_lib.get_trial_gloria_multiplier()
     if trial_mult < 1.0 then
+        local before_trial = final_glory
         final_glory = math.floor(final_glory * trial_mult)
+        local trial_sub = before_trial - final_glory
+        table.insert(modifier_log, {name = "Prova Esame", value = "-50%", add = -trial_sub})
     end
-    
-    -- FRACTURE BONUS (+50% se ha completato tutte le missioni)
-    if hg_lib.has_fracture_bonus() then
-        final_glory = final_glory + math.floor(final_glory * 0.50)
+
+    return final_glory, modifier_log
+end
+
+-- Mostra syschat dettagliato dei modificatori gloria
+function hg_lib.show_glory_details(source_type, source_name, base_glory, final_glory, modifier_log)
+    syschat("|cff888888========== DETTAGLIO GLORIA =========|r")
+    syschat("|cffFFFFFF" .. source_type .. ": |r|cffFFD700" .. source_name .. "|r")
+    syschat("|cffAAAAAAGloria Base: |r|cffFFFFFF" .. base_glory .. "|r")
+    for i = 1, table.getn(modifier_log) do
+        local m = modifier_log[i]
+        local color = m.add >= 0 and "|cff00FF00" or "|cffFF4444"
+        local sign = m.add >= 0 and "+" or ""
+        syschat("|cffAAAAAA" .. m.name .. " (" .. m.value .. "): |r" .. color .. sign .. m.add .. "|r")
     end
-    
-    -- EVENTO ATTIVO (moltiplicatore evento)
-    local evt_name, evt_mult, evt_type = hg_lib.get_active_event()
-    if evt_type == "points" then
-        final_glory = math.floor(final_glory * evt_mult)
-    end
-    
-    -- FOCUS HUNTER PERSONALE (+20%)
-    local has_focus = game.get_event_flag("hq_hunter_focus_"..player_id) or 0
-    if has_focus == 1 then
-        final_glory = final_glory + math.floor(final_glory * 0.20)
-        game.set_event_flag("hq_hunter_focus_"..player_id, 0)  -- Consuma
-    end
-    
+    syschat("|cffFFD700>>> TOTALE: +" .. final_glory .. " Gloria <<<|r")
+    syschat("|cff888888======================================|r")
+end
+
+-- Applica i modificatori personali di Gloria (wrapper per compatibilita')
+-- NOTA: Questa funzione viene chiamata nel contesto del player (pc.*)
+function hg_lib.apply_personal_glory_modifiers(player_id, base_glory)
+    local final_glory, _ = hg_lib.calculate_glory_with_modifiers(base_glory, {player_id = player_id})
     return final_glory
 end
 
@@ -1386,87 +1437,26 @@ end
 -- ============================================================
 -- DISTRIBUZIONE GLORIA ELITE CON MERITOCRAZIA
 -- NOTA: Semplificato - tutta la gloria va al killer
+-- OTTIMIZZATO: Usa calculate_glory_with_modifiers centralizzata
 -- ============================================================
 function hg_lib.distribute_party_glory_elite(base_glory, mob_info)
     local pid = pc.get_player_id()
     local pname = pc.get_name()
     local grade = hg_lib.get_player_rank_grade(pid)
     local power = hg_lib.POWER_RANK_VALUES[grade] or 1
-    
-    -- Applica bonus personali
-    local final_glory = base_glory
-    local modifier_log = {}  -- Log dei modificatori
-    
-    -- STREAK BONUS
-    local streak_bonus = pc.getqf("hq_streak_bonus") or 0
-    if streak_bonus > 0 then
-        local streak_add = math.floor(final_glory * streak_bonus / 100)
-        final_glory = final_glory + streak_add
-        table.insert(modifier_log, {name = "Streak Bonus", value = "+" .. streak_bonus .. "%", add = streak_add})
-    end
-    
-    -- RANK BONUS
-    local player_pts = pc.getqf("hq_total_points") or 0
-    local rank_bonus = hg_lib.get_rank_bonus(player_pts)
-    if rank_bonus > 0 then
-        local rank_add = math.floor(final_glory * rank_bonus / 100)
-        final_glory = final_glory + rank_add
-        table.insert(modifier_log, {name = "Rank Bonus", value = "+" .. rank_bonus .. "%", add = rank_add})
-    end
-    
-    -- FOCUS (+20%)
-    local has_focus = game.get_event_flag("hq_hunter_focus_"..pid) or 0
-    if has_focus == 1 then
-        local focus_add = math.floor(final_glory * 0.20)
-        final_glory = final_glory + focus_add
-        game.set_event_flag("hq_hunter_focus_"..pid, 0)
-        table.insert(modifier_log, {name = "Focus Hunter", value = "+20%", add = focus_add})
-    end
-    
-    -- FRACTURE BONUS (+50% se missioni complete)
-    if hg_lib.has_fracture_bonus() then
-        local frac_add = math.floor(final_glory * 0.50)
-        final_glory = final_glory + frac_add
-        table.insert(modifier_log, {name = "Bonus Missioni", value = "+50%", add = frac_add})
-    end
-    
-    -- TRIAL MALUS (-50%)
-    local trial_mult = hg_lib.get_trial_gloria_multiplier()
-    if trial_mult < 1.0 then
-        local before_trial = final_glory
-        final_glory = math.floor(final_glory * trial_mult)
-        local trial_sub = before_trial - final_glory
-        table.insert(modifier_log, {name = "Prova Esame", value = "-50%", add = -trial_sub})
-    end
-    
-    -- EVENTO ATTIVO
-    local evt_name, evt_mult, evt_type = hg_lib.get_active_event()
-    if evt_type == "points" and evt_mult ~= 1.0 then
-        local before_evt = final_glory
-        final_glory = math.floor(final_glory * evt_mult)
-        local evt_diff = final_glory - before_evt
-        table.insert(modifier_log, {name = "Evento " .. (evt_name or ""), value = "x" .. evt_mult, add = evt_diff})
-    end
-    
+
+    -- USA FUNZIONE CENTRALIZZATA per calcolo modificatori
+    local final_glory, modifier_log = hg_lib.calculate_glory_with_modifiers(base_glory, {player_id = pid})
+
     -- Assegna gloria al killer
     if final_glory > 0 then
         hg_lib.award_glory_to_player(pid, final_glory)
     end
-    
-    -- SYSCHAT DETTAGLIATO DEI MODIFICATORI
+
+    -- Mostra syschat dettagliato
     local mob_name = (mob_info and mob_info.name) or "Elite"
     local type_name = (mob_info and mob_info.type_name) or "ELITE"
-    syschat("|cff888888========== DETTAGLIO GLORIA =========|r")
-    syschat("|cffFFFFFF" .. type_name .. ": |r|cffFFD700" .. mob_name .. "|r")
-    syschat("|cffAAAAAAGloria Base: |r|cffFFFFFF" .. base_glory .. "|r")
-    for i = 1, table.getn(modifier_log) do
-        local m = modifier_log[i]
-        local color = m.add >= 0 and "|cff00FF00" or "|cffFF4444"
-        local sign = m.add >= 0 and "+" or ""
-        syschat("|cffAAAAAA" .. m.name .. " (" .. m.value .. "): |r" .. color .. sign .. m.add .. "|r")
-    end
-    syschat("|cffFFD700>>> TOTALE: +" .. final_glory .. " Gloria <<<|r")
-    syschat("|cff888888======================================|r")
+    hg_lib.show_glory_details(type_name, mob_name, base_glory, final_glory, modifier_log)
     
     -- Log per notifica
     local distribution_log = {{
@@ -2299,29 +2289,7 @@ function hg_lib.on_defense_mob_kill(killed_vnum)
     game.set_event_flag("hq_defense_killed_" .. fracture_vid, current_killed)
 end
 
-function hg_lib._internal_defense_kill(killed_vnum, is_party_mode)
-    local pid = pc.get_player_id()
-    local rank = "E"
-    
-    if hunter_defense_data and hunter_defense_data[pid] then
-        rank = hunter_defense_data[pid].rank
-    end
-    
-    if not hg_lib.is_valid_defense_mob(rank, killed_vnum) then
-        return
-    end
-    
-    local killed = pc.getqf("hq_defense_mob_killed") or 0
-    killed = killed + 1
-    pc.setqf("hq_defense_mob_killed", killed)
-
-    local req = pc.getqf("hq_defense_mob_req") or 0
-    
-    -- Se hai ucciso tutto il necessario (vittoria istantanea opzionale)
-    -- if killed >= req and req > 0 then
-    --     hg_lib.complete_defense_success()
-    -- end
-end
+-- NOTA: _internal_defense_kill rimossa (mai chiamata, logica legacy)
 
 function hg_lib.process_elite_kill(vnum)
     local mob_info = hg_lib.get_mob_info(vnum)
@@ -2794,74 +2762,14 @@ function hg_lib.open_chest(chest_vnum)
 end
 
 -- Applica modificatori solo player per bauli
+-- OTTIMIZZATO: Usa calculate_glory_with_modifiers centralizzata
 function hg_lib.apply_solo_chest_modifiers(player_id, base_glory)
-    local final_glory = base_glory
-    local modifier_log = {}  -- Log dei modificatori
-    
-    -- STREAK BONUS
-    local streak_bonus = pc.getqf("hq_streak_bonus") or 0
-    if streak_bonus > 0 then
-        local streak_add = math.floor(final_glory * streak_bonus / 100)
-        final_glory = final_glory + streak_add
-        table.insert(modifier_log, {name = "Streak Bonus", value = "+" .. streak_bonus .. "%", add = streak_add})
-    end
-    
-    -- RANK BONUS
-    local player_pts = pc.getqf("hq_total_points") or 0
-    local rank_bonus = hg_lib.get_rank_bonus(player_pts)
-    if rank_bonus > 0 then
-        local rank_add = math.floor(final_glory * rank_bonus / 100)
-        final_glory = final_glory + rank_add
-        table.insert(modifier_log, {name = "Rank Bonus", value = "+" .. rank_bonus .. "%", add = rank_add})
-    end
-    
-    -- FOCUS HUNTER (+20%)
-    local has_focus = game.get_event_flag("hq_hunter_focus_"..player_id) or 0
-    if has_focus == 1 then
-        local focus_add = math.floor(final_glory * 0.20)
-        final_glory = final_glory + focus_add
-        game.set_event_flag("hq_hunter_focus_"..player_id, 0)
-        table.insert(modifier_log, {name = "Focus Hunter", value = "+20%", add = focus_add})
-    end
-    
-    -- FRACTURE BONUS (+50% se missioni complete)
-    if hg_lib.has_fracture_bonus() then
-        local frac_add = math.floor(final_glory * 0.50)
-        final_glory = final_glory + frac_add
-        table.insert(modifier_log, {name = "Bonus Missioni", value = "+50%", add = frac_add})
-    end
-    
-    -- EVENTO ATTIVO
-    local evt_name, evt_mult, evt_type = hg_lib.get_active_event()
-    if evt_type == "points" and evt_mult ~= 1.0 then
-        local before_evt = final_glory
-        final_glory = math.floor(final_glory * evt_mult)
-        local evt_diff = final_glory - before_evt
-        table.insert(modifier_log, {name = "Evento " .. (evt_name or ""), value = "x" .. evt_mult, add = evt_diff})
-    end
-    
-    -- TRIAL MALUS (-50%)
-    local trial_mult = hg_lib.get_trial_gloria_multiplier()
-    if trial_mult < 1.0 then
-        local before_trial = final_glory
-        final_glory = math.floor(final_glory * trial_mult)
-        local trial_sub = before_trial - final_glory
-        table.insert(modifier_log, {name = "Prova Esame", value = "-50%", add = -trial_sub})
-    end
-    
-    -- SYSCHAT DETTAGLIATO DEI MODIFICATORI
-    syschat("|cff888888========== DETTAGLIO GLORIA =========|r")
-    syschat("|cffFFFFFFBAULE|r")
-    syschat("|cffAAAAAAGloria Base: |r|cffFFFFFF" .. base_glory .. "|r")
-    for i = 1, table.getn(modifier_log) do
-        local m = modifier_log[i]
-        local color = m.add >= 0 and "|cff00FF00" or "|cffFF4444"
-        local sign = m.add >= 0 and "+" or ""
-        syschat("|cffAAAAAA" .. m.name .. " (" .. m.value .. "): |r" .. color .. sign .. m.add .. "|r")
-    end
-    syschat("|cffFFD700>>> TOTALE: +" .. final_glory .. " Gloria <<<|r")
-    syschat("|cff888888======================================|r")
-    
+    -- USA FUNZIONE CENTRALIZZATA per calcolo modificatori
+    local final_glory, modifier_log = hg_lib.calculate_glory_with_modifiers(base_glory, {player_id = player_id})
+
+    -- Mostra syschat dettagliato
+    hg_lib.show_glory_details("BAULE", "Tesoro", base_glory, final_glory, modifier_log)
+
     return final_glory
 end
 
@@ -4497,92 +4405,21 @@ function hg_lib.send_daily_missions()
     end
 end
 
-function hg_lib.update_mission_progress(mission_type, amount, target_vnum)
-    local pid = pc.get_player_id()
-    target_vnum = target_vnum or 0
-    
-    -- PERFORMANCE: Throttle mission updates - max 1 flush ogni 1 secondo per player
-    local now = get_time()
-    local throttle_key = pid .. "_mission_flush"
-    _G.hunter_mission_throttle = _G.hunter_mission_throttle or {}
-    local last_flush = _G.hunter_mission_throttle[throttle_key] or 0
-    
-    -- SEMPRE accumula nel buffer (fix: accumula TUTTE le kill)
-    _G.hunter_mission_buffer = _G.hunter_mission_buffer or {}
-    _G.hunter_mission_buffer[pid] = _G.hunter_mission_buffer[pid] or {}
-    local player_buffer = _G.hunter_mission_buffer[pid]
-    
-    -- Accumula per tipo + vnum specifico
-    local buffer_key = mission_type .. "_" .. target_vnum
-    player_buffer[buffer_key] = (player_buffer[buffer_key] or 0) + amount
-    
-    -- Accumula anche per missioni generiche (target_vnum = 0)
-    if target_vnum > 0 then
-        local generic_key = mission_type .. "_0"
-        player_buffer[generic_key] = (player_buffer[generic_key] or 0) + amount
-    end
-    
-    -- Se non è passato abbastanza tempo, esci (il buffer verrà processato dopo)
-    if now - last_flush < 1 then
-        return
-    end
-    _G.hunter_mission_throttle[throttle_key] = now
-    
-    -- FLUSH: Processa tutte le missioni attive del player
-    local q = "SELECT pm.id, pm.current_progress, pm.target_count, pm.reward_glory, md.mission_name, md.target_vnum, md.mission_type FROM srv1_hunabku.hunter_player_missions pm LEFT JOIN srv1_hunabku.hunter_mission_definitions md ON pm.mission_def_id = md.mission_id WHERE pm.player_id=" .. pid .. " AND pm.assigned_date=CURDATE() AND pm.status='active'"
-    local c, d = mysql_direct_query(q)
-    
-    if c > 0 then
-        for i = 1, c do
-            local m = d[i]
-            local mid = tonumber(m.id)
-            local cur = tonumber(m.current_progress) or 0
-            local target_count = tonumber(m.target_count) or 10
-            local m_type = m.mission_type or "kill_mob"
-            local m_target = tonumber(m.target_vnum) or 0
-            
-            -- Trova il progresso nel buffer per questa missione
-            local progress_to_add = 0
-            local check_key = m_type .. "_" .. m_target
-            
-            if player_buffer[check_key] and player_buffer[check_key] > 0 then
-                progress_to_add = player_buffer[check_key]
-            end
-            
-            if progress_to_add > 0 then
-                local new_progress = math.min(cur + progress_to_add, target_count)
-                
-                -- Aggiorna solo se c'è effettivamente progresso
-                if new_progress > cur then
-                    mysql_direct_query("UPDATE srv1_hunabku.hunter_player_missions SET current_progress=" .. new_progress .. " WHERE id=" .. mid)
-                    cmdchat("HunterMissionProgress " .. mid .. "|" .. new_progress .. "|" .. target_count)
-                    
-                    if new_progress >= target_count then
-                        hg_lib.complete_mission(mid)
-                    end
-                end
-            end
-        end
-    end
-    
-    -- Svuota il buffer del player dopo il flush
-    _G.hunter_mission_buffer[pid] = {}
-end
-
--- Funzione separata per forzare il flush del buffer missioni (bypassa throttle)
-function hg_lib.flush_mission_buffer(pid)
-    pid = pid or pc.get_player_id()
-    
+-- ============================================================
+-- FUNZIONE INTERNA: Processa il buffer missioni per un player
+-- OTTIMIZZATO: Logica centralizzata (era duplicata in 2 funzioni)
+-- ============================================================
+function hg_lib._process_mission_buffer_internal(pid)
     _G.hunter_mission_buffer = _G.hunter_mission_buffer or {}
     local player_buffer = _G.hunter_mission_buffer[pid]
     if not player_buffer or next(player_buffer) == nil then
         return -- Buffer vuoto, niente da fare
     end
-    
+
     -- FLUSH: Processa tutte le missioni attive del player
     local q = "SELECT pm.id, pm.current_progress, pm.target_count, pm.reward_glory, md.mission_name, md.target_vnum, md.mission_type FROM srv1_hunabku.hunter_player_missions pm LEFT JOIN srv1_hunabku.hunter_mission_definitions md ON pm.mission_def_id = md.mission_id WHERE pm.player_id=" .. pid .. " AND pm.assigned_date=CURDATE() AND pm.status='active'"
     local c, d = mysql_direct_query(q)
-    
+
     if c > 0 then
         for i = 1, c do
             local m = d[i]
@@ -4591,23 +4428,23 @@ function hg_lib.flush_mission_buffer(pid)
             local target_count = tonumber(m.target_count) or 10
             local m_type = m.mission_type or "kill_mob"
             local m_target = tonumber(m.target_vnum) or 0
-            
+
             -- Trova il progresso nel buffer per questa missione
             local progress_to_add = 0
             local check_key = m_type .. "_" .. m_target
-            
+
             if player_buffer[check_key] and player_buffer[check_key] > 0 then
                 progress_to_add = player_buffer[check_key]
             end
-            
+
             if progress_to_add > 0 then
                 local new_progress = math.min(cur + progress_to_add, target_count)
-                
+
                 -- Aggiorna solo se c'è effettivamente progresso
                 if new_progress > cur then
                     mysql_direct_query("UPDATE srv1_hunabku.hunter_player_missions SET current_progress=" .. new_progress .. " WHERE id=" .. mid)
                     cmdchat("HunterMissionProgress " .. mid .. "|" .. new_progress .. "|" .. target_count)
-                    
+
                     if new_progress >= target_count then
                         hg_lib.complete_mission(mid)
                     end
@@ -4615,10 +4452,53 @@ function hg_lib.flush_mission_buffer(pid)
             end
         end
     end
-    
+
     -- Svuota il buffer del player dopo il flush
     _G.hunter_mission_buffer[pid] = {}
-    
+end
+
+function hg_lib.update_mission_progress(mission_type, amount, target_vnum)
+    local pid = pc.get_player_id()
+    target_vnum = target_vnum or 0
+
+    -- PERFORMANCE: Throttle mission updates - max 1 flush ogni 1 secondo per player
+    local now = get_time()
+    local throttle_key = pid .. "_mission_flush"
+    _G.hunter_mission_throttle = _G.hunter_mission_throttle or {}
+    local last_flush = _G.hunter_mission_throttle[throttle_key] or 0
+
+    -- SEMPRE accumula nel buffer (fix: accumula TUTTE le kill)
+    _G.hunter_mission_buffer = _G.hunter_mission_buffer or {}
+    _G.hunter_mission_buffer[pid] = _G.hunter_mission_buffer[pid] or {}
+    local player_buffer = _G.hunter_mission_buffer[pid]
+
+    -- Accumula per tipo + vnum specifico
+    local buffer_key = mission_type .. "_" .. target_vnum
+    player_buffer[buffer_key] = (player_buffer[buffer_key] or 0) + amount
+
+    -- Accumula anche per missioni generiche (target_vnum = 0)
+    if target_vnum > 0 then
+        local generic_key = mission_type .. "_0"
+        player_buffer[generic_key] = (player_buffer[generic_key] or 0) + amount
+    end
+
+    -- Se non è passato abbastanza tempo, esci (il buffer verrà processato dopo)
+    if now - last_flush < 1 then
+        return
+    end
+    _G.hunter_mission_throttle[throttle_key] = now
+
+    -- USA FUNZIONE CENTRALIZZATA
+    hg_lib._process_mission_buffer_internal(pid)
+end
+
+-- Funzione separata per forzare il flush del buffer missioni (bypassa throttle)
+function hg_lib.flush_mission_buffer(pid)
+    pid = pid or pc.get_player_id()
+
+    -- USA FUNZIONE CENTRALIZZATA
+    hg_lib._process_mission_buffer_internal(pid)
+
     -- Aggiorna timestamp throttle
     _G.hunter_mission_throttle = _G.hunter_mission_throttle or {}
     _G.hunter_mission_throttle[pid .. "_mission_flush"] = get_time()
