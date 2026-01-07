@@ -381,8 +381,9 @@ RANK_THEMES = {
         # Barre e effetti
         "bar_fill": 0xFF606060,
         "bar_bg": 0xFF1A1A1A,
-        "glow": 0x25707070,
-        "glow_strong": 0x40707070,
+        "glow": 0x35707070,
+        "glow_strong": 0x55707070,
+        "pulse_color": 0xFF606060,
         # Bottoni
         "btn_normal": 0xFF1E1E1E,
         "btn_hover": 0xFF2A2A2A,
@@ -414,8 +415,9 @@ RANK_THEMES = {
         # Barre e effetti
         "bar_fill": 0xFF00DD00,
         "bar_bg": 0xFF0A200A,
-        "glow": 0x2500FF00,
-        "glow_strong": 0x4500FF00,
+        "glow": 0x3500FF00,
+        "glow_strong": 0x6000FF00,
+        "pulse_color": 0xFF00FF00,
         # Bottoni
         "btn_normal": 0xFF081808,
         "btn_hover": 0xFF0C280C,
@@ -447,8 +449,9 @@ RANK_THEMES = {
         # Barre e effetti
         "bar_fill": 0xFF00DDFF,
         "bar_bg": 0xFF0A2030,
-        "glow": 0x2800FFFF,
-        "glow_strong": 0x5000FFFF,
+        "glow": 0x3800FFFF,
+        "glow_strong": 0x6500FFFF,
+        "pulse_color": 0xFF00FFFF,
         # Bottoni
         "btn_normal": 0xFF081828,
         "btn_hover": 0xFF0C2838,
@@ -480,8 +483,9 @@ RANK_THEMES = {
         # Barre e effetti
         "bar_fill": 0xFF0077FF,
         "bar_bg": 0xFF0A1030,
-        "glow": 0x300066FF,
-        "glow_strong": 0x550066FF,
+        "glow": 0x400066FF,
+        "glow_strong": 0x700066FF,
+        "pulse_color": 0xFF4499FF,
         # Bottoni
         "btn_normal": 0xFF080838,
         "btn_hover": 0xFF0C0C48,
@@ -513,8 +517,9 @@ RANK_THEMES = {
         # Barre e effetti
         "bar_fill": 0xFFBB22FF,
         "bar_bg": 0xFF150830,
-        "glow": 0x35AA00FF,
-        "glow_strong": 0x60AA00FF,
+        "glow": 0x45AA00FF,
+        "glow_strong": 0x75AA00FF,
+        "pulse_color": 0xFFCC44FF,
         # Bottoni
         "btn_normal": 0xFF180838,
         "btn_hover": 0xFF200C48,
@@ -546,8 +551,9 @@ RANK_THEMES = {
         # Barre e effetti
         "bar_fill": 0xFFFF7700,
         "bar_bg": 0xFF301808,
-        "glow": 0x40FF6600,
-        "glow_strong": 0x70FF6600,
+        "glow": 0x55FF6600,
+        "glow_strong": 0x88FF6600,
+        "pulse_color": 0xFFFFAA00,
         # Bottoni
         "btn_normal": 0xFF281808,
         "btn_hover": 0xFF382810,
@@ -577,11 +583,12 @@ RANK_THEMES = {
         "text_title": 0xFFFF4444,
         "text_value": 0xFFFFAAAA,
         "text_muted": 0xFF772222,
-        # Barre e effetti
+        # Barre e effetti - MASSIMA INTENSITA' PER IL MONARCA
         "bar_fill": 0xFFEE1111,
         "bar_bg": 0xFF200808,
-        "glow": 0x50FF0000,
-        "glow_strong": 0x80FF0000,
+        "glow": 0x65FF0000,
+        "glow_strong": 0x99FF0000,
+        "pulse_color": 0xFFFF2222,
         # Bottoni
         "btn_normal": 0xFF200808,
         "btn_hover": 0xFF301010,

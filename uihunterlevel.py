@@ -376,7 +376,18 @@ class HunterLevelWindow(ui.ScriptWindow):
     
     def __CreateBackground(self):
         t = self.theme
-        
+
+        # Glow esterno finestra principale (layer piu' grande per effetto "alone")
+        glowFrame = ui.Bar()
+        glowFrame.SetParent(self.baseWindow)
+        glowFrame.SetPosition(-2, -2)
+        glowFrame.SetSize(WINDOW_WIDTH + 4, WINDOW_HEIGHT + 4)
+        glowFrame.SetColor(t["glow"])
+        glowFrame.Show()
+        self._DisableMousePick(glowFrame)
+        self.bgElements.append(glowFrame)
+
+        # Background principale
         bg = ui.Bar()
         bg.SetParent(self.baseWindow)
         bg.SetPosition(0, 0)
@@ -385,7 +396,8 @@ class HunterLevelWindow(ui.ScriptWindow):
         bg.Show()
         self._DisableMousePick(bg)
         self.bgElements.append(bg)
-        
+
+        # Bordi neon della finestra
         for (x, y, w, h) in [(0, 0, WINDOW_WIDTH, 3), (0, WINDOW_HEIGHT - 3, WINDOW_WIDTH, 3),
                              (0, 0, 3, WINDOW_HEIGHT), (WINDOW_WIDTH - 3, 0, 3, WINDOW_HEIGHT)]:
             border = ui.Bar()
@@ -396,18 +408,122 @@ class HunterLevelWindow(ui.ScriptWindow):
             border.Show()
             self._DisableMousePick(border)
             self.bgElements.append(border)
-        
+
+        # Angoli decorativi ESTERNI - Solo Leveling Style
+        cornerLen = 25
+        cornerColor = t.get("pulse_color", t["accent"])
+
+        # Top-Left
+        self.__CreateCorner(0, 0, cornerLen, cornerColor, "TL")
+        # Top-Right
+        self.__CreateCorner(WINDOW_WIDTH - cornerLen, 0, cornerLen, cornerColor, "TR")
+        # Bottom-Left
+        self.__CreateCorner(0, WINDOW_HEIGHT - cornerLen, cornerLen, cornerColor, "BL")
+        # Bottom-Right
+        self.__CreateCorner(WINDOW_WIDTH - cornerLen, WINDOW_HEIGHT - cornerLen, cornerLen, cornerColor, "BR")
+
         closeBtn = SoloLevelingButton()
         closeBtn.Create(self.baseWindow, WINDOW_WIDTH - 35, 8, 25, 20, "X", t)
         closeBtn.SetEvent(ui.__mem_func__(self.Close))
         self.bgElements.append(closeBtn)
+
+    def __CreateCorner(self, x, y, size, color, position):
+        """Crea angolo decorativo in stile Solo Leveling"""
+        t = self.theme
+
+        if position == "TL":
+            h = ui.Bar()
+            h.SetParent(self.baseWindow)
+            h.SetPosition(x, y)
+            h.SetSize(size, 3)
+            h.SetColor(color)
+            h.Show()
+            self._DisableMousePick(h)
+            self.bgElements.append(h)
+
+            v = ui.Bar()
+            v.SetParent(self.baseWindow)
+            v.SetPosition(x, y)
+            v.SetSize(3, size)
+            v.SetColor(color)
+            v.Show()
+            self._DisableMousePick(v)
+            self.bgElements.append(v)
+
+        elif position == "TR":
+            h = ui.Bar()
+            h.SetParent(self.baseWindow)
+            h.SetPosition(x, y)
+            h.SetSize(size, 3)
+            h.SetColor(color)
+            h.Show()
+            self._DisableMousePick(h)
+            self.bgElements.append(h)
+
+            v = ui.Bar()
+            v.SetParent(self.baseWindow)
+            v.SetPosition(x + size - 3, y)
+            v.SetSize(3, size)
+            v.SetColor(color)
+            v.Show()
+            self._DisableMousePick(v)
+            self.bgElements.append(v)
+
+        elif position == "BL":
+            h = ui.Bar()
+            h.SetParent(self.baseWindow)
+            h.SetPosition(x, y + size - 3)
+            h.SetSize(size, 3)
+            h.SetColor(color)
+            h.Show()
+            self._DisableMousePick(h)
+            self.bgElements.append(h)
+
+            v = ui.Bar()
+            v.SetParent(self.baseWindow)
+            v.SetPosition(x, y)
+            v.SetSize(3, size)
+            v.SetColor(color)
+            v.Show()
+            self._DisableMousePick(v)
+            self.bgElements.append(v)
+
+        elif position == "BR":
+            h = ui.Bar()
+            h.SetParent(self.baseWindow)
+            h.SetPosition(x, y + size - 3)
+            h.SetSize(size, 3)
+            h.SetColor(color)
+            h.Show()
+            self._DisableMousePick(h)
+            self.bgElements.append(h)
+
+            v = ui.Bar()
+            v.SetParent(self.baseWindow)
+            v.SetPosition(x + size - 3, y)
+            v.SetSize(3, size)
+            v.SetColor(color)
+            v.Show()
+            self._DisableMousePick(v)
+            self.bgElements.append(v)
     
     # ========================================================================
     #  HEADER
     # ========================================================================
     def __CreateHeader(self):
         t = self.theme
-        
+
+        # Glow esterno (layer piu' grande)
+        glowOuter = ui.Bar()
+        glowOuter.SetParent(self.baseWindow)
+        glowOuter.SetPosition(8, 8)
+        glowOuter.SetSize(WINDOW_WIDTH - 16, HEADER_HEIGHT + 4)
+        glowOuter.SetColor(t["glow"])
+        glowOuter.Show()
+        self._DisableMousePick(glowOuter)
+        self.headerElements.append(glowOuter)
+
+        # Background header
         headerBg = ui.Bar()
         headerBg.SetParent(self.baseWindow)
         headerBg.SetPosition(10, 10)
@@ -416,25 +532,117 @@ class HunterLevelWindow(ui.ScriptWindow):
         headerBg.Show()
         self._DisableMousePick(headerBg)
         self.headerElements.append(headerBg)
-        
+
+        # Bordi neon header (top, bottom, left, right)
         glowTop = ui.Bar()
         glowTop.SetParent(self.baseWindow)
         glowTop.SetPosition(10, 10)
         glowTop.SetSize(WINDOW_WIDTH - 20, 2)
-        glowTop.SetColor(t["glow"])
+        glowTop.SetColor(t["glow_strong"])
         glowTop.Show()
         self._DisableMousePick(glowTop)
         self.headerElements.append(glowTop)
-        
+
+        glowBottom = ui.Bar()
+        glowBottom.SetParent(self.baseWindow)
+        glowBottom.SetPosition(10, HEADER_HEIGHT + 8)
+        glowBottom.SetSize(WINDOW_WIDTH - 20, 2)
+        glowBottom.SetColor(t["glow_strong"])
+        glowBottom.Show()
+        self._DisableMousePick(glowBottom)
+        self.headerElements.append(glowBottom)
+
+        # Angoli decorativi - SOLO LEVELING STYLE
+        cornerSize = 12
+        cornerColor = t.get("pulse_color", t["accent"])
+
+        # Top-Left corner
+        cTL1 = ui.Bar()
+        cTL1.SetParent(self.baseWindow)
+        cTL1.SetPosition(10, 10)
+        cTL1.SetSize(cornerSize, 3)
+        cTL1.SetColor(cornerColor)
+        cTL1.Show()
+        self._DisableMousePick(cTL1)
+        self.headerElements.append(cTL1)
+
+        cTL2 = ui.Bar()
+        cTL2.SetParent(self.baseWindow)
+        cTL2.SetPosition(10, 10)
+        cTL2.SetSize(3, cornerSize)
+        cTL2.SetColor(cornerColor)
+        cTL2.Show()
+        self._DisableMousePick(cTL2)
+        self.headerElements.append(cTL2)
+
+        # Top-Right corner
+        cTR1 = ui.Bar()
+        cTR1.SetParent(self.baseWindow)
+        cTR1.SetPosition(WINDOW_WIDTH - 10 - cornerSize, 10)
+        cTR1.SetSize(cornerSize, 3)
+        cTR1.SetColor(cornerColor)
+        cTR1.Show()
+        self._DisableMousePick(cTR1)
+        self.headerElements.append(cTR1)
+
+        cTR2 = ui.Bar()
+        cTR2.SetParent(self.baseWindow)
+        cTR2.SetPosition(WINDOW_WIDTH - 13, 10)
+        cTR2.SetSize(3, cornerSize)
+        cTR2.SetColor(cornerColor)
+        cTR2.Show()
+        self._DisableMousePick(cTR2)
+        self.headerElements.append(cTR2)
+
+        # Bottom-Left corner
+        cBL1 = ui.Bar()
+        cBL1.SetParent(self.baseWindow)
+        cBL1.SetPosition(10, HEADER_HEIGHT + 7)
+        cBL1.SetSize(cornerSize, 3)
+        cBL1.SetColor(cornerColor)
+        cBL1.Show()
+        self._DisableMousePick(cBL1)
+        self.headerElements.append(cBL1)
+
+        cBL2 = ui.Bar()
+        cBL2.SetParent(self.baseWindow)
+        cBL2.SetPosition(10, HEADER_HEIGHT + 10 - cornerSize)
+        cBL2.SetSize(3, cornerSize)
+        cBL2.SetColor(cornerColor)
+        cBL2.Show()
+        self._DisableMousePick(cBL2)
+        self.headerElements.append(cBL2)
+
+        # Bottom-Right corner
+        cBR1 = ui.Bar()
+        cBR1.SetParent(self.baseWindow)
+        cBR1.SetPosition(WINDOW_WIDTH - 10 - cornerSize, HEADER_HEIGHT + 7)
+        cBR1.SetSize(cornerSize, 3)
+        cBR1.SetColor(cornerColor)
+        cBR1.Show()
+        self._DisableMousePick(cBR1)
+        self.headerElements.append(cBR1)
+
+        cBR2 = ui.Bar()
+        cBR2.SetParent(self.baseWindow)
+        cBR2.SetPosition(WINDOW_WIDTH - 13, HEADER_HEIGHT + 10 - cornerSize)
+        cBR2.SetSize(3, cornerSize)
+        cBR2.SetColor(cornerColor)
+        cBR2.Show()
+        self._DisableMousePick(cBR2)
+        self.headerElements.append(cBR2)
+
         self.__UpdateHeaderContent()
     
     def __UpdateHeaderContent(self):
-        for e in self.headerElements[2:]:
+        # Mantieni i primi 12 elementi (glow, bg, bordi, angoli decorativi)
+        baseElements = 12
+        for e in self.headerElements[baseElements:]:
             try:
                 e.Hide()
             except:
                 pass
-        self.headerElements = self.headerElements[:2]
+        self.headerElements = self.headerElements[:baseElements]
         
         t = self.theme
         pts = self.playerData["total_points"]
@@ -1616,7 +1824,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         y += 18
         
         for rank, reward, penalty in rankRewards:
-            color = self.RANK_COLORS.get(rank, t["text_value"])
+            color = RANK_COLORS.get(rank, t["text_value"])
             self.__CText("%s" % rank, 80, y, color)
             self.__CText("%s" % reward, 140, y, 0xFF00FF00)
             self.__CText("%s" % penalty, 260, y, 0xFFFF6666)
@@ -2094,7 +2302,7 @@ class HunterLevelWindow(ui.ScriptWindow):
     def ShowSystemMessage(self, msg, rankKey="E"):
         """Mostra messaggio del Sistema con colore basato sul rank"""
         if self.systemMsgWnd:
-            color = self.RANK_COLORS.get(rankKey, 0xFF808080)
+            color = RANK_COLORS.get(rankKey, 0xFF808080)
             self.systemMsgWnd.ShowMessage(msg, color)
             # REMOVED: SetRankColor() era ridondante e causava override del colore
     
@@ -2121,7 +2329,7 @@ class HunterLevelWindow(ui.ScriptWindow):
             "N": "!! ALLERTA MASSIMA !! MONARCA NAZIONALE ONLINE !!",
         }
         
-        color = self.RANK_COLORS.get(rankKey, 0xFF808080)
+        color = RANK_COLORS.get(rankKey, 0xFF808080)
         title = RANK_TITLES.get(rankKey, "[E-RANK]")
         message = RANK_MESSAGES.get(rankKey, "Bentornato.")
         
