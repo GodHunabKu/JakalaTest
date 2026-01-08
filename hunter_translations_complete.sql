@@ -1728,7 +1728,285 @@ INSERT INTO hunter_translations (translation_key, lang_code, text_value) VALUES
 ('SMART_NONE', 'de', 'Keine Erfolge zum Einlosen.'),
 ('SMART_NONE', 'es', 'Ningun logro para reclamar.'),
 ('SMART_NONE', 'fr', 'Aucun succes a reclamer.'),
-('SMART_NONE', 'pt', 'Nenhuma conquista para resgatar.')
+('SMART_NONE', 'pt', 'Nenhuma conquista para resgatar.'),
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Mission Completion Messages
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+('MISSION_COMPLETED', 'it', 'MISSIONE COMPLETATA'),
+('MISSION_COMPLETED', 'en', 'MISSION COMPLETED'),
+('MISSION_COMPLETED', 'de', 'MISSION ABGESCHLOSSEN'),
+('MISSION_COMPLETED', 'es', 'MISION COMPLETADA'),
+('MISSION_COMPLETED', 'fr', 'MISSION ACCOMPLIE'),
+('MISSION_COMPLETED', 'pt', 'MISSAO COMPLETA'),
+
+('COMPLETE', 'it', 'complete'),
+('COMPLETE', 'en', 'complete'),
+('COMPLETE', 'de', 'abgeschlossen'),
+('COMPLETE', 'es', 'completas'),
+('COMPLETE', 'fr', 'terminees'),
+('COMPLETE', 'pt', 'completas'),
+
+('MISSION_COMPLETE_SPEAK', 'it', 'MISSIONE COMPLETATA! +{REWARD} GLORIA'),
+('MISSION_COMPLETE_SPEAK', 'en', 'MISSION COMPLETED! +{REWARD} GLORY'),
+('MISSION_COMPLETE_SPEAK', 'de', 'MISSION ABGESCHLOSSEN! +{REWARD} RUHM'),
+('MISSION_COMPLETE_SPEAK', 'es', 'MISION COMPLETADA! +{REWARD} GLORIA'),
+('MISSION_COMPLETE_SPEAK', 'fr', 'MISSION ACCOMPLIE! +{REWARD} GLOIRE'),
+('MISSION_COMPLETE_SPEAK', 'pt', 'MISSAO COMPLETA! +{REWARD} GLORIA'),
+
+('ALL_MISSIONS_COMPLETE', 'it', 'TUTTE LE MISSIONI COMPLETE!'),
+('ALL_MISSIONS_COMPLETE', 'en', 'ALL MISSIONS COMPLETE!'),
+('ALL_MISSIONS_COMPLETE', 'de', 'ALLE MISSIONEN ABGESCHLOSSEN!'),
+('ALL_MISSIONS_COMPLETE', 'es', 'TODAS LAS MISIONES COMPLETADAS!'),
+('ALL_MISSIONS_COMPLETE', 'fr', 'TOUTES LES MISSIONS TERMINEES!'),
+('ALL_MISSIONS_COMPLETE', 'pt', 'TODAS AS MISSOES COMPLETAS!'),
+
+('GLORY_FROM_MISSIONS', 'it', 'Gloria dalle Missioni:'),
+('GLORY_FROM_MISSIONS', 'en', 'Glory from Missions:'),
+('GLORY_FROM_MISSIONS', 'de', 'Ruhm aus Missionen:'),
+('GLORY_FROM_MISSIONS', 'es', 'Gloria de Misiones:'),
+('GLORY_FROM_MISSIONS', 'fr', 'Gloire des Missions:'),
+('GLORY_FROM_MISSIONS', 'pt', 'Gloria das Missoes:'),
+
+('MISSION', 'it', 'Missione'),
+('MISSION', 'en', 'Mission'),
+('MISSION', 'de', 'Mission'),
+('MISSION', 'es', 'Mision'),
+('MISSION', 'fr', 'Mission'),
+('MISSION', 'pt', 'Missao'),
+
+('TOTAL_MISSIONS', 'it', 'Totale Missioni'),
+('TOTAL_MISSIONS', 'en', 'Total Missions'),
+('TOTAL_MISSIONS', 'de', 'Missionen Gesamt'),
+('TOTAL_MISSIONS', 'es', 'Total Misiones'),
+('TOTAL_MISSIONS', 'fr', 'Total Missions'),
+('TOTAL_MISSIONS', 'pt', 'Total Missoes'),
+
+('BONUS_50_COMPLETION', 'it', 'BONUS 50% COMPLETAMENTO'),
+('BONUS_50_COMPLETION', 'en', 'BONUS 50% COMPLETION'),
+('BONUS_50_COMPLETION', 'de', 'BONUS 50% ABSCHLUSS'),
+('BONUS_50_COMPLETION', 'es', 'BONUS 50% COMPLETADO'),
+('BONUS_50_COMPLETION', 'fr', 'BONUS 50% ACHEVEMENT'),
+('BONUS_50_COMPLETION', 'pt', 'BONUS 50% CONCLUSAO'),
+
+('GLORY_EXTRA', 'it', 'Gloria Extra'),
+('GLORY_EXTRA', 'en', 'Extra Glory'),
+('GLORY_EXTRA', 'de', 'Extra Ruhm'),
+('GLORY_EXTRA', 'es', 'Gloria Extra'),
+('GLORY_EXTRA', 'fr', 'Gloire Supplementaire'),
+('GLORY_EXTRA', 'pt', 'Gloria Extra'),
+
+('TOTAL_EARNED', 'it', 'TOTALE GUADAGNATO'),
+('TOTAL_EARNED', 'en', 'TOTAL EARNED'),
+('TOTAL_EARNED', 'de', 'GESAMT VERDIENT'),
+('TOTAL_EARNED', 'es', 'TOTAL GANADO'),
+('TOTAL_EARNED', 'fr', 'TOTAL GAGNE'),
+('TOTAL_EARNED', 'pt', 'TOTAL GANHO'),
+
+('ACTIVATED', 'it', 'ATTIVATO'),
+('ACTIVATED', 'en', 'ACTIVATED'),
+('ACTIVATED', 'de', 'AKTIVIERT'),
+('ACTIVATED', 'es', 'ACTIVADO'),
+('ACTIVATED', 'fr', 'ACTIVE'),
+('ACTIVATED', 'pt', 'ATIVADO'),
+
+('FRACTURE_BONUS', 'it', 'Bonus Fratture +50%'),
+('FRACTURE_BONUS', 'en', 'Fracture Bonus +50%'),
+('FRACTURE_BONUS', 'de', 'Bruch Bonus +50%'),
+('FRACTURE_BONUS', 'es', 'Bonus Fracturas +50%'),
+('FRACTURE_BONUS', 'fr', 'Bonus Fractures +50%'),
+('FRACTURE_BONUS', 'pt', 'Bonus Fraturas +50%'),
+
+('VALID_UNTIL_RESET', 'it', 'valido fino al reset di mezzanotte'),
+('VALID_UNTIL_RESET', 'en', 'valid until midnight reset'),
+('VALID_UNTIL_RESET', 'de', 'gultig bis Mitternacht-Reset'),
+('VALID_UNTIL_RESET', 'es', 'valido hasta el reinicio de medianoche'),
+('VALID_UNTIL_RESET', 'fr', 'valide jusqu''a la reinitialisation de minuit'),
+('VALID_UNTIL_RESET', 'pt', 'valido ate o reset da meia-noite'),
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Wave and Defense Notifications
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+('WAVE_NOTIFICATION', 'it', 'ONDATA {WAVE}! +{MOBS} mob!'),
+('WAVE_NOTIFICATION', 'en', 'WAVE {WAVE}! +{MOBS} mobs!'),
+('WAVE_NOTIFICATION', 'de', 'WELLE {WAVE}! +{MOBS} Mobs!'),
+('WAVE_NOTIFICATION', 'es', 'OLEADA {WAVE}! +{MOBS} mobs!'),
+('WAVE_NOTIFICATION', 'fr', 'VAGUE {WAVE}! +{MOBS} mobs!'),
+('WAVE_NOTIFICATION', 'pt', 'ONDA {WAVE}! +{MOBS} mobs!'),
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Calibrator and Conflict Messages
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+('CALIBRATOR', 'it', 'CALIBRATORE'),
+('CALIBRATOR', 'en', 'CALIBRATOR'),
+('CALIBRATOR', 'de', 'KALIBRATOR'),
+('CALIBRATOR', 'es', 'CALIBRADOR'),
+('CALIBRATOR', 'fr', 'CALIBREUR'),
+('CALIBRATOR', 'pt', 'CALIBRADOR'),
+
+('CALIBRATOR_ACTIVE_MSG', 'it', 'Filtro attivo: Rango C+ garantito!'),
+('CALIBRATOR_ACTIVE_MSG', 'en', 'Filter active: Rank C+ guaranteed!'),
+('CALIBRATOR_ACTIVE_MSG', 'de', 'Filter aktiv: Rang C+ garantiert!'),
+('CALIBRATOR_ACTIVE_MSG', 'es', 'Filtro activo: Rango C+ garantizado!'),
+('CALIBRATOR_ACTIVE_MSG', 'fr', 'Filtre actif: Rang C+ garanti!'),
+('CALIBRATOR_ACTIVE_MSG', 'pt', 'Filtro ativo: Rank C+ garantido!'),
+
+('CONFLICT', 'it', 'CONFLITTO'),
+('CONFLICT', 'en', 'CONFLICT'),
+('CONFLICT', 'de', 'KONFLIKT'),
+('CONFLICT', 'es', 'CONFLICTO'),
+('CONFLICT', 'fr', 'CONFLIT'),
+('CONFLICT', 'pt', 'CONFLITO'),
+
+('CONFLICT_EMERGENCY', 'it', 'Completa prima l''Emergency Quest in corso!'),
+('CONFLICT_EMERGENCY', 'en', 'Complete the ongoing Emergency Quest first!'),
+('CONFLICT_EMERGENCY', 'de', 'Schliesse zuerst die laufende Notfall-Quest ab!'),
+('CONFLICT_EMERGENCY', 'es', 'Completa primero la mision de emergencia en curso!'),
+('CONFLICT_EMERGENCY', 'fr', 'Terminez d''abord la quete d''urgence en cours!'),
+('CONFLICT_EMERGENCY', 'pt', 'Complete primeiro a Quest de Emergencia em andamento!'),
+
+('CONFLICT_DEFENSE', 'it', 'Stai gia'' difendendo un''altra frattura!'),
+('CONFLICT_DEFENSE', 'en', 'You are already defending another fracture!'),
+('CONFLICT_DEFENSE', 'de', 'Du verteidigst bereits einen anderen Bruch!'),
+('CONFLICT_DEFENSE', 'es', 'Ya estas defendiendo otra fractura!'),
+('CONFLICT_DEFENSE', 'fr', 'Vous defendez deja une autre fracture!'),
+('CONFLICT_DEFENSE', 'pt', 'Voce ja esta defendendo outra fratura!'),
+
+('ERROR', 'it', 'ERRORE'),
+('ERROR', 'en', 'ERROR'),
+('ERROR', 'de', 'FEHLER'),
+('ERROR', 'es', 'ERROR'),
+('ERROR', 'fr', 'ERREUR'),
+('ERROR', 'pt', 'ERRO'),
+
+('ERROR_IDENTIFY_FRACTURE', 'it', 'Impossibile identificare la frattura!'),
+('ERROR_IDENTIFY_FRACTURE', 'en', 'Unable to identify the fracture!'),
+('ERROR_IDENTIFY_FRACTURE', 'de', 'Bruch kann nicht identifiziert werden!'),
+('ERROR_IDENTIFY_FRACTURE', 'es', 'No se puede identificar la fractura!'),
+('ERROR_IDENTIFY_FRACTURE', 'fr', 'Impossible d''identifier la fracture!'),
+('ERROR_IDENTIFY_FRACTURE', 'pt', 'Impossivel identificar a fratura!'),
+
+('SEAL_OF_CONQUEST', 'it', 'SIGILLO DI CONQUISTA'),
+('SEAL_OF_CONQUEST', 'en', 'SEAL OF CONQUEST'),
+('SEAL_OF_CONQUEST', 'de', 'SIEGEL DER EROBERUNG'),
+('SEAL_OF_CONQUEST', 'es', 'SELLO DE CONQUISTA'),
+('SEAL_OF_CONQUEST', 'fr', 'SCEAU DE CONQUETE'),
+('SEAL_OF_CONQUEST', 'pt', 'SELO DE CONQUISTA'),
+
+('SEAL_INSTANT_OPEN', 'it', 'La frattura si apre istantaneamente!'),
+('SEAL_INSTANT_OPEN', 'en', 'The fracture opens instantly!'),
+('SEAL_INSTANT_OPEN', 'de', 'Der Bruch offnet sich sofort!'),
+('SEAL_INSTANT_OPEN', 'es', 'La fractura se abre instantaneamente!'),
+('SEAL_INSTANT_OPEN', 'fr', 'La fracture s''ouvre instantanement!'),
+('SEAL_INSTANT_OPEN', 'pt', 'A fratura se abre instantaneamente!'),
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Trial and Rank Messages
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+('TRIAL_COMPLETE_RANK', 'it', 'PROVA COMPLETATA! Sei stato promosso al rango {RANK}!'),
+('TRIAL_COMPLETE_RANK', 'en', 'TRIAL COMPLETED! You have been promoted to rank {RANK}!'),
+('TRIAL_COMPLETE_RANK', 'de', 'PRUFUNG ABGESCHLOSSEN! Du wurdest in den Rang {RANK} befordert!'),
+('TRIAL_COMPLETE_RANK', 'es', 'PRUEBA COMPLETADA! Has sido ascendido al rango {RANK}!'),
+('TRIAL_COMPLETE_RANK', 'fr', 'EPREUVE TERMINEE! Vous avez ete promu au rang {RANK}!'),
+('TRIAL_COMPLETE_RANK', 'pt', 'PROVA CONCLUIDA! Voce foi promovido ao rank {RANK}!'),
+
+('TRIAL_REWARD', 'it', 'Ricompensa: +{REWARD} Gloria'),
+('TRIAL_REWARD', 'en', 'Reward: +{REWARD} Glory'),
+('TRIAL_REWARD', 'de', 'Belohnung: +{REWARD} Ruhm'),
+('TRIAL_REWARD', 'es', 'Recompensa: +{REWARD} Gloria'),
+('TRIAL_REWARD', 'fr', 'Recompense: +{REWARD} Gloire'),
+('TRIAL_REWARD', 'pt', 'Recompensa: +{REWARD} Gloria'),
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Warning and Reminder Messages
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+('WARNING', 'it', 'ATTENZIONE'),
+('WARNING', 'en', 'WARNING'),
+('WARNING', 'de', 'ACHTUNG'),
+('WARNING', 'es', 'ATENCION'),
+('WARNING', 'fr', 'ATTENTION'),
+('WARNING', 'pt', 'ATENCAO'),
+
+('WARNING_INCOMPLETE_MISSIONS', 'it', 'Hai {COUNT} missioni incomplete!'),
+('WARNING_INCOMPLETE_MISSIONS', 'en', 'You have {COUNT} incomplete missions!'),
+('WARNING_INCOMPLETE_MISSIONS', 'de', 'Du hast {COUNT} unvollstandige Missionen!'),
+('WARNING_INCOMPLETE_MISSIONS', 'es', 'Tienes {COUNT} misiones incompletas!'),
+('WARNING_INCOMPLETE_MISSIONS', 'fr', 'Vous avez {COUNT} missions incompletes!'),
+('WARNING_INCOMPLETE_MISSIONS', 'pt', 'Voce tem {COUNT} missoes incompletas!'),
+
+('RESET_IN_HOURS', 'it', 'Reset tra {HOURS} ore'),
+('RESET_IN_HOURS', 'en', 'Reset in {HOURS} hours'),
+('RESET_IN_HOURS', 'de', 'Reset in {HOURS} Stunden'),
+('RESET_IN_HOURS', 'es', 'Reinicio en {HOURS} horas'),
+('RESET_IN_HOURS', 'fr', 'Reinitialisation dans {HOURS} heures'),
+('RESET_IN_HOURS', 'pt', 'Reset em {HOURS} horas'),
+
+('COMPLETE_TO_AVOID_PENALTY', 'it', 'Completa per evitare penalita''!'),
+('COMPLETE_TO_AVOID_PENALTY', 'en', 'Complete to avoid penalty!'),
+('COMPLETE_TO_AVOID_PENALTY', 'de', 'Abschliessen, um Strafe zu vermeiden!'),
+('COMPLETE_TO_AVOID_PENALTY', 'es', 'Completa para evitar penalizacion!'),
+('COMPLETE_TO_AVOID_PENALTY', 'fr', 'Terminez pour eviter une penalite!'),
+('COMPLETE_TO_AVOID_PENALTY', 'pt', 'Complete para evitar penalidade!'),
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Awakening Notice
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+('AWAKENING_NOTICE', 'it', '{PLAYER} ha risvegliato: {MOB} ({RANK}){LOCATION}'),
+('AWAKENING_NOTICE', 'en', '{PLAYER} has awakened: {MOB} ({RANK}){LOCATION}'),
+('AWAKENING_NOTICE', 'de', '{PLAYER} hat erweckt: {MOB} ({RANK}){LOCATION}'),
+('AWAKENING_NOTICE', 'es', '{PLAYER} ha despertado: {MOB} ({RANK}){LOCATION}'),
+('AWAKENING_NOTICE', 'fr', '{PLAYER} a reveille: {MOB} ({RANK}){LOCATION}'),
+('AWAKENING_NOTICE', 'pt', '{PLAYER} despertou: {MOB} ({RANK}){LOCATION}'),
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Glory Detail Messages
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+('GLORY_DETAIL', 'it', 'DETTAGLIO GLORIA'),
+('GLORY_DETAIL', 'en', 'GLORY DETAIL'),
+('GLORY_DETAIL', 'de', 'RUHM-DETAILS'),
+('GLORY_DETAIL', 'es', 'DETALLE DE GLORIA'),
+('GLORY_DETAIL', 'fr', 'DETAIL DE GLOIRE'),
+('GLORY_DETAIL', 'pt', 'DETALHE DE GLORIA'),
+
+('BASE_GLORY', 'it', 'Gloria Base'),
+('BASE_GLORY', 'en', 'Base Glory'),
+('BASE_GLORY', 'de', 'Basis Ruhm'),
+('BASE_GLORY', 'es', 'Gloria Base'),
+('BASE_GLORY', 'fr', 'Gloire de Base'),
+('BASE_GLORY', 'pt', 'Gloria Base'),
+
+('TOTAL', 'it', 'TOTALE'),
+('TOTAL', 'en', 'TOTAL'),
+('TOTAL', 'de', 'GESAMT'),
+('TOTAL', 'es', 'TOTAL'),
+('TOTAL', 'fr', 'TOTAL'),
+('TOTAL', 'pt', 'TOTAL'),
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Language and System Messages
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+('LANGUAGE_CHANGED', 'it', 'Lingua cambiata!'),
+('LANGUAGE_CHANGED', 'en', 'Language changed!'),
+('LANGUAGE_CHANGED', 'de', 'Sprache geandert!'),
+('LANGUAGE_CHANGED', 'es', 'Idioma cambiado!'),
+('LANGUAGE_CHANGED', 'fr', 'Langue modifiee!'),
+('LANGUAGE_CHANGED', 'pt', 'Idioma alterado!'),
+
+('CACHE_RESET', 'it', 'Cache traduzioni resettata!'),
+('CACHE_RESET', 'en', 'Translations cache reset!'),
+('CACHE_RESET', 'de', 'Ubersetzungs-Cache zuruckgesetzt!'),
+('CACHE_RESET', 'es', 'Cache de traducciones reiniciada!'),
+('CACHE_RESET', 'fr', 'Cache des traductions reinitialisee!'),
+('CACHE_RESET', 'pt', 'Cache de traducoes resetada!')
+
 ON DUPLICATE KEY UPDATE text_value = VALUES(text_value);
 
 -- ═══════════════════════════════════════════════════════════════════════════════

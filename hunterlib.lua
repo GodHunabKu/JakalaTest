@@ -2513,16 +2513,17 @@ function hg_lib.process_elite_kill(vnum)
     end
     
     -- SYSCHAT DETTAGLIATO DEI MODIFICATORI
-    syschat("|cff888888========== DETTAGLIO GLORIA =========|r")
+    local glory_label = hg_lib.get_text("GLORY", nil, "Gloria")
+    syschat("|cff888888========== " .. hg_lib.get_text("GLORY_DETAIL", nil, "DETTAGLIO GLORIA") .. " =========|r")
     syschat("|cffFFFFFF" .. mob_info.type_name .. ": |r|cffFFD700" .. mob_info.name .. "|r")
-    syschat("|cffAAAAAAGloria Base: |r|cffFFFFFF" .. original_base .. "|r")
+    syschat("|cffAAAAAA" .. hg_lib.get_text("BASE_GLORY", nil, "Gloria Base") .. ": |r|cffFFFFFF" .. original_base .. "|r")
     for i = 1, table.getn(modifier_log) do
         local m = modifier_log[i]
         local color = m.add >= 0 and "|cff00FF00" or "|cffFF4444"
         local sign = m.add >= 0 and "+" or ""
         syschat("|cffAAAAAA" .. m.name .. " (" .. m.value .. "): |r" .. color .. sign .. m.add .. "|r")
     end
-    syschat("|cffFFD700>>> TOTALE: +" .. base_pts .. " Gloria <<<|r")
+    syschat("|cffFFD700>>> " .. hg_lib.get_text("TOTAL", nil, "TOTALE") .. ": +" .. base_pts .. " " .. glory_label .. " <<<|r")
     syschat("|cff888888======================================|r")
 
     hg_lib.check_overtake(pid, pname, "daily_points", base_pts, "GIORNALIERA")
@@ -2998,7 +2999,7 @@ function hg_lib.spawn_fracture()
     if calibrator_active == 1 then
         use_calibrator = true
         game.set_event_flag("hq_fracture_rank_"..pid, 0)  -- Consuma il buff
-        syschat("|cffFF6600[CALIBRATORE]|r Filtro attivo: Rango C+ garantito!")
+        syschat("|cffFF6600[" .. hg_lib.get_text("CALIBRATOR", nil, "CALIBRATORE") .. "]|r " .. hg_lib.get_text("CALIBRATOR_ACTIVE_MSG", nil, "Filtro attivo: Rango C+ garantito!"))
     end
     -- ==============================================================
     
@@ -3052,11 +3053,11 @@ end
 
 function hg_lib.open_gate(fname, frank, fcolor, pid)
     if pc.getqf("hq_emerg_active") == 1 then
-        syschat("|cffFF0000[CONFLITTO]|r Completa prima l'Emergency Quest in corso!")
+        syschat("|cffFF0000[" .. hg_lib.get_text("CONFLICT", nil, "CONFLITTO") .. "]|r " .. hg_lib.get_text("CONFLICT_EMERGENCY", nil, "Completa prima l'Emergency Quest in corso!"))
         return
     end
     if pc.getqf("hq_defense_active") == 1 then
-        syschat("|cffFF0000[CONFLITTO]|r Stai gia' difendendo un'altra frattura!")
+        syschat("|cffFF0000[" .. hg_lib.get_text("CONFLICT", nil, "CONFLITTO") .. "]|r " .. hg_lib.get_text("CONFLICT_DEFENSE", nil, "Stai gia' difendendo un'altra frattura!"))
         return
     end
 
@@ -3065,17 +3066,17 @@ function hg_lib.open_gate(fname, frank, fcolor, pid)
     if fracture_vid == nil or fracture_vid == 0 then
         fracture_vid = pc.getqf("hq_temp_gate_vid") or 0
     end
-    
+
     if fracture_vid == 0 then
-        syschat("|cffFF0000[ERRORE]|r Impossibile identificare la frattura!")
+        syschat("|cffFF0000[" .. hg_lib.get_text("ERROR", nil, "ERRORE") .. "]|r " .. hg_lib.get_text("ERROR_IDENTIFY_FRACTURE", nil, "Impossibile identificare la frattura!"))
         return
     end
-    
+
     -- === SIGILLO DI CONQUISTA: Salta la difesa e apre direttamente ===
     local force_conquest = game.get_event_flag("hq_force_conquest_"..pid) or 0
     if force_conquest == 1 then
         game.set_event_flag("hq_force_conquest_"..pid, 0)  -- Consuma il buff
-        syschat("|cffFFD700[SIGILLO DI CONQUISTA]|r La frattura si apre istantaneamente!")
+        syschat("|cffFFD700[" .. hg_lib.get_text("SEAL_OF_CONQUEST", nil, "SIGILLO DI CONQUISTA") .. "]|r " .. hg_lib.get_text("SEAL_INSTANT_OPEN", nil, "La frattura si apre istantaneamente!"))
         
         -- Salva i dati per finalize
         if not hunter_defense_data then hunter_defense_data = {} end
@@ -3385,7 +3386,8 @@ function hg_lib.spawn_defense_wave(wave_num, rank_grade)
         
         -- Notifica party dell'ondata
         if party.is_party() then
-            party.syschat("[HUNTER] ONDATA " .. wave_num .. "! +" .. added_req .. " mob!")
+            local wave_msg = hg_lib.get_text("WAVE_NOTIFICATION", {WAVE = wave_num, MOBS = added_req}, "ONDATA " .. wave_num .. "! +" .. added_req .. " mob!")
+            party.syschat("[HUNTER] " .. wave_msg)
         end
     end)
 end
@@ -3794,7 +3796,8 @@ function hg_lib.spawn_gate_mob_and_alert(rank_label, fcolor)
             else
                 location_str = " | " .. map_name .. " (" .. x .. ", " .. y .. ")"
             end
-            notice_all("|cffFF4444[HUNTER]|r " .. pname .. " ha risvegliato: " .. mob_name .. " (" .. rank_label .. ")" .. location_str)
+            local awakening_msg = hg_lib.get_text("AWAKENING_NOTICE", {PLAYER = pname, MOB = mob_name, RANK = rank_label, LOCATION = location_str}, pname .. " ha risvegliato: " .. mob_name .. " (" .. rank_label .. ")" .. location_str)
+            notice_all("|cffFF4444[HUNTER]|r " .. awakening_msg)
         end
     end
 end
@@ -4600,11 +4603,12 @@ function hg_lib.complete_mission(mission_id)
     if cc > 0 and cd[1] then completed_count = tonumber(cd[1].completed) or 1 end
         
     syschat("|cff00FF00========================================|r")
-    syschat("|cff00FF00  [MISSIONE COMPLETATA]|r |cffFFFFFF" .. name .. "|r")
-    syschat("|cffFFD700  +" .. reward .. " Gloria!|r |cffAAAAAA(" .. completed_count .. "/3 complete)|r")
+    syschat("|cff00FF00  [" .. hg_lib.get_text("MISSION_COMPLETED", nil, "MISSIONE COMPLETATA") .. "]|r |cffFFFFFF" .. name .. "|r")
+    syschat("|cffFFD700  +" .. reward .. " " .. hg_lib.get_text("GLORY", nil, "Gloria") .. "!|r |cffAAAAAA(" .. completed_count .. "/3 " .. hg_lib.get_text("COMPLETE", nil, "complete") .. ")|r")
     syschat("|cff00FF00========================================|r")
-        
-    hg_lib.hunter_speak("MISSIONE COMPLETATA! +" .. reward .. " GLORIA")
+
+    local speak_msg = hg_lib.get_text("MISSION_COMPLETE_SPEAK", {REWARD = reward}, "MISSIONE COMPLETATA! +" .. reward .. " GLORIA")
+    hg_lib.hunter_speak(speak_msg)
     cmdchat("HunterMissionComplete " .. mission_id .. "|" .. hg_lib.clean_str(name) .. "|" .. reward)
         
     hg_lib.check_all_missions_complete()
@@ -4651,24 +4655,26 @@ function hg_lib.check_all_missions_complete()
                     mysql_direct_query("UPDATE srv1_hunabku.hunter_quest_ranking SET total_points = total_points + " .. bonus .. ", spendable_points = spendable_points + " .. bonus .. " WHERE player_id=" .. pid)
                     
                     -- === SYSCHAT DETTAGLIATO BONUS MISSIONI ===
+                    local glory_label = hg_lib.get_text("GLORY", nil, "Gloria")
+                    local mission_label = hg_lib.get_text("MISSION", nil, "Missione")
                     syschat("|cffFFD700=============================================|r")
-                    syschat("|cffFFD700  [!!!] TUTTE LE MISSIONI COMPLETE! [!!!]|r")
+                    syschat("|cffFFD700  [!!!] " .. hg_lib.get_text("ALL_MISSIONS_COMPLETE", nil, "TUTTE LE MISSIONI COMPLETE!") .. " [!!!]|r")
                     syschat("|cffFFD700=============================================|r")
                     syschat("")
-                    syschat("|cff00FFFF  Gloria dalle Missioni:|r")
+                    syschat("|cff00FFFF  " .. hg_lib.get_text("GLORY_FROM_MISSIONS", nil, "Gloria dalle Missioni:") .. "|r")
                     for idx, glory in ipairs(mission_details) do
-                        syschat("|cffFFFFFF    Missione " .. idx .. ": +" .. glory .. " Gloria|r")
+                        syschat("|cffFFFFFF    " .. mission_label .. " " .. idx .. ": +" .. glory .. " " .. glory_label .. "|r")
                     end
                     syschat("|cff00FF00  ────────────────────────────────|r")
-                    syschat("|cffFFFFFF  Totale Missioni: |r|cff00FF00+" .. total_glory .. " Gloria|r")
+                    syschat("|cffFFFFFF  " .. hg_lib.get_text("TOTAL_MISSIONS", nil, "Totale Missioni") .. ": |r|cff00FF00+" .. total_glory .. " " .. glory_label .. "|r")
                     syschat("")
-                    syschat("|cffFFD700  [BONUS 50% COMPLETAMENTO]|r")
-                    syschat("|cffFFD700    +" .. bonus .. " Gloria Extra!|r")
+                    syschat("|cffFFD700  [" .. hg_lib.get_text("BONUS_50_COMPLETION", nil, "BONUS 50% COMPLETAMENTO") .. "]|r")
+                    syschat("|cffFFD700    +" .. bonus .. " " .. hg_lib.get_text("GLORY_EXTRA", nil, "Gloria Extra") .. "!|r")
                     syschat("")
-                    syschat("|cff00FF00  >>> TOTALE GUADAGNATO: +" .. (total_glory + bonus) .. " Gloria <<<|r")
+                    syschat("|cff00FF00  >>> " .. hg_lib.get_text("TOTAL_EARNED", nil, "TOTALE GUADAGNATO") .. ": +" .. (total_glory + bonus) .. " " .. glory_label .. " <<<|r")
                     syschat("")
-                    syschat("|cffFF6600  [ATTIVATO] Bonus Fratture +50%|r")
-                    syschat("|cffAAAAAA  (valido fino al reset di mezzanotte)|r")
+                    syschat("|cffFF6600  [" .. hg_lib.get_text("ACTIVATED", nil, "ATTIVATO") .. "] " .. hg_lib.get_text("FRACTURE_BONUS", nil, "Bonus Fratture +50%") .. "|r")
+                    syschat("|cffAAAAAA  (" .. hg_lib.get_text("VALID_UNTIL_RESET", nil, "valido fino al reset di mezzanotte") .. ")|r")
                     syschat("|cffFFD700=============================================|r")
                     -- ============================================
                     
@@ -4789,8 +4795,10 @@ function hg_lib.check_trial_completion_status()
         cmdchat("HunterTrialComplete " .. new_rank .. "|" .. reward .. "|Rank+Up")
         
         -- Messaggio in chat
-        syschat("|cffFFD700[HUNTER SYSTEM]|r PROVA COMPLETATA! Sei stato promosso al rango " .. new_rank .. "!")
-        syschat("|cffFFD700[HUNTER SYSTEM]|r Ricompensa: +" .. reward .. " Gloria")
+        local trial_complete_msg = hg_lib.get_text("TRIAL_COMPLETE_RANK", {RANK = new_rank}, "PROVA COMPLETATA! Sei stato promosso al rango " .. new_rank .. "!")
+        local trial_reward_msg = hg_lib.get_text("TRIAL_REWARD", {REWARD = reward}, "Ricompensa: +" .. reward .. " Gloria")
+        syschat("|cffFFD700[HUNTER SYSTEM]|r " .. trial_complete_msg)
+        syschat("|cffFFD700[HUNTER SYSTEM]|r " .. trial_reward_msg)
         
         -- Aggiorna il rank in memoria del client
         local rank_idx = hg_lib.get_rank_index_by_letter(new_rank)
@@ -4864,9 +4872,12 @@ function hg_lib.check_missions_reminder()
         if incomplete > 0 and total >= 3 then
             pc.setqf("hq_last_reminder_hour", current_hour)
             local hours_left = 24 - current_hour
+            local warning_msg = hg_lib.get_text("WARNING_INCOMPLETE_MISSIONS", {COUNT = incomplete}, "Hai " .. incomplete .. " missioni incomplete!")
+            local reset_msg = hg_lib.get_text("RESET_IN_HOURS", {HOURS = hours_left}, "Reset tra " .. hours_left .. " ore")
+            local penalty_msg = hg_lib.get_text("COMPLETE_TO_AVOID_PENALTY", nil, "Completa per evitare penalita'!")
             syschat("|cffFF4444========================================|r")
-            syschat("|cffFF0000  [ATTENZIONE]|r |cffFFFFFFHai " .. incomplete .. " missioni incomplete!|r")
-            syschat("|cffFFAA00  Reset tra " .. hours_left .. " ore|r |cffFF4444- Completa per evitare penalita'!|r")
+            syschat("|cffFF0000  [" .. hg_lib.get_text("WARNING", nil, "ATTENZIONE") .. "]|r |cffFFFFFF" .. warning_msg .. "|r")
+            syschat("|cffFFAA00  " .. reset_msg .. "|r |cffFF4444- " .. penalty_msg .. "|r")
             syschat("|cffFF4444========================================|r")
         end
     end
@@ -5408,7 +5419,7 @@ function hg_lib.handle_language_change(new_lang)
     if hg_lib.set_player_language(pid, new_lang) then
         -- Reinvia traduzioni nella nuova lingua
         hg_lib.send_translations_to_client(new_lang)
-        syschat("|cff00AAFF[HUNTER]|r Lingua cambiata!")
+        syschat("|cff00AAFF[HUNTER]|r " .. hg_lib.get_text("LANGUAGE_CHANGED", nil, "Lingua cambiata!"))
     end
 end
 
@@ -5416,5 +5427,5 @@ end
 function hg_lib.reload_translations_cache()
     _G.hunter_translations_cache = {}
     _G.hunter_translations_loaded = {}
-    syschat("|cffFFD700[ADMIN]|r Cache traduzioni resettata!")
+    syschat("|cffFFD700[ADMIN]|r " .. hg_lib.get_text("CACHE_RESET", nil, "Cache traduzioni resettata!"))
 end
