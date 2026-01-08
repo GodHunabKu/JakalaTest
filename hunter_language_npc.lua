@@ -59,7 +59,10 @@ quest hunter_language_npc begin
             -- Cambia lingua nel database
             hg_lib.set_player_language(pid, selected_lang)
 
-            -- Notifica il client
+            -- Invia le nuove traduzioni al client
+            hg_lib.send_translations_to_client(selected_lang)
+
+            -- Notifica il client che la lingua e' cambiata
             cmdchat("HunterLanguageChanged " .. selected_lang)
 
             -- Messaggio di conferma
