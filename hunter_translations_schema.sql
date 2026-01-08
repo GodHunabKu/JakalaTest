@@ -1,7 +1,7 @@
 -- ============================================================
 -- HUNTER TRANSLATIONS SYSTEM - COMPLETE SCHEMA
 -- Multi-language support for Hunter Terminal
--- Version: 2.0 - Full translations for all UI elements
+-- Version: 3.0 - Aligned with Lua code (uses translation_key)
 -- ============================================================
 
 SET NAMES utf8mb4;
@@ -9,19 +9,19 @@ SET NAMES utf8mb4;
 -- ----------------------------
 -- Table: hunter_translations
 -- Stores all translatable texts with language codes
+-- NOTA: Usa 'translation_key' (non 'text_key') per compatibilita' con hunterlib.lua
 -- ----------------------------
 DROP TABLE IF EXISTS `hunter_translations`;
 CREATE TABLE `hunter_translations` (
     `id` INT NOT NULL AUTO_INCREMENT,
-    `text_key` VARCHAR(100) NOT NULL COMMENT 'Unique identifier for the text',
+    `translation_key` VARCHAR(100) NOT NULL COMMENT 'Unique identifier for the text',
     `lang_code` VARCHAR(5) NOT NULL COMMENT 'Language code: it, en, de, es, fr, pt',
     `text_value` TEXT NOT NULL COMMENT 'Translated text value',
-    `category` VARCHAR(50) NOT NULL DEFAULT 'general' COMMENT 'Category: ui, rank, mission, achievement, event, shop, system, guide',
+    `color_code` VARCHAR(10) DEFAULT NULL COMMENT 'Optional color code for colored texts',
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`) USING BTREE,
-    UNIQUE INDEX `idx_key_lang` (`text_key` ASC, `lang_code` ASC) USING BTREE,
-    INDEX `idx_lang` (`lang_code` ASC) USING BTREE,
-    INDEX `idx_category` (`category` ASC) USING BTREE
+    UNIQUE INDEX `idx_key_lang` (`translation_key` ASC, `lang_code` ASC) USING BTREE,
+    INDEX `idx_lang` (`lang_code` ASC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -68,498 +68,498 @@ INSERT INTO `hunter_languages` VALUES ('pt', 'Portugues', 'Portuguese', 'flag_pt
 -- ============================================================
 
 -- UI Tab Names
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('UI_TAB_STATS', 'it', 'Stats', 'ui'),
-('UI_TAB_RANK', 'it', 'Rank', 'ui'),
-('UI_TAB_SHOP', 'it', 'Shop', 'ui'),
-('UI_TAB_ACHIEV', 'it', 'Achiev', 'ui'),
-('UI_TAB_EVENTS', 'it', 'Eventi', 'ui'),
-('UI_TAB_GUIDE', 'it', 'Guida', 'ui');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('UI_TAB_STATS', 'it', 'Stats'),
+('UI_TAB_RANK', 'it', 'Rank'),
+('UI_TAB_SHOP', 'it', 'Shop'),
+('UI_TAB_ACHIEV', 'it', 'Achiev'),
+('UI_TAB_EVENTS', 'it', 'Eventi'),
+('UI_TAB_GUIDE', 'it', 'Guida');
 
 -- Guide Section
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('GUIDE_TITLE', 'it', 'GUIDA COMPLETA HUNTER SYSTEM', 'guide'),
-('GUIDE_TAB_RANKS', 'it', 'Ranghi', 'guide'),
-('GUIDE_TAB_GLORY', 'it', 'Gloria', 'guide'),
-('GUIDE_TAB_MISSIONS', 'it', 'Missioni', 'guide'),
-('GUIDE_TAB_EVENTS', 'it', 'Eventi', 'guide'),
-('GUIDE_TAB_SHOP', 'it', 'Shop', 'guide'),
-('GUIDE_TAB_FAQ', 'it', 'FAQ', 'guide'),
-('GUIDE_RANKS_TITLE', 'it', 'SISTEMA DEI RANGHI', 'guide'),
-('GUIDE_RANKS_DESC1', 'it', 'Il tuo Rango determina il tuo prestigio e i contenuti', 'guide'),
-('GUIDE_RANKS_DESC2', 'it', 'a cui puoi accedere. Accumula Gloria per salire!', 'guide');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('GUIDE_TITLE', 'it', 'GUIDA COMPLETA HUNTER SYSTEM'),
+('GUIDE_TAB_RANKS', 'it', 'Ranghi'),
+('GUIDE_TAB_GLORY', 'it', 'Gloria'),
+('GUIDE_TAB_MISSIONS', 'it', 'Missioni'),
+('GUIDE_TAB_EVENTS', 'it', 'Eventi'),
+('GUIDE_TAB_SHOP', 'it', 'Shop'),
+('GUIDE_TAB_FAQ', 'it', 'FAQ'),
+('GUIDE_RANKS_TITLE', 'it', 'SISTEMA DEI RANGHI'),
+('GUIDE_RANKS_DESC1', 'it', 'Il tuo Rango determina il tuo prestigio e i contenuti'),
+('GUIDE_RANKS_DESC2', 'it', 'a cui puoi accedere. Accumula Gloria per salire!');
 
 -- Events Section
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('EVENTS_HEADER', 'it', 'MISSIONI & EVENTI', 'event'),
-('EVENTS_CONTAINS', 'it', 'Questa schermata contiene:', 'event'),
-('EVENTS_DESC', 'it', 'Missioni Giornaliere + Eventi Programmati 24H', 'event'),
-('DAILY_MISSIONS_TITLE', 'it', 'MISSIONI GIORNALIERE (Reset: 00:05)', 'mission'),
-('BTN_OPEN_DETAILS', 'it', 'Apri Dettagli', 'ui'),
-('MISSION_AUTO_OPEN', 'it', 'Il Terminale si apre automaticamente quando fai progresso!', 'mission'),
-('MISSION_BONUS_TIP', 'it', 'Completa TUTTE E 3 per bonus x1.5 Gloria!', 'mission');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('EVENTS_HEADER', 'it', 'MISSIONI & EVENTI'),
+('EVENTS_CONTAINS', 'it', 'Questa schermata contiene:'),
+('EVENTS_DESC', 'it', 'Missioni Giornaliere + Eventi Programmati 24H'),
+('DAILY_MISSIONS_TITLE', 'it', 'MISSIONI GIORNALIERE (Reset: 00:05)'),
+('BTN_OPEN_DETAILS', 'it', 'Apri Dettagli'),
+('MISSION_AUTO_OPEN', 'it', 'Il Terminale si apre automaticamente quando fai progresso!'),
+('MISSION_BONUS_TIP', 'it', 'Completa TUTTE E 3 per bonus x1.5 Gloria!');
 
 -- Rank Names
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('RANK_E_NAME', 'it', 'Risvegliato', 'rank'),
-('RANK_D_NAME', 'it', 'Apprendista', 'rank'),
-('RANK_C_NAME', 'it', 'Cacciatore', 'rank'),
-('RANK_B_NAME', 'it', 'Veterano', 'rank'),
-('RANK_A_NAME', 'it', 'Maestro', 'rank'),
-('RANK_S_NAME', 'it', 'Leggenda', 'rank'),
-('RANK_N_NAME', 'it', 'Monarca', 'rank');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('RANK_E_NAME', 'it', 'Risvegliato'),
+('RANK_D_NAME', 'it', 'Apprendista'),
+('RANK_C_NAME', 'it', 'Cacciatore'),
+('RANK_B_NAME', 'it', 'Veterano'),
+('RANK_A_NAME', 'it', 'Maestro'),
+('RANK_S_NAME', 'it', 'Leggenda'),
+('RANK_N_NAME', 'it', 'Monarca');
 
 -- Common UI Elements
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('UI_CLOSE', 'it', 'Chiudi', 'ui'),
-('UI_CONFIRM', 'it', 'Conferma', 'ui'),
-('UI_CANCEL', 'it', 'Annulla', 'ui'),
-('UI_BACK', 'it', 'Indietro', 'ui'),
-('UI_NEXT', 'it', 'Avanti', 'ui'),
-('UI_LOADING', 'it', 'Caricamento...', 'ui'),
-('UI_ERROR', 'it', 'Errore', 'ui'),
-('UI_SUCCESS', 'it', 'Successo', 'ui'),
-('UI_GLORY', 'it', 'Gloria', 'ui'),
-('UI_POINTS', 'it', 'Punti', 'ui');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('UI_CLOSE', 'it', 'Chiudi'),
+('UI_CONFIRM', 'it', 'Conferma'),
+('UI_CANCEL', 'it', 'Annulla'),
+('UI_BACK', 'it', 'Indietro'),
+('UI_NEXT', 'it', 'Avanti'),
+('UI_LOADING', 'it', 'Caricamento...'),
+('UI_ERROR', 'it', 'Errore'),
+('UI_SUCCESS', 'it', 'Successo'),
+('UI_GLORY', 'it', 'Gloria'),
+('UI_POINTS', 'it', 'Punti');
 
 -- Shop
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('SHOP_TITLE', 'it', 'NEGOZIO HUNTER', 'shop'),
-('SHOP_BUY', 'it', 'Acquista', 'shop'),
-('SHOP_PRICE', 'it', 'Prezzo', 'shop'),
-('SHOP_INSUFFICIENT', 'it', 'Gloria insufficiente', 'shop'),
-('SHOP_PURCHASED', 'it', 'Acquistato!', 'shop');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('SHOP_TITLE', 'it', 'NEGOZIO HUNTER'),
+('SHOP_BUY', 'it', 'Acquista'),
+('SHOP_PRICE', 'it', 'Prezzo'),
+('SHOP_INSUFFICIENT', 'it', 'Gloria insufficiente'),
+('SHOP_PURCHASED', 'it', 'Acquistato!');
 
 -- Achievements
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('ACH_TITLE', 'it', 'OBIETTIVI', 'achievement'),
-('ACH_CLAIM', 'it', 'Riscuoti', 'achievement'),
-('ACH_CLAIMED', 'it', 'Riscattato', 'achievement'),
-('ACH_LOCKED', 'it', 'Bloccato', 'achievement'),
-('ACH_PROGRESS', 'it', 'Progresso', 'achievement');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('ACH_TITLE', 'it', 'OBIETTIVI'),
+('ACH_CLAIM', 'it', 'Riscuoti'),
+('ACH_CLAIMED', 'it', 'Riscattato'),
+('ACH_LOCKED', 'it', 'Bloccato'),
+('ACH_PROGRESS', 'it', 'Progresso');
 
 -- System Messages
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('SYS_GATE_COMPLETE', 'it', 'Gate completato!', 'system'),
-('SYS_GATE_FAILED', 'it', 'Gate fallito!', 'system'),
-('SYS_JACKPOT', 'it', 'JACKPOT!', 'system'),
-('SYS_DANGER', 'it', 'PERICOLO', 'system'),
-('SYS_EMERGENCY', 'it', 'EMERGENZA RILEVATA', 'system');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('SYS_GATE_COMPLETE', 'it', 'Gate completato!'),
+('SYS_GATE_FAILED', 'it', 'Gate fallito!'),
+('SYS_JACKPOT', 'it', 'JACKPOT!'),
+('SYS_DANGER', 'it', 'PERICOLO'),
+('SYS_EMERGENCY', 'it', 'EMERGENZA RILEVATA');
 
 -- ============================================================
 -- ENGLISH TRANSLATIONS
 -- ============================================================
 
 -- UI Tab Names
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('UI_TAB_STATS', 'en', 'Stats', 'ui'),
-('UI_TAB_RANK', 'en', 'Rank', 'ui'),
-('UI_TAB_SHOP', 'en', 'Shop', 'ui'),
-('UI_TAB_ACHIEV', 'en', 'Achiev', 'ui'),
-('UI_TAB_EVENTS', 'en', 'Events', 'ui'),
-('UI_TAB_GUIDE', 'en', 'Guide', 'ui');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('UI_TAB_STATS', 'en', 'Stats'),
+('UI_TAB_RANK', 'en', 'Rank'),
+('UI_TAB_SHOP', 'en', 'Shop'),
+('UI_TAB_ACHIEV', 'en', 'Achiev'),
+('UI_TAB_EVENTS', 'en', 'Events'),
+('UI_TAB_GUIDE', 'en', 'Guide');
 
 -- Guide Section
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('GUIDE_TITLE', 'en', 'COMPLETE HUNTER SYSTEM GUIDE', 'guide'),
-('GUIDE_TAB_RANKS', 'en', 'Ranks', 'guide'),
-('GUIDE_TAB_GLORY', 'en', 'Glory', 'guide'),
-('GUIDE_TAB_MISSIONS', 'en', 'Missions', 'guide'),
-('GUIDE_TAB_EVENTS', 'en', 'Events', 'guide'),
-('GUIDE_TAB_SHOP', 'en', 'Shop', 'guide'),
-('GUIDE_TAB_FAQ', 'en', 'FAQ', 'guide'),
-('GUIDE_RANKS_TITLE', 'en', 'RANKING SYSTEM', 'guide'),
-('GUIDE_RANKS_DESC1', 'en', 'Your Rank determines your prestige and the content', 'guide'),
-('GUIDE_RANKS_DESC2', 'en', 'you can access. Accumulate Glory to rank up!', 'guide');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('GUIDE_TITLE', 'en', 'COMPLETE HUNTER SYSTEM GUIDE'),
+('GUIDE_TAB_RANKS', 'en', 'Ranks'),
+('GUIDE_TAB_GLORY', 'en', 'Glory'),
+('GUIDE_TAB_MISSIONS', 'en', 'Missions'),
+('GUIDE_TAB_EVENTS', 'en', 'Events'),
+('GUIDE_TAB_SHOP', 'en', 'Shop'),
+('GUIDE_TAB_FAQ', 'en', 'FAQ'),
+('GUIDE_RANKS_TITLE', 'en', 'RANKING SYSTEM'),
+('GUIDE_RANKS_DESC1', 'en', 'Your Rank determines your prestige and the content'),
+('GUIDE_RANKS_DESC2', 'en', 'you can access. Accumulate Glory to rank up!');
 
 -- Events Section
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('EVENTS_HEADER', 'en', 'MISSIONS & EVENTS', 'event'),
-('EVENTS_CONTAINS', 'en', 'This screen contains:', 'event'),
-('EVENTS_DESC', 'en', 'Daily Missions + 24H Scheduled Events', 'event'),
-('DAILY_MISSIONS_TITLE', 'en', 'DAILY MISSIONS (Reset: 00:05)', 'mission'),
-('BTN_OPEN_DETAILS', 'en', 'Open Details', 'ui'),
-('MISSION_AUTO_OPEN', 'en', 'The Terminal opens automatically when you make progress!', 'mission'),
-('MISSION_BONUS_TIP', 'en', 'Complete ALL 3 for x1.5 Glory bonus!', 'mission');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('EVENTS_HEADER', 'en', 'MISSIONS & EVENTS'),
+('EVENTS_CONTAINS', 'en', 'This screen contains:'),
+('EVENTS_DESC', 'en', 'Daily Missions + 24H Scheduled Events'),
+('DAILY_MISSIONS_TITLE', 'en', 'DAILY MISSIONS (Reset: 00:05)'),
+('BTN_OPEN_DETAILS', 'en', 'Open Details'),
+('MISSION_AUTO_OPEN', 'en', 'The Terminal opens automatically when you make progress!'),
+('MISSION_BONUS_TIP', 'en', 'Complete ALL 3 for x1.5 Glory bonus!');
 
 -- Rank Names
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('RANK_E_NAME', 'en', 'Awakened', 'rank'),
-('RANK_D_NAME', 'en', 'Apprentice', 'rank'),
-('RANK_C_NAME', 'en', 'Hunter', 'rank'),
-('RANK_B_NAME', 'en', 'Veteran', 'rank'),
-('RANK_A_NAME', 'en', 'Master', 'rank'),
-('RANK_S_NAME', 'en', 'Legend', 'rank'),
-('RANK_N_NAME', 'en', 'Monarch', 'rank');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('RANK_E_NAME', 'en', 'Awakened'),
+('RANK_D_NAME', 'en', 'Apprentice'),
+('RANK_C_NAME', 'en', 'Hunter'),
+('RANK_B_NAME', 'en', 'Veteran'),
+('RANK_A_NAME', 'en', 'Master'),
+('RANK_S_NAME', 'en', 'Legend'),
+('RANK_N_NAME', 'en', 'Monarch');
 
 -- Common UI Elements
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('UI_CLOSE', 'en', 'Close', 'ui'),
-('UI_CONFIRM', 'en', 'Confirm', 'ui'),
-('UI_CANCEL', 'en', 'Cancel', 'ui'),
-('UI_BACK', 'en', 'Back', 'ui'),
-('UI_NEXT', 'en', 'Next', 'ui'),
-('UI_LOADING', 'en', 'Loading...', 'ui'),
-('UI_ERROR', 'en', 'Error', 'ui'),
-('UI_SUCCESS', 'en', 'Success', 'ui'),
-('UI_GLORY', 'en', 'Glory', 'ui'),
-('UI_POINTS', 'en', 'Points', 'ui');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('UI_CLOSE', 'en', 'Close'),
+('UI_CONFIRM', 'en', 'Confirm'),
+('UI_CANCEL', 'en', 'Cancel'),
+('UI_BACK', 'en', 'Back'),
+('UI_NEXT', 'en', 'Next'),
+('UI_LOADING', 'en', 'Loading...'),
+('UI_ERROR', 'en', 'Error'),
+('UI_SUCCESS', 'en', 'Success'),
+('UI_GLORY', 'en', 'Glory'),
+('UI_POINTS', 'en', 'Points');
 
 -- Shop
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('SHOP_TITLE', 'en', 'HUNTER SHOP', 'shop'),
-('SHOP_BUY', 'en', 'Buy', 'shop'),
-('SHOP_PRICE', 'en', 'Price', 'shop'),
-('SHOP_INSUFFICIENT', 'en', 'Insufficient Glory', 'shop'),
-('SHOP_PURCHASED', 'en', 'Purchased!', 'shop');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('SHOP_TITLE', 'en', 'HUNTER SHOP'),
+('SHOP_BUY', 'en', 'Buy'),
+('SHOP_PRICE', 'en', 'Price'),
+('SHOP_INSUFFICIENT', 'en', 'Insufficient Glory'),
+('SHOP_PURCHASED', 'en', 'Purchased!');
 
 -- Achievements
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('ACH_TITLE', 'en', 'ACHIEVEMENTS', 'achievement'),
-('ACH_CLAIM', 'en', 'Claim', 'achievement'),
-('ACH_CLAIMED', 'en', 'Claimed', 'achievement'),
-('ACH_LOCKED', 'en', 'Locked', 'achievement'),
-('ACH_PROGRESS', 'en', 'Progress', 'achievement');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('ACH_TITLE', 'en', 'ACHIEVEMENTS'),
+('ACH_CLAIM', 'en', 'Claim'),
+('ACH_CLAIMED', 'en', 'Claimed'),
+('ACH_LOCKED', 'en', 'Locked'),
+('ACH_PROGRESS', 'en', 'Progress');
 
 -- System Messages
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('SYS_GATE_COMPLETE', 'en', 'Gate completed!', 'system'),
-('SYS_GATE_FAILED', 'en', 'Gate failed!', 'system'),
-('SYS_JACKPOT', 'en', 'JACKPOT!', 'system'),
-('SYS_DANGER', 'en', 'DANGER', 'system'),
-('SYS_EMERGENCY', 'en', 'EMERGENCY DETECTED', 'system');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('SYS_GATE_COMPLETE', 'en', 'Gate completed!'),
+('SYS_GATE_FAILED', 'en', 'Gate failed!'),
+('SYS_JACKPOT', 'en', 'JACKPOT!'),
+('SYS_DANGER', 'en', 'DANGER'),
+('SYS_EMERGENCY', 'en', 'EMERGENCY DETECTED');
 
 -- ============================================================
 -- GERMAN TRANSLATIONS (DEUTSCH)
 -- ============================================================
 
 -- UI Tab Names
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('UI_TAB_STATS', 'de', 'Status', 'ui'),
-('UI_TAB_RANK', 'de', 'Rang', 'ui'),
-('UI_TAB_SHOP', 'de', 'Shop', 'ui'),
-('UI_TAB_ACHIEV', 'de', 'Erfolge', 'ui'),
-('UI_TAB_EVENTS', 'de', 'Events', 'ui'),
-('UI_TAB_GUIDE', 'de', 'Hilfe', 'ui');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('UI_TAB_STATS', 'de', 'Status'),
+('UI_TAB_RANK', 'de', 'Rang'),
+('UI_TAB_SHOP', 'de', 'Shop'),
+('UI_TAB_ACHIEV', 'de', 'Erfolge'),
+('UI_TAB_EVENTS', 'de', 'Events'),
+('UI_TAB_GUIDE', 'de', 'Hilfe');
 
 -- Guide Section
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('GUIDE_TITLE', 'de', 'KOMPLETTER HUNTER SYSTEM GUIDE', 'guide'),
-('GUIDE_TAB_RANKS', 'de', 'Range', 'guide'),
-('GUIDE_TAB_GLORY', 'de', 'Ruhm', 'guide'),
-('GUIDE_TAB_MISSIONS', 'de', 'Missionen', 'guide'),
-('GUIDE_TAB_EVENTS', 'de', 'Events', 'guide'),
-('GUIDE_TAB_SHOP', 'de', 'Shop', 'guide'),
-('GUIDE_TAB_FAQ', 'de', 'FAQ', 'guide'),
-('GUIDE_RANKS_TITLE', 'de', 'RANGSYSTEM', 'guide'),
-('GUIDE_RANKS_DESC1', 'de', 'Dein Rang bestimmt dein Prestige und die Inhalte', 'guide'),
-('GUIDE_RANKS_DESC2', 'de', 'auf die du zugreifen kannst. Sammle Ruhm um aufzusteigen!', 'guide');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('GUIDE_TITLE', 'de', 'KOMPLETTER HUNTER SYSTEM GUIDE'),
+('GUIDE_TAB_RANKS', 'de', 'Range'),
+('GUIDE_TAB_GLORY', 'de', 'Ruhm'),
+('GUIDE_TAB_MISSIONS', 'de', 'Missionen'),
+('GUIDE_TAB_EVENTS', 'de', 'Events'),
+('GUIDE_TAB_SHOP', 'de', 'Shop'),
+('GUIDE_TAB_FAQ', 'de', 'FAQ'),
+('GUIDE_RANKS_TITLE', 'de', 'RANGSYSTEM'),
+('GUIDE_RANKS_DESC1', 'de', 'Dein Rang bestimmt dein Prestige und die Inhalte'),
+('GUIDE_RANKS_DESC2', 'de', 'auf die du zugreifen kannst. Sammle Ruhm um aufzusteigen!');
 
 -- Events Section
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('EVENTS_HEADER', 'de', 'MISSIONEN & EVENTS', 'event'),
-('EVENTS_CONTAINS', 'de', 'Diese Ansicht enthalt:', 'event'),
-('EVENTS_DESC', 'de', 'Tagliche Missionen + 24H geplante Events', 'event'),
-('DAILY_MISSIONS_TITLE', 'de', 'TAGLICHE MISSIONEN (Reset: 00:05)', 'mission'),
-('BTN_OPEN_DETAILS', 'de', 'Details offnen', 'ui'),
-('MISSION_AUTO_OPEN', 'de', 'Das Terminal offnet sich automatisch bei Fortschritt!', 'mission'),
-('MISSION_BONUS_TIP', 'de', 'Schliesse ALLE 3 ab fur x1.5 Ruhm Bonus!', 'mission');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('EVENTS_HEADER', 'de', 'MISSIONEN & EVENTS'),
+('EVENTS_CONTAINS', 'de', 'Diese Ansicht enthalt:'),
+('EVENTS_DESC', 'de', 'Tagliche Missionen + 24H geplante Events'),
+('DAILY_MISSIONS_TITLE', 'de', 'TAGLICHE MISSIONEN (Reset: 00:05)'),
+('BTN_OPEN_DETAILS', 'de', 'Details offnen'),
+('MISSION_AUTO_OPEN', 'de', 'Das Terminal offnet sich automatisch bei Fortschritt!'),
+('MISSION_BONUS_TIP', 'de', 'Schliesse ALLE 3 ab fur x1.5 Ruhm Bonus!');
 
 -- Rank Names
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('RANK_E_NAME', 'de', 'Erwacht', 'rank'),
-('RANK_D_NAME', 'de', 'Lehrling', 'rank'),
-('RANK_C_NAME', 'de', 'Jager', 'rank'),
-('RANK_B_NAME', 'de', 'Veteran', 'rank'),
-('RANK_A_NAME', 'de', 'Meister', 'rank'),
-('RANK_S_NAME', 'de', 'Legende', 'rank'),
-('RANK_N_NAME', 'de', 'Monarch', 'rank');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('RANK_E_NAME', 'de', 'Erwacht'),
+('RANK_D_NAME', 'de', 'Lehrling'),
+('RANK_C_NAME', 'de', 'Jager'),
+('RANK_B_NAME', 'de', 'Veteran'),
+('RANK_A_NAME', 'de', 'Meister'),
+('RANK_S_NAME', 'de', 'Legende'),
+('RANK_N_NAME', 'de', 'Monarch');
 
 -- Common UI Elements
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('UI_CLOSE', 'de', 'Schliessen', 'ui'),
-('UI_CONFIRM', 'de', 'Bestatigen', 'ui'),
-('UI_CANCEL', 'de', 'Abbrechen', 'ui'),
-('UI_BACK', 'de', 'Zuruck', 'ui'),
-('UI_NEXT', 'de', 'Weiter', 'ui'),
-('UI_LOADING', 'de', 'Laden...', 'ui'),
-('UI_ERROR', 'de', 'Fehler', 'ui'),
-('UI_SUCCESS', 'de', 'Erfolg', 'ui'),
-('UI_GLORY', 'de', 'Ruhm', 'ui'),
-('UI_POINTS', 'de', 'Punkte', 'ui');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('UI_CLOSE', 'de', 'Schliessen'),
+('UI_CONFIRM', 'de', 'Bestatigen'),
+('UI_CANCEL', 'de', 'Abbrechen'),
+('UI_BACK', 'de', 'Zuruck'),
+('UI_NEXT', 'de', 'Weiter'),
+('UI_LOADING', 'de', 'Laden...'),
+('UI_ERROR', 'de', 'Fehler'),
+('UI_SUCCESS', 'de', 'Erfolg'),
+('UI_GLORY', 'de', 'Ruhm'),
+('UI_POINTS', 'de', 'Punkte');
 
 -- Shop
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('SHOP_TITLE', 'de', 'HUNTER SHOP', 'shop'),
-('SHOP_BUY', 'de', 'Kaufen', 'shop'),
-('SHOP_PRICE', 'de', 'Preis', 'shop'),
-('SHOP_INSUFFICIENT', 'de', 'Nicht genug Ruhm', 'shop'),
-('SHOP_PURCHASED', 'de', 'Gekauft!', 'shop');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('SHOP_TITLE', 'de', 'HUNTER SHOP'),
+('SHOP_BUY', 'de', 'Kaufen'),
+('SHOP_PRICE', 'de', 'Preis'),
+('SHOP_INSUFFICIENT', 'de', 'Nicht genug Ruhm'),
+('SHOP_PURCHASED', 'de', 'Gekauft!');
 
 -- Achievements
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('ACH_TITLE', 'de', 'ERFOLGE', 'achievement'),
-('ACH_CLAIM', 'de', 'Einlosen', 'achievement'),
-('ACH_CLAIMED', 'de', 'Eingelost', 'achievement'),
-('ACH_LOCKED', 'de', 'Gesperrt', 'achievement'),
-('ACH_PROGRESS', 'de', 'Fortschritt', 'achievement');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('ACH_TITLE', 'de', 'ERFOLGE'),
+('ACH_CLAIM', 'de', 'Einlosen'),
+('ACH_CLAIMED', 'de', 'Eingelost'),
+('ACH_LOCKED', 'de', 'Gesperrt'),
+('ACH_PROGRESS', 'de', 'Fortschritt');
 
 -- System Messages
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('SYS_GATE_COMPLETE', 'de', 'Gate abgeschlossen!', 'system'),
-('SYS_GATE_FAILED', 'de', 'Gate fehlgeschlagen!', 'system'),
-('SYS_JACKPOT', 'de', 'JACKPOT!', 'system'),
-('SYS_DANGER', 'de', 'GEFAHR', 'system'),
-('SYS_EMERGENCY', 'de', 'NOTFALL ERKANNT', 'system');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('SYS_GATE_COMPLETE', 'de', 'Gate abgeschlossen!'),
+('SYS_GATE_FAILED', 'de', 'Gate fehlgeschlagen!'),
+('SYS_JACKPOT', 'de', 'JACKPOT!'),
+('SYS_DANGER', 'de', 'GEFAHR'),
+('SYS_EMERGENCY', 'de', 'NOTFALL ERKANNT');
 
 -- ============================================================
 -- SPANISH TRANSLATIONS (ESPANOL)
 -- ============================================================
 
 -- UI Tab Names
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('UI_TAB_STATS', 'es', 'Estado', 'ui'),
-('UI_TAB_RANK', 'es', 'Rango', 'ui'),
-('UI_TAB_SHOP', 'es', 'Tienda', 'ui'),
-('UI_TAB_ACHIEV', 'es', 'Logros', 'ui'),
-('UI_TAB_EVENTS', 'es', 'Eventos', 'ui'),
-('UI_TAB_GUIDE', 'es', 'Guia', 'ui');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('UI_TAB_STATS', 'es', 'Estado'),
+('UI_TAB_RANK', 'es', 'Rango'),
+('UI_TAB_SHOP', 'es', 'Tienda'),
+('UI_TAB_ACHIEV', 'es', 'Logros'),
+('UI_TAB_EVENTS', 'es', 'Eventos'),
+('UI_TAB_GUIDE', 'es', 'Guia');
 
 -- Guide Section
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('GUIDE_TITLE', 'es', 'GUIA COMPLETA DEL SISTEMA HUNTER', 'guide'),
-('GUIDE_TAB_RANKS', 'es', 'Rangos', 'guide'),
-('GUIDE_TAB_GLORY', 'es', 'Gloria', 'guide'),
-('GUIDE_TAB_MISSIONS', 'es', 'Misiones', 'guide'),
-('GUIDE_TAB_EVENTS', 'es', 'Eventos', 'guide'),
-('GUIDE_TAB_SHOP', 'es', 'Tienda', 'guide'),
-('GUIDE_TAB_FAQ', 'es', 'FAQ', 'guide'),
-('GUIDE_RANKS_TITLE', 'es', 'SISTEMA DE RANGOS', 'guide'),
-('GUIDE_RANKS_DESC1', 'es', 'Tu Rango determina tu prestigio y el contenido', 'guide'),
-('GUIDE_RANKS_DESC2', 'es', 'al que puedes acceder. Acumula Gloria para subir!', 'guide');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('GUIDE_TITLE', 'es', 'GUIA COMPLETA DEL SISTEMA HUNTER'),
+('GUIDE_TAB_RANKS', 'es', 'Rangos'),
+('GUIDE_TAB_GLORY', 'es', 'Gloria'),
+('GUIDE_TAB_MISSIONS', 'es', 'Misiones'),
+('GUIDE_TAB_EVENTS', 'es', 'Eventos'),
+('GUIDE_TAB_SHOP', 'es', 'Tienda'),
+('GUIDE_TAB_FAQ', 'es', 'FAQ'),
+('GUIDE_RANKS_TITLE', 'es', 'SISTEMA DE RANGOS'),
+('GUIDE_RANKS_DESC1', 'es', 'Tu Rango determina tu prestigio y el contenido'),
+('GUIDE_RANKS_DESC2', 'es', 'al que puedes acceder. Acumula Gloria para subir!');
 
 -- Events Section
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('EVENTS_HEADER', 'es', 'MISIONES Y EVENTOS', 'event'),
-('EVENTS_CONTAINS', 'es', 'Esta pantalla contiene:', 'event'),
-('EVENTS_DESC', 'es', 'Misiones Diarias + Eventos Programados 24H', 'event'),
-('DAILY_MISSIONS_TITLE', 'es', 'MISIONES DIARIAS (Reset: 00:05)', 'mission'),
-('BTN_OPEN_DETAILS', 'es', 'Abrir Detalles', 'ui'),
-('MISSION_AUTO_OPEN', 'es', 'El Terminal se abre automaticamente cuando progresas!', 'mission'),
-('MISSION_BONUS_TIP', 'es', 'Completa LAS 3 para bonus x1.5 Gloria!', 'mission');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('EVENTS_HEADER', 'es', 'MISIONES Y EVENTOS'),
+('EVENTS_CONTAINS', 'es', 'Esta pantalla contiene:'),
+('EVENTS_DESC', 'es', 'Misiones Diarias + Eventos Programados 24H'),
+('DAILY_MISSIONS_TITLE', 'es', 'MISIONES DIARIAS (Reset: 00:05)'),
+('BTN_OPEN_DETAILS', 'es', 'Abrir Detalles'),
+('MISSION_AUTO_OPEN', 'es', 'El Terminal se abre automaticamente cuando progresas!'),
+('MISSION_BONUS_TIP', 'es', 'Completa LAS 3 para bonus x1.5 Gloria!');
 
 -- Rank Names
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('RANK_E_NAME', 'es', 'Despertado', 'rank'),
-('RANK_D_NAME', 'es', 'Aprendiz', 'rank'),
-('RANK_C_NAME', 'es', 'Cazador', 'rank'),
-('RANK_B_NAME', 'es', 'Veterano', 'rank'),
-('RANK_A_NAME', 'es', 'Maestro', 'rank'),
-('RANK_S_NAME', 'es', 'Leyenda', 'rank'),
-('RANK_N_NAME', 'es', 'Monarca', 'rank');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('RANK_E_NAME', 'es', 'Despertado'),
+('RANK_D_NAME', 'es', 'Aprendiz'),
+('RANK_C_NAME', 'es', 'Cazador'),
+('RANK_B_NAME', 'es', 'Veterano'),
+('RANK_A_NAME', 'es', 'Maestro'),
+('RANK_S_NAME', 'es', 'Leyenda'),
+('RANK_N_NAME', 'es', 'Monarca');
 
 -- Common UI Elements
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('UI_CLOSE', 'es', 'Cerrar', 'ui'),
-('UI_CONFIRM', 'es', 'Confirmar', 'ui'),
-('UI_CANCEL', 'es', 'Cancelar', 'ui'),
-('UI_BACK', 'es', 'Atras', 'ui'),
-('UI_NEXT', 'es', 'Siguiente', 'ui'),
-('UI_LOADING', 'es', 'Cargando...', 'ui'),
-('UI_ERROR', 'es', 'Error', 'ui'),
-('UI_SUCCESS', 'es', 'Exito', 'ui'),
-('UI_GLORY', 'es', 'Gloria', 'ui'),
-('UI_POINTS', 'es', 'Puntos', 'ui');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('UI_CLOSE', 'es', 'Cerrar'),
+('UI_CONFIRM', 'es', 'Confirmar'),
+('UI_CANCEL', 'es', 'Cancelar'),
+('UI_BACK', 'es', 'Atras'),
+('UI_NEXT', 'es', 'Siguiente'),
+('UI_LOADING', 'es', 'Cargando...'),
+('UI_ERROR', 'es', 'Error'),
+('UI_SUCCESS', 'es', 'Exito'),
+('UI_GLORY', 'es', 'Gloria'),
+('UI_POINTS', 'es', 'Puntos');
 
 -- Shop
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('SHOP_TITLE', 'es', 'TIENDA HUNTER', 'shop'),
-('SHOP_BUY', 'es', 'Comprar', 'shop'),
-('SHOP_PRICE', 'es', 'Precio', 'shop'),
-('SHOP_INSUFFICIENT', 'es', 'Gloria insuficiente', 'shop'),
-('SHOP_PURCHASED', 'es', 'Comprado!', 'shop');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('SHOP_TITLE', 'es', 'TIENDA HUNTER'),
+('SHOP_BUY', 'es', 'Comprar'),
+('SHOP_PRICE', 'es', 'Precio'),
+('SHOP_INSUFFICIENT', 'es', 'Gloria insuficiente'),
+('SHOP_PURCHASED', 'es', 'Comprado!');
 
 -- Achievements
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('ACH_TITLE', 'es', 'LOGROS', 'achievement'),
-('ACH_CLAIM', 'es', 'Reclamar', 'achievement'),
-('ACH_CLAIMED', 'es', 'Reclamado', 'achievement'),
-('ACH_LOCKED', 'es', 'Bloqueado', 'achievement'),
-('ACH_PROGRESS', 'es', 'Progreso', 'achievement');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('ACH_TITLE', 'es', 'LOGROS'),
+('ACH_CLAIM', 'es', 'Reclamar'),
+('ACH_CLAIMED', 'es', 'Reclamado'),
+('ACH_LOCKED', 'es', 'Bloqueado'),
+('ACH_PROGRESS', 'es', 'Progreso');
 
 -- System Messages
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('SYS_GATE_COMPLETE', 'es', 'Gate completado!', 'system'),
-('SYS_GATE_FAILED', 'es', 'Gate fallido!', 'system'),
-('SYS_JACKPOT', 'es', 'JACKPOT!', 'system'),
-('SYS_DANGER', 'es', 'PELIGRO', 'system'),
-('SYS_EMERGENCY', 'es', 'EMERGENCIA DETECTADA', 'system');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('SYS_GATE_COMPLETE', 'es', 'Gate completado!'),
+('SYS_GATE_FAILED', 'es', 'Gate fallido!'),
+('SYS_JACKPOT', 'es', 'JACKPOT!'),
+('SYS_DANGER', 'es', 'PELIGRO'),
+('SYS_EMERGENCY', 'es', 'EMERGENCIA DETECTADA');
 
 -- ============================================================
 -- FRENCH TRANSLATIONS (FRANCAIS)
 -- ============================================================
 
 -- UI Tab Names
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('UI_TAB_STATS', 'fr', 'Statut', 'ui'),
-('UI_TAB_RANK', 'fr', 'Rang', 'ui'),
-('UI_TAB_SHOP', 'fr', 'Boutique', 'ui'),
-('UI_TAB_ACHIEV', 'fr', 'Succes', 'ui'),
-('UI_TAB_EVENTS', 'fr', 'Events', 'ui'),
-('UI_TAB_GUIDE', 'fr', 'Guide', 'ui');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('UI_TAB_STATS', 'fr', 'Statut'),
+('UI_TAB_RANK', 'fr', 'Rang'),
+('UI_TAB_SHOP', 'fr', 'Boutique'),
+('UI_TAB_ACHIEV', 'fr', 'Succes'),
+('UI_TAB_EVENTS', 'fr', 'Events'),
+('UI_TAB_GUIDE', 'fr', 'Guide');
 
 -- Guide Section
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('GUIDE_TITLE', 'fr', 'GUIDE COMPLET DU SYSTEME HUNTER', 'guide'),
-('GUIDE_TAB_RANKS', 'fr', 'Rangs', 'guide'),
-('GUIDE_TAB_GLORY', 'fr', 'Gloire', 'guide'),
-('GUIDE_TAB_MISSIONS', 'fr', 'Missions', 'guide'),
-('GUIDE_TAB_EVENTS', 'fr', 'Events', 'guide'),
-('GUIDE_TAB_SHOP', 'fr', 'Boutique', 'guide'),
-('GUIDE_TAB_FAQ', 'fr', 'FAQ', 'guide'),
-('GUIDE_RANKS_TITLE', 'fr', 'SYSTEME DE RANG', 'guide'),
-('GUIDE_RANKS_DESC1', 'fr', 'Ton Rang determine ton prestige et le contenu', 'guide'),
-('GUIDE_RANKS_DESC2', 'fr', 'auquel tu peux acceder. Accumule de la Gloire pour monter!', 'guide');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('GUIDE_TITLE', 'fr', 'GUIDE COMPLET DU SYSTEME HUNTER'),
+('GUIDE_TAB_RANKS', 'fr', 'Rangs'),
+('GUIDE_TAB_GLORY', 'fr', 'Gloire'),
+('GUIDE_TAB_MISSIONS', 'fr', 'Missions'),
+('GUIDE_TAB_EVENTS', 'fr', 'Events'),
+('GUIDE_TAB_SHOP', 'fr', 'Boutique'),
+('GUIDE_TAB_FAQ', 'fr', 'FAQ'),
+('GUIDE_RANKS_TITLE', 'fr', 'SYSTEME DE RANG'),
+('GUIDE_RANKS_DESC1', 'fr', 'Ton Rang determine ton prestige et le contenu'),
+('GUIDE_RANKS_DESC2', 'fr', 'auquel tu peux acceder. Accumule de la Gloire pour monter!');
 
 -- Events Section
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('EVENTS_HEADER', 'fr', 'MISSIONS ET EVENEMENTS', 'event'),
-('EVENTS_CONTAINS', 'fr', 'Cet ecran contient:', 'event'),
-('EVENTS_DESC', 'fr', 'Missions Quotidiennes + Evenements Programmes 24H', 'event'),
-('DAILY_MISSIONS_TITLE', 'fr', 'MISSIONS QUOTIDIENNES (Reset: 00:05)', 'mission'),
-('BTN_OPEN_DETAILS', 'fr', 'Ouvrir Details', 'ui'),
-('MISSION_AUTO_OPEN', 'fr', 'Le Terminal s ouvre automatiquement quand tu progresses!', 'mission'),
-('MISSION_BONUS_TIP', 'fr', 'Complete LES 3 pour un bonus x1.5 Gloire!', 'mission');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('EVENTS_HEADER', 'fr', 'MISSIONS ET EVENEMENTS'),
+('EVENTS_CONTAINS', 'fr', 'Cet ecran contient:'),
+('EVENTS_DESC', 'fr', 'Missions Quotidiennes + Evenements Programmes 24H'),
+('DAILY_MISSIONS_TITLE', 'fr', 'MISSIONS QUOTIDIENNES (Reset: 00:05)'),
+('BTN_OPEN_DETAILS', 'fr', 'Ouvrir Details'),
+('MISSION_AUTO_OPEN', 'fr', 'Le Terminal s ouvre automatiquement quand tu progresses!'),
+('MISSION_BONUS_TIP', 'fr', 'Complete LES 3 pour un bonus x1.5 Gloire!');
 
 -- Rank Names
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('RANK_E_NAME', 'fr', 'Eveille', 'rank'),
-('RANK_D_NAME', 'fr', 'Apprenti', 'rank'),
-('RANK_C_NAME', 'fr', 'Chasseur', 'rank'),
-('RANK_B_NAME', 'fr', 'Veteran', 'rank'),
-('RANK_A_NAME', 'fr', 'Maitre', 'rank'),
-('RANK_S_NAME', 'fr', 'Legende', 'rank'),
-('RANK_N_NAME', 'fr', 'Monarque', 'rank');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('RANK_E_NAME', 'fr', 'Eveille'),
+('RANK_D_NAME', 'fr', 'Apprenti'),
+('RANK_C_NAME', 'fr', 'Chasseur'),
+('RANK_B_NAME', 'fr', 'Veteran'),
+('RANK_A_NAME', 'fr', 'Maitre'),
+('RANK_S_NAME', 'fr', 'Legende'),
+('RANK_N_NAME', 'fr', 'Monarque');
 
 -- Common UI Elements
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('UI_CLOSE', 'fr', 'Fermer', 'ui'),
-('UI_CONFIRM', 'fr', 'Confirmer', 'ui'),
-('UI_CANCEL', 'fr', 'Annuler', 'ui'),
-('UI_BACK', 'fr', 'Retour', 'ui'),
-('UI_NEXT', 'fr', 'Suivant', 'ui'),
-('UI_LOADING', 'fr', 'Chargement...', 'ui'),
-('UI_ERROR', 'fr', 'Erreur', 'ui'),
-('UI_SUCCESS', 'fr', 'Succes', 'ui'),
-('UI_GLORY', 'fr', 'Gloire', 'ui'),
-('UI_POINTS', 'fr', 'Points', 'ui');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('UI_CLOSE', 'fr', 'Fermer'),
+('UI_CONFIRM', 'fr', 'Confirmer'),
+('UI_CANCEL', 'fr', 'Annuler'),
+('UI_BACK', 'fr', 'Retour'),
+('UI_NEXT', 'fr', 'Suivant'),
+('UI_LOADING', 'fr', 'Chargement...'),
+('UI_ERROR', 'fr', 'Erreur'),
+('UI_SUCCESS', 'fr', 'Succes'),
+('UI_GLORY', 'fr', 'Gloire'),
+('UI_POINTS', 'fr', 'Points');
 
 -- Shop
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('SHOP_TITLE', 'fr', 'BOUTIQUE HUNTER', 'shop'),
-('SHOP_BUY', 'fr', 'Acheter', 'shop'),
-('SHOP_PRICE', 'fr', 'Prix', 'shop'),
-('SHOP_INSUFFICIENT', 'fr', 'Gloire insuffisante', 'shop'),
-('SHOP_PURCHASED', 'fr', 'Achete!', 'shop');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('SHOP_TITLE', 'fr', 'BOUTIQUE HUNTER'),
+('SHOP_BUY', 'fr', 'Acheter'),
+('SHOP_PRICE', 'fr', 'Prix'),
+('SHOP_INSUFFICIENT', 'fr', 'Gloire insuffisante'),
+('SHOP_PURCHASED', 'fr', 'Achete!');
 
 -- Achievements
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('ACH_TITLE', 'fr', 'SUCCES', 'achievement'),
-('ACH_CLAIM', 'fr', 'Reclamer', 'achievement'),
-('ACH_CLAIMED', 'fr', 'Reclame', 'achievement'),
-('ACH_LOCKED', 'fr', 'Bloque', 'achievement'),
-('ACH_PROGRESS', 'fr', 'Progres', 'achievement');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('ACH_TITLE', 'fr', 'SUCCES'),
+('ACH_CLAIM', 'fr', 'Reclamer'),
+('ACH_CLAIMED', 'fr', 'Reclame'),
+('ACH_LOCKED', 'fr', 'Bloque'),
+('ACH_PROGRESS', 'fr', 'Progres');
 
 -- System Messages
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('SYS_GATE_COMPLETE', 'fr', 'Gate complete!', 'system'),
-('SYS_GATE_FAILED', 'fr', 'Gate echoue!', 'system'),
-('SYS_JACKPOT', 'fr', 'JACKPOT!', 'system'),
-('SYS_DANGER', 'fr', 'DANGER', 'system'),
-('SYS_EMERGENCY', 'fr', 'URGENCE DETECTEE', 'system');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('SYS_GATE_COMPLETE', 'fr', 'Gate complete!'),
+('SYS_GATE_FAILED', 'fr', 'Gate echoue!'),
+('SYS_JACKPOT', 'fr', 'JACKPOT!'),
+('SYS_DANGER', 'fr', 'DANGER'),
+('SYS_EMERGENCY', 'fr', 'URGENCE DETECTEE');
 
 -- ============================================================
 -- PORTUGUESE TRANSLATIONS (PORTUGUES)
 -- ============================================================
 
 -- UI Tab Names
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('UI_TAB_STATS', 'pt', 'Status', 'ui'),
-('UI_TAB_RANK', 'pt', 'Rank', 'ui'),
-('UI_TAB_SHOP', 'pt', 'Loja', 'ui'),
-('UI_TAB_ACHIEV', 'pt', 'Conquis', 'ui'),
-('UI_TAB_EVENTS', 'pt', 'Eventos', 'ui'),
-('UI_TAB_GUIDE', 'pt', 'Guia', 'ui');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('UI_TAB_STATS', 'pt', 'Status'),
+('UI_TAB_RANK', 'pt', 'Rank'),
+('UI_TAB_SHOP', 'pt', 'Loja'),
+('UI_TAB_ACHIEV', 'pt', 'Conquis'),
+('UI_TAB_EVENTS', 'pt', 'Eventos'),
+('UI_TAB_GUIDE', 'pt', 'Guia');
 
 -- Guide Section
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('GUIDE_TITLE', 'pt', 'GUIA COMPLETO DO SISTEMA HUNTER', 'guide'),
-('GUIDE_TAB_RANKS', 'pt', 'Ranks', 'guide'),
-('GUIDE_TAB_GLORY', 'pt', 'Gloria', 'guide'),
-('GUIDE_TAB_MISSIONS', 'pt', 'Missoes', 'guide'),
-('GUIDE_TAB_EVENTS', 'pt', 'Eventos', 'guide'),
-('GUIDE_TAB_SHOP', 'pt', 'Loja', 'guide'),
-('GUIDE_TAB_FAQ', 'pt', 'FAQ', 'guide'),
-('GUIDE_RANKS_TITLE', 'pt', 'SISTEMA DE RANKS', 'guide'),
-('GUIDE_RANKS_DESC1', 'pt', 'Seu Rank determina seu prestigio e o conteudo', 'guide'),
-('GUIDE_RANKS_DESC2', 'pt', 'que voce pode acessar. Acumule Gloria para subir!', 'guide');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('GUIDE_TITLE', 'pt', 'GUIA COMPLETO DO SISTEMA HUNTER'),
+('GUIDE_TAB_RANKS', 'pt', 'Ranks'),
+('GUIDE_TAB_GLORY', 'pt', 'Gloria'),
+('GUIDE_TAB_MISSIONS', 'pt', 'Missoes'),
+('GUIDE_TAB_EVENTS', 'pt', 'Eventos'),
+('GUIDE_TAB_SHOP', 'pt', 'Loja'),
+('GUIDE_TAB_FAQ', 'pt', 'FAQ'),
+('GUIDE_RANKS_TITLE', 'pt', 'SISTEMA DE RANKS'),
+('GUIDE_RANKS_DESC1', 'pt', 'Seu Rank determina seu prestigio e o conteudo'),
+('GUIDE_RANKS_DESC2', 'pt', 'que voce pode acessar. Acumule Gloria para subir!');
 
 -- Events Section
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('EVENTS_HEADER', 'pt', 'MISSOES E EVENTOS', 'event'),
-('EVENTS_CONTAINS', 'pt', 'Esta tela contem:', 'event'),
-('EVENTS_DESC', 'pt', 'Missoes Diarias + Eventos Programados 24H', 'event'),
-('DAILY_MISSIONS_TITLE', 'pt', 'MISSOES DIARIAS (Reset: 00:05)', 'mission'),
-('BTN_OPEN_DETAILS', 'pt', 'Abrir Detalhes', 'ui'),
-('MISSION_AUTO_OPEN', 'pt', 'O Terminal abre automaticamente quando voce progride!', 'mission'),
-('MISSION_BONUS_TIP', 'pt', 'Complete TODAS AS 3 para bonus x1.5 Gloria!', 'mission');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('EVENTS_HEADER', 'pt', 'MISSOES E EVENTOS'),
+('EVENTS_CONTAINS', 'pt', 'Esta tela contem:'),
+('EVENTS_DESC', 'pt', 'Missoes Diarias + Eventos Programados 24H'),
+('DAILY_MISSIONS_TITLE', 'pt', 'MISSOES DIARIAS (Reset: 00:05)'),
+('BTN_OPEN_DETAILS', 'pt', 'Abrir Detalhes'),
+('MISSION_AUTO_OPEN', 'pt', 'O Terminal abre automaticamente quando voce progride!'),
+('MISSION_BONUS_TIP', 'pt', 'Complete TODAS AS 3 para bonus x1.5 Gloria!');
 
 -- Rank Names
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('RANK_E_NAME', 'pt', 'Despertado', 'rank'),
-('RANK_D_NAME', 'pt', 'Aprendiz', 'rank'),
-('RANK_C_NAME', 'pt', 'Cacador', 'rank'),
-('RANK_B_NAME', 'pt', 'Veterano', 'rank'),
-('RANK_A_NAME', 'pt', 'Mestre', 'rank'),
-('RANK_S_NAME', 'pt', 'Lenda', 'rank'),
-('RANK_N_NAME', 'pt', 'Monarca', 'rank');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('RANK_E_NAME', 'pt', 'Despertado'),
+('RANK_D_NAME', 'pt', 'Aprendiz'),
+('RANK_C_NAME', 'pt', 'Cacador'),
+('RANK_B_NAME', 'pt', 'Veterano'),
+('RANK_A_NAME', 'pt', 'Mestre'),
+('RANK_S_NAME', 'pt', 'Lenda'),
+('RANK_N_NAME', 'pt', 'Monarca');
 
 -- Common UI Elements
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('UI_CLOSE', 'pt', 'Fechar', 'ui'),
-('UI_CONFIRM', 'pt', 'Confirmar', 'ui'),
-('UI_CANCEL', 'pt', 'Cancelar', 'ui'),
-('UI_BACK', 'pt', 'Voltar', 'ui'),
-('UI_NEXT', 'pt', 'Proximo', 'ui'),
-('UI_LOADING', 'pt', 'Carregando...', 'ui'),
-('UI_ERROR', 'pt', 'Erro', 'ui'),
-('UI_SUCCESS', 'pt', 'Sucesso', 'ui'),
-('UI_GLORY', 'pt', 'Gloria', 'ui'),
-('UI_POINTS', 'pt', 'Pontos', 'ui');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('UI_CLOSE', 'pt', 'Fechar'),
+('UI_CONFIRM', 'pt', 'Confirmar'),
+('UI_CANCEL', 'pt', 'Cancelar'),
+('UI_BACK', 'pt', 'Voltar'),
+('UI_NEXT', 'pt', 'Proximo'),
+('UI_LOADING', 'pt', 'Carregando...'),
+('UI_ERROR', 'pt', 'Erro'),
+('UI_SUCCESS', 'pt', 'Sucesso'),
+('UI_GLORY', 'pt', 'Gloria'),
+('UI_POINTS', 'pt', 'Pontos');
 
 -- Shop
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('SHOP_TITLE', 'pt', 'LOJA HUNTER', 'shop'),
-('SHOP_BUY', 'pt', 'Comprar', 'shop'),
-('SHOP_PRICE', 'pt', 'Preco', 'shop'),
-('SHOP_INSUFFICIENT', 'pt', 'Gloria insuficiente', 'shop'),
-('SHOP_PURCHASED', 'pt', 'Comprado!', 'shop');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('SHOP_TITLE', 'pt', 'LOJA HUNTER'),
+('SHOP_BUY', 'pt', 'Comprar'),
+('SHOP_PRICE', 'pt', 'Preco'),
+('SHOP_INSUFFICIENT', 'pt', 'Gloria insuficiente'),
+('SHOP_PURCHASED', 'pt', 'Comprado!');
 
 -- Achievements
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('ACH_TITLE', 'pt', 'CONQUISTAS', 'achievement'),
-('ACH_CLAIM', 'pt', 'Resgatar', 'achievement'),
-('ACH_CLAIMED', 'pt', 'Resgatado', 'achievement'),
-('ACH_LOCKED', 'pt', 'Bloqueado', 'achievement'),
-('ACH_PROGRESS', 'pt', 'Progresso', 'achievement');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('ACH_TITLE', 'pt', 'CONQUISTAS'),
+('ACH_CLAIM', 'pt', 'Resgatar'),
+('ACH_CLAIMED', 'pt', 'Resgatado'),
+('ACH_LOCKED', 'pt', 'Bloqueado'),
+('ACH_PROGRESS', 'pt', 'Progresso');
 
 -- System Messages
-INSERT INTO `hunter_translations` (`text_key`, `lang_code`, `text_value`, `category`) VALUES
-('SYS_GATE_COMPLETE', 'pt', 'Gate completo!', 'system'),
-('SYS_GATE_FAILED', 'pt', 'Gate falhou!', 'system'),
-('SYS_JACKPOT', 'pt', 'JACKPOT!', 'system'),
-('SYS_DANGER', 'pt', 'PERIGO', 'system'),
-('SYS_EMERGENCY', 'pt', 'EMERGENCIA DETECTADA', 'system');
+INSERT INTO `hunter_translations` (`translation_key`, `lang_code`, `text_value`) VALUES
+('SYS_GATE_COMPLETE', 'pt', 'Gate completo!'),
+('SYS_GATE_FAILED', 'pt', 'Gate falhou!'),
+('SYS_JACKPOT', 'pt', 'JACKPOT!'),
+('SYS_DANGER', 'pt', 'PERIGO'),
+('SYS_EMERGENCY', 'pt', 'EMERGENCIA DETECTADA');
 
 -- ============================================================
 -- END OF TRANSLATIONS
