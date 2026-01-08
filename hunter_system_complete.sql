@@ -5315,3 +5315,45 @@ ON DUPLICATE KEY UPDATE text_value = VALUES(text_value);
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- ============================================================
+-- GATE SELECTION TRANSLATIONS (6 Languages)
+-- ============================================================
+INSERT INTO hunter_translations (translation_key, lang_code, text_value) VALUES
+('GATE_SELECTED_TITLE', 'it', '[!!!] SEI STATO SELEZIONATO! [!!!]'),
+('GATE_SELECTED_TITLE', 'en', '[!!!] YOU HAVE BEEN SELECTED! [!!!]'),
+('GATE_SELECTED_TITLE', 'de', '[!!!] DU WURDEST AUSGEWAHLT! [!!!]'),
+('GATE_SELECTED_TITLE', 'es', '[!!!] HAS SIDO SELECCIONADO! [!!!]'),
+('GATE_SELECTED_TITLE', 'fr', '[!!!] VOUS AVEZ ETE SELECTIONNE! [!!!]'),
+('GATE_SELECTED_TITLE', 'pt', '[!!!] VOCE FOI SELECIONADO! [!!!]'),
+
+('GATE_SELECTED_MSG', 'it', 'Hai accesso al Gate: {GATE}'),
+('GATE_SELECTED_MSG', 'en', 'You have access to Gate: {GATE}'),
+('GATE_SELECTED_MSG', 'de', 'Du hast Zugang zum Gate: {GATE}'),
+('GATE_SELECTED_MSG', 'es', 'Tienes acceso al Gate: {GATE}'),
+('GATE_SELECTED_MSG', 'fr', 'Vous avez acces au Gate: {GATE}'),
+('GATE_SELECTED_MSG', 'pt', 'Voce tem acesso ao Gate: {GATE}'),
+
+('GATE_SELECTED_RANK', 'it', 'Rango richiesto: {RANK}'),
+('GATE_SELECTED_RANK', 'en', 'Required rank: {RANK}'),
+('GATE_SELECTED_RANK', 'de', 'Erforderlicher Rang: {RANK}'),
+('GATE_SELECTED_RANK', 'es', 'Rango requerido: {RANK}'),
+('GATE_SELECTED_RANK', 'fr', 'Rang requis: {RANK}'),
+('GATE_SELECTED_RANK', 'pt', 'Rank necessario: {RANK}'),
+
+('GATE_SELECTED_TIME', 'it', 'Tempo rimasto: {H}h {M}m'),
+('GATE_SELECTED_TIME', 'en', 'Time remaining: {H}h {M}m'),
+('GATE_SELECTED_TIME', 'de', 'Verbleibende Zeit: {H}h {M}m'),
+('GATE_SELECTED_TIME', 'es', 'Tiempo restante: {H}h {M}m'),
+('GATE_SELECTED_TIME', 'fr', 'Temps restant: {H}h {M}m'),
+('GATE_SELECTED_TIME', 'pt', 'Tempo restante: {H}h {M}m'),
+
+('GATE_SELECTED_HINT', 'it', 'Apri il Terminale Hunter per entrare!'),
+('GATE_SELECTED_HINT', 'en', 'Open the Hunter Terminal to enter!'),
+('GATE_SELECTED_HINT', 'de', 'Offne das Hunter Terminal um einzutreten!'),
+('GATE_SELECTED_HINT', 'es', 'Abre el Terminal Hunter para entrar!'),
+('GATE_SELECTED_HINT', 'fr', 'Ouvrez le Terminal Hunter pour entrer!'),
+('GATE_SELECTED_HINT', 'pt', 'Abra o Terminal Hunter para entrar!')
+
+ON DUPLICATE KEY UPDATE text_value = VALUES(text_value);
+

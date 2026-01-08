@@ -222,6 +222,7 @@ when chat."/hunter_request_trial_data" begin
             
             hg_lib.check_login_streak()
             hg_lib.check_pending_rewards()
+            hg_lib.check_gate_selection()  -- Notifica se sorteggiato per Gate
             hg_lib.assign_daily_missions()
             hg_lib.send_today_events(false)
             hg_lib.check_active_event_notify()
