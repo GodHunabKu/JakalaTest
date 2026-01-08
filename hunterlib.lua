@@ -5297,12 +5297,12 @@ function hg_lib.load_translations_for_lang(lang_code)
         return _G.hunter_translations_cache[lang_code]
     end
 
-    local c, d = mysql_direct_query("SELECT text_key, text_value FROM srv1_hunabku.hunter_translations WHERE lang_code='" .. lang_code .. "'")
+    local c, d = mysql_direct_query("SELECT translation_key, text_value FROM srv1_hunabku.hunter_translations WHERE lang_code='" .. lang_code .. "'")
 
     if c > 0 then
         _G.hunter_translations_cache[lang_code] = {}
         for i = 1, c do
-            _G.hunter_translations_cache[lang_code][d[i].text_key] = d[i].text_value
+            _G.hunter_translations_cache[lang_code][d[i].translation_key] = d[i].text_value
         end
     else
         _G.hunter_translations_cache[lang_code] = {}
@@ -5355,26 +5355,27 @@ function hg_lib.send_translations_to_client(lang_code)
         return
     end
 
-    -- Carica traduzioni
-    local trans = hg_lib.load_translations_for_lang(lang_code)
+    -- Carica traduzioni dalla tabella corretta (usa translation_key, non text_key)
+    local c, d = mysql_direct_query("SELECT translation_key, text_value FROM srv1_hunabku.hunter_translations WHERE lang_code='" .. lang_code .. "'")
 
-    -- Costruisci stringa di traduzioni (formato: key1=value1|key2=value2|...)
-    -- Per evitare messaggi troppo lunghi, inviamo a blocchi per categoria
-    local categories = {"ui", "rank", "mission", "achievement", "event", "shop", "system", "stat"}
+    if c > 0 then
+        -- Invia in blocchi di 20 traduzioni per evitare messaggi troppo lunghi
+        local BATCH_SIZE = 20
+        local parts = {}
+        local batch_num = 1
 
-    for _, cat in ipairs(categories) do
-        local c, d = mysql_direct_query("SELECT text_key, text_value FROM srv1_hunabku.hunter_translations WHERE lang_code='" .. lang_code .. "' AND category='" .. cat .. "'")
+        for i = 1, c do
+            local key = d[i].translation_key
+            local val = hg_lib.clean_str(d[i].text_value)
+            table.insert(parts, key .. "=" .. val)
 
-        if c > 0 then
-            local parts = {}
-            for i = 1, c do
-                local key = d[i].text_key
-                local val = hg_lib.clean_str(d[i].text_value)
-                table.insert(parts, key .. "=" .. val)
+            -- Quando raggiungiamo BATCH_SIZE o fine dati, invia il blocco
+            if table.getn(parts) >= BATCH_SIZE or i == c then
+                local chunk = table.concat(parts, "|")
+                cmdchat("HunterTranslations batch" .. batch_num .. " " .. chunk)
+                parts = {}
+                batch_num = batch_num + 1
             end
-
-            local chunk = table.concat(parts, "|")
-            cmdchat("HunterTranslations " .. cat .. " " .. chunk)
         end
     end
 
