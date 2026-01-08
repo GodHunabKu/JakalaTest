@@ -2005,7 +2005,255 @@ INSERT INTO hunter_translations (translation_key, lang_code, text_value) VALUES
 ('CACHE_RESET', 'de', 'Ubersetzungs-Cache zuruckgesetzt!'),
 ('CACHE_RESET', 'es', 'Cache de traducciones reiniciada!'),
 ('CACHE_RESET', 'fr', 'Cache des traductions reinitialisee!'),
-('CACHE_RESET', 'pt', 'Cache de traducoes resetada!')
+('CACHE_RESET', 'pt', 'Cache de traducoes resetada!'),
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Fracture and Defense Messages (lowercase keys - legacy)
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+('fracture_detected', 'it', 'ATTENZIONE: FRATTURA {RANK} RILEVATA.'),
+('fracture_detected', 'en', 'WARNING: {RANK} FRACTURE DETECTED.'),
+('fracture_detected', 'de', 'ACHTUNG: {RANK} BRUCH ENTDECKT.'),
+('fracture_detected', 'es', 'ATENCION: FRACTURA {RANK} DETECTADA.'),
+('fracture_detected', 'fr', 'ATTENTION: FRACTURE {RANK} DETECTEE.'),
+('fracture_detected', 'pt', 'ATENCAO: FRATURA {RANK} DETECTADA.'),
+
+('defense_start', 'it', 'UCCIDI TUTTI I MOB! Hai {SECONDS} secondi!'),
+('defense_start', 'en', 'KILL ALL MOBS! You have {SECONDS} seconds!'),
+('defense_start', 'de', 'TOTE ALLE MOBS! Du hast {SECONDS} Sekunden!'),
+('defense_start', 'es', 'MATA A TODOS LOS MOBS! Tienes {SECONDS} segundos!'),
+('defense_start', 'fr', 'TUEZ TOUS LES MOBS! Vous avez {SECONDS} secondes!'),
+('defense_start', 'pt', 'MATE TODOS OS MOBS! Voce tem {SECONDS} segundos!'),
+
+('defense_wave_spawn', 'it', 'ONDATA {WAVE}! DIFENDITI!'),
+('defense_wave_spawn', 'en', 'WAVE {WAVE}! DEFEND YOURSELF!'),
+('defense_wave_spawn', 'de', 'WELLE {WAVE}! VERTEIDIGE DICH!'),
+('defense_wave_spawn', 'es', 'OLEADA {WAVE}! DEFIENDETE!'),
+('defense_wave_spawn', 'fr', 'VAGUE {WAVE}! DEFENDEZ-VOUS!'),
+('defense_wave_spawn', 'pt', 'ONDA {WAVE}! DEFENDA-SE!'),
+
+('defense_success_click', 'it', 'FRATTURA CONQUISTATA! Hai 5 minuti per aprirla!'),
+('defense_success_click', 'en', 'FRACTURE CONQUERED! You have 5 minutes to open it!'),
+('defense_success_click', 'de', 'BRUCH EROBERT! Du hast 5 Minuten zum Offnen!'),
+('defense_success_click', 'es', 'FRACTURA CONQUISTADA! Tienes 5 minutos para abrirla!'),
+('defense_success_click', 'fr', 'FRACTURE CONQUISE! Vous avez 5 minutes pour l''ouvrir!'),
+('defense_success_click', 'pt', 'FRATURA CONQUISTADA! Voce tem 5 minutos para abri-la!'),
+
+('defense_failed_destroyed', 'it', 'DIFESA FALLITA! Le fratture di questo Rank vengono DISTRUTTE se fallisci!'),
+('defense_failed_destroyed', 'en', 'DEFENSE FAILED! Fractures of this Rank are DESTROYED if you fail!'),
+('defense_failed_destroyed', 'de', 'VERTEIDIGUNG FEHLGESCHLAGEN! Bruche dieses Rangs werden ZERSTORT wenn du versagst!'),
+('defense_failed_destroyed', 'es', 'DEFENSA FALLIDA! Las fracturas de este Rango se DESTRUYEN si fallas!'),
+('defense_failed_destroyed', 'fr', 'DEFENSE ECHOUEE! Les fractures de ce Rang sont DETRUITES si vous echouez!'),
+('defense_failed_destroyed', 'pt', 'DEFESA FALHOU! Fraturas deste Rank sao DESTRUIDAS se voce falhar!'),
+
+('defense_failed_retry', 'it', 'DIFESA FALLITA! La frattura e'' ancora li, puoi riprovare!'),
+('defense_failed_retry', 'en', 'DEFENSE FAILED! The fracture is still there, you can retry!'),
+('defense_failed_retry', 'de', 'VERTEIDIGUNG FEHLGESCHLAGEN! Der Bruch ist noch da, du kannst es erneut versuchen!'),
+('defense_failed_retry', 'es', 'DEFENSA FALLIDA! La fractura sigue ahi, puedes reintentar!'),
+('defense_failed_retry', 'fr', 'DEFENSE ECHOUEE! La fracture est toujours la, vous pouvez reessayer!'),
+('defense_failed_retry', 'pt', 'DEFESA FALHOU! A fratura ainda esta la, voce pode tentar novamente!'),
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Mission Messages (lowercase keys - legacy)
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+('mission_all_complete', 'it', 'TUTTE LE MISSIONI COMPLETE! BONUS x1.5!'),
+('mission_all_complete', 'en', 'ALL MISSIONS COMPLETE! BONUS x1.5!'),
+('mission_all_complete', 'de', 'ALLE MISSIONEN ABGESCHLOSSEN! BONUS x1.5!'),
+('mission_all_complete', 'es', 'TODAS LAS MISIONES COMPLETAS! BONUS x1.5!'),
+('mission_all_complete', 'fr', 'TOUTES LES MISSIONS TERMINEES! BONUS x1.5!'),
+('mission_all_complete', 'pt', 'TODAS AS MISSOES COMPLETAS! BONUS x1.5!'),
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Combat and Kill Messages (lowercase keys - legacy)
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+('speedkill_success', 'it', 'SPEED KILL! GLORIA x2!'),
+('speedkill_success', 'en', 'SPEED KILL! GLORY x2!'),
+('speedkill_success', 'de', 'SPEED KILL! RUHM x2!'),
+('speedkill_success', 'es', 'SPEED KILL! GLORIA x2!'),
+('speedkill_success', 'fr', 'SPEED KILL! GLOIRE x2!'),
+('speedkill_success', 'pt', 'SPEED KILL! GLORIA x2!'),
+
+('target_eliminated', 'it', 'BERSAGLIO ELIMINATO: {NAME} | +{POINTS} GLORIA'),
+('target_eliminated', 'en', 'TARGET ELIMINATED: {NAME} | +{POINTS} GLORY'),
+('target_eliminated', 'de', 'ZIEL ELIMINIERT: {NAME} | +{POINTS} RUHM'),
+('target_eliminated', 'es', 'OBJETIVO ELIMINADO: {NAME} | +{POINTS} GLORIA'),
+('target_eliminated', 'fr', 'CIBLE ELIMINEE: {NAME} | +{POINTS} GLOIRE'),
+('target_eliminated', 'pt', 'ALVO ELIMINADO: {NAME} | +{POINTS} GLORIA'),
+
+('chest_bonus', 'it', 'Incredibile! Il baule conteneva anche {POINTS} Gloria!'),
+('chest_bonus', 'en', 'Incredible! The chest also contained {POINTS} Glory!'),
+('chest_bonus', 'de', 'Unglaublich! Die Truhe enthielt auch {POINTS} Ruhm!'),
+('chest_bonus', 'es', 'Increible! El cofre tambien contenia {POINTS} Gloria!'),
+('chest_bonus', 'fr', 'Incroyable! Le coffre contenait aussi {POINTS} Gloire!'),
+('chest_bonus', 'pt', 'Incrivel! O bau tambem continha {POINTS} Gloria!'),
+
+('spawn_chest_detected', 'it', 'BAULE DEL TESORO RILEVATO!'),
+('spawn_chest_detected', 'en', 'TREASURE CHEST DETECTED!'),
+('spawn_chest_detected', 'de', 'SCHATZTRUHE ENTDECKT!'),
+('spawn_chest_detected', 'es', 'COFRE DEL TESORO DETECTADO!'),
+('spawn_chest_detected', 'fr', 'COFFRE AU TRESOR DETECTE!'),
+('spawn_chest_detected', 'pt', 'BAU DO TESOURO DETECTADO!'),
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Shop Messages (lowercase keys - legacy)
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+('shop_title', 'it', 'MERCANTE HUNTER'),
+('shop_title', 'en', 'HUNTER MERCHANT'),
+('shop_title', 'de', 'HUNTER HANDLER'),
+('shop_title', 'es', 'MERCADER HUNTER'),
+('shop_title', 'fr', 'MARCHAND HUNTER'),
+('shop_title', 'pt', 'MERCADOR HUNTER'),
+
+('shop_ask', 'it', 'Vuoi acquistare questo oggetto?'),
+('shop_ask', 'en', 'Do you want to buy this item?'),
+('shop_ask', 'de', 'Mochtest du diesen Gegenstand kaufen?'),
+('shop_ask', 'es', 'Quieres comprar este objeto?'),
+('shop_ask', 'fr', 'Voulez-vous acheter cet objet?'),
+('shop_ask', 'pt', 'Quer comprar este item?'),
+
+('shop_opt_confirm', 'it', 'Conferma Acquisto'),
+('shop_opt_confirm', 'en', 'Confirm Purchase'),
+('shop_opt_confirm', 'de', 'Kauf Bestatigen'),
+('shop_opt_confirm', 'es', 'Confirmar Compra'),
+('shop_opt_confirm', 'fr', 'Confirmer l''Achat'),
+('shop_opt_confirm', 'pt', 'Confirmar Compra'),
+
+('shop_opt_cancel', 'it', 'Annulla'),
+('shop_opt_cancel', 'en', 'Cancel'),
+('shop_opt_cancel', 'de', 'Abbrechen'),
+('shop_opt_cancel', 'es', 'Cancelar'),
+('shop_opt_cancel', 'fr', 'Annuler'),
+('shop_opt_cancel', 'pt', 'Cancelar'),
+
+('shop_success', 'it', 'TRANSAZIONE COMPLETATA. -{POINTS} GLORIA'),
+('shop_success', 'en', 'TRANSACTION COMPLETED. -{POINTS} GLORY'),
+('shop_success', 'de', 'TRANSAKTION ABGESCHLOSSEN. -{POINTS} RUHM'),
+('shop_success', 'es', 'TRANSACCION COMPLETADA. -{POINTS} GLORIA'),
+('shop_success', 'fr', 'TRANSACTION TERMINEE. -{POINTS} GLOIRE'),
+('shop_success', 'pt', 'TRANSACAO CONCLUIDA. -{POINTS} GLORIA'),
+
+('shop_error_funds', 'it', 'ERRORE: GLORIA INSUFFICIENTE.'),
+('shop_error_funds', 'en', 'ERROR: INSUFFICIENT GLORY.'),
+('shop_error_funds', 'de', 'FEHLER: NICHT GENUG RUHM.'),
+('shop_error_funds', 'es', 'ERROR: GLORIA INSUFICIENTE.'),
+('shop_error_funds', 'fr', 'ERREUR: GLOIRE INSUFFISANTE.'),
+('shop_error_funds', 'pt', 'ERRO: GLORIA INSUFICIENTE.'),
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Rank and Rewards Messages (lowercase keys - legacy)
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+('pending_rewards', 'it', 'RICOMPENSE IN ATTESA. CONTROLLA IL TERMINALE.'),
+('pending_rewards', 'en', 'REWARDS PENDING. CHECK THE TERMINAL.'),
+('pending_rewards', 'de', 'BELOHNUNGEN AUSSTEHEND. PRUFE DAS TERMINAL.'),
+('pending_rewards', 'es', 'RECOMPENSAS PENDIENTES. REVISA EL TERMINAL.'),
+('pending_rewards', 'fr', 'RECOMPENSES EN ATTENTE. VERIFIEZ LE TERMINAL.'),
+('pending_rewards', 'pt', 'RECOMPENSAS PENDENTES. VERIFIQUE O TERMINAL.'),
+
+('rank_up_global', 'it', '{NAME} e'' salito al rango [{RANK}-RANK]!'),
+('rank_up_global', 'en', '{NAME} has risen to rank [{RANK}-RANK]!'),
+('rank_up_global', 'de', '{NAME} ist zum Rang [{RANK}-RANK] aufgestiegen!'),
+('rank_up_global', 'es', '{NAME} ha subido al rango [{RANK}-RANK]!'),
+('rank_up_global', 'fr', '{NAME} est monte au rang [{RANK}-RANK]!'),
+('rank_up_global', 'pt', '{NAME} subiu para o rank [{RANK}-RANK]!'),
+
+('rank_up_msg', 'it', 'RANK UP! Sei ora un {RANK}-RANK Hunter!'),
+('rank_up_msg', 'en', 'RANK UP! You are now a {RANK}-RANK Hunter!'),
+('rank_up_msg', 'de', 'RANG AUFSTIEG! Du bist jetzt ein {RANK}-RANG Hunter!'),
+('rank_up_msg', 'es', 'SUBIDA DE RANGO! Ahora eres un Hunter {RANK}-RANK!'),
+('rank_up_msg', 'fr', 'RANG SUPERIEUR! Vous etes maintenant un Hunter {RANK}-RANG!'),
+('rank_up_msg', 'pt', 'SUBIU DE RANK! Voce agora e um Hunter {RANK}-RANK!'),
+
+('reward_type_daily', 'it', 'Giornaliera'),
+('reward_type_daily', 'en', 'Daily'),
+('reward_type_daily', 'de', 'Taglich'),
+('reward_type_daily', 'es', 'Diaria'),
+('reward_type_daily', 'fr', 'Quotidienne'),
+('reward_type_daily', 'pt', 'Diaria'),
+
+('reward_type_weekly', 'it', 'Settimanale'),
+('reward_type_weekly', 'en', 'Weekly'),
+('reward_type_weekly', 'de', 'Wochentlich'),
+('reward_type_weekly', 'es', 'Semanal'),
+('reward_type_weekly', 'fr', 'Hebdomadaire'),
+('reward_type_weekly', 'pt', 'Semanal'),
+
+('reward_claimed', 'it', '{PLAYER} ha riscosso il premio Top Classifica {TYPE}!'),
+('reward_claimed', 'en', '{PLAYER} has claimed the Top {TYPE} Ranking prize!'),
+('reward_claimed', 'de', '{PLAYER} hat den Top {TYPE} Ranglisten-Preis beansprucht!'),
+('reward_claimed', 'es', '{PLAYER} ha reclamado el premio Top Clasificacion {TYPE}!'),
+('reward_claimed', 'fr', '{PLAYER} a reclame le prix Top Classement {TYPE}!'),
+('reward_claimed', 'pt', '{PLAYER} resgatou o premio Top Ranking {TYPE}!'),
+
+('achievements_unlocked', 'it', 'TRAGUARDI SBLOCCATI: {COUNT}'),
+('achievements_unlocked', 'en', 'ACHIEVEMENTS UNLOCKED: {COUNT}'),
+('achievements_unlocked', 'de', 'ERFOLGE FREIGESCHALTET: {COUNT}'),
+('achievements_unlocked', 'es', 'LOGROS DESBLOQUEADOS: {COUNT}'),
+('achievements_unlocked', 'fr', 'SUCCES DEBLOQUES: {COUNT}'),
+('achievements_unlocked', 'pt', 'CONQUISTAS DESBLOQUEADAS: {COUNT}'),
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Rankings and Reset Messages (lowercase keys - legacy)
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+('winners_title_daily', 'it', '* VINCITORI CLASSIFICA GIORNALIERA *'),
+('winners_title_daily', 'en', '* DAILY RANKING WINNERS *'),
+('winners_title_daily', 'de', '* TAGLICHE RANGLISTEN GEWINNER *'),
+('winners_title_daily', 'es', '* GANADORES CLASIFICACION DIARIA *'),
+('winners_title_daily', 'fr', '* GAGNANTS CLASSEMENT QUOTIDIEN *'),
+('winners_title_daily', 'pt', '* VENCEDORES RANKING DIARIO *'),
+
+('winners_title_weekly', 'it', '** VINCITORI CLASSIFICA SETTIMANALE **'),
+('winners_title_weekly', 'en', '** WEEKLY RANKING WINNERS **'),
+('winners_title_weekly', 'de', '** WOCHENTLICHE RANGLISTEN GEWINNER **'),
+('winners_title_weekly', 'es', '** GANADORES CLASIFICACION SEMANAL **'),
+('winners_title_weekly', 'fr', '** GAGNANTS CLASSEMENT HEBDOMADAIRE **'),
+('winners_title_weekly', 'pt', '** VENCEDORES RANKING SEMANAL **'),
+
+('winners_title_kill', 'it', '* VINCITORI CLASSIFICA KILL GIORNALIERA *'),
+('winners_title_kill', 'en', '* DAILY KILL RANKING WINNERS *'),
+('winners_title_kill', 'de', '* TAGLICHE KILL-RANGLISTEN GEWINNER *'),
+('winners_title_kill', 'es', '* GANADORES CLASIFICACION KILLS DIARIA *'),
+('winners_title_kill', 'fr', '* GAGNANTS CLASSEMENT KILLS QUOTIDIEN *'),
+('winners_title_kill', 'pt', '* VENCEDORES RANKING KILLS DIARIO *'),
+
+('winners_sep_daily', 'it', '======================================'),
+('winners_sep_daily', 'en', '======================================'),
+('winners_sep_daily', 'de', '======================================'),
+('winners_sep_daily', 'es', '======================================'),
+('winners_sep_daily', 'fr', '======================================'),
+('winners_sep_daily', 'pt', '======================================'),
+
+('winners_sep_weekly', 'it', '======================================'),
+('winners_sep_weekly', 'en', '======================================'),
+('winners_sep_weekly', 'de', '======================================'),
+('winners_sep_weekly', 'es', '======================================'),
+('winners_sep_weekly', 'fr', '======================================'),
+('winners_sep_weekly', 'pt', '======================================'),
+
+('winners_sep_kill', 'it', '======================================'),
+('winners_sep_kill', 'en', '======================================'),
+('winners_sep_kill', 'de', '======================================'),
+('winners_sep_kill', 'es', '======================================'),
+('winners_sep_kill', 'fr', '======================================'),
+('winners_sep_kill', 'pt', '======================================'),
+
+('reset_daily', 'it', 'Classifica Giornaliera Resettata! La corsa al potere ricomincia.'),
+('reset_daily', 'en', 'Daily Ranking Reset! The race for power begins again.'),
+('reset_daily', 'de', 'Tagliche Rangliste Zuruckgesetzt! Das Rennen um die Macht beginnt erneut.'),
+('reset_daily', 'es', 'Clasificacion Diaria Reiniciada! La carrera por el poder comienza de nuevo.'),
+('reset_daily', 'fr', 'Classement Quotidien Reinitialise! La course au pouvoir recommence.'),
+('reset_daily', 'pt', 'Ranking Diario Resetado! A corrida pelo poder recomeca.'),
+
+('reset_weekly', 'it', 'Classifica Settimanale Resettata! I premi sono stati distribuiti.'),
+('reset_weekly', 'en', 'Weekly Ranking Reset! Prizes have been distributed.'),
+('reset_weekly', 'de', 'Wochentliche Rangliste Zuruckgesetzt! Preise wurden verteilt.'),
+('reset_weekly', 'es', 'Clasificacion Semanal Reiniciada! Los premios han sido distribuidos.'),
+('reset_weekly', 'fr', 'Classement Hebdomadaire Reinitialise! Les prix ont ete distribues.'),
+('reset_weekly', 'pt', 'Ranking Semanal Resetado! Os premios foram distribuidos.')
 
 ON DUPLICATE KEY UPDATE text_value = VALUES(text_value);
 
