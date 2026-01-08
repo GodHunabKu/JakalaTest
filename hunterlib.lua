@@ -2160,6 +2160,58 @@ function hg_lib.check_pending_rewards()
     end
 end
 
+-- ============================================================
+-- CHECK GATE SELECTION - Notifica se il player e' stato sorteggiato
+-- Chiamato al login per mostrare effetto + aprire finestra Gate
+-- ============================================================
+function hg_lib.check_gate_selection()
+    local pid = pc.get_player_id()
+
+    -- Cerca se il player ha un accesso Gate pendente
+    local q = string.format([[
+        SELECT ga.access_id, ga.gate_id, gc.gate_name, gc.rank_required, ga.expires_at,
+               TIMESTAMPDIFF(MINUTE, NOW(), ga.expires_at) as minutes_left
+        FROM srv1_hunabku.hunter_gate_access ga
+        JOIN srv1_hunabku.hunter_gate_config gc ON ga.gate_id = gc.gate_id
+        WHERE ga.player_id = %d
+          AND ga.status = 'pending'
+          AND ga.expires_at > NOW()
+        ORDER BY ga.granted_at DESC
+        LIMIT 1
+    ]], pid)
+
+    local c, d = mysql_direct_query(q)
+
+    if c > 0 and d[1] then
+        local gate_name = d[1].gate_name or "Gate"
+        local rank_req = d[1].rank_required or "E"
+        local minutes_left = tonumber(d[1].minutes_left) or 0
+        local hours_left = math.floor(minutes_left / 60)
+        local mins_left = minutes_left % 60
+
+        -- Invia comando al client per mostrare effetto e aprire finestra
+        -- Formato: HunterGateSelected gateName|rank|hoursLeft|minsLeft
+        cmdchat("HunterGateSelected " .. hg_lib.clean_str(gate_name) .. "|" .. rank_req .. "|" .. hours_left .. "|" .. mins_left)
+
+        -- Messaggio syschat tradotto
+        syschat("")
+        syschat("|cffFFD700========================================|r")
+        hg_lib.syschat_t("GATE_SELECTED_TITLE", "[!!!] SEI STATO SELEZIONATO! [!!!]", nil, "FFD700")
+        syschat("|cffFFD700========================================|r")
+        syschat("")
+        hg_lib.syschat_t("GATE_SELECTED_MSG", "Hai accesso al Gate: {GATE}", {GATE = gate_name}, "00FF00")
+        hg_lib.syschat_t("GATE_SELECTED_RANK", "Rango richiesto: {RANK}", {RANK = rank_req}, "00FFFF")
+        hg_lib.syschat_t("GATE_SELECTED_TIME", "Tempo rimasto: {H}h {M}m", {H = hours_left, M = mins_left}, "FF6600")
+        syschat("")
+        hg_lib.syschat_t("GATE_SELECTED_HINT", "Apri il Terminale Hunter per entrare!", nil, "AAAAAA")
+        syschat("|cffFFD700========================================|r")
+
+        return true
+    end
+
+    return false
+end
+
 function hg_lib.check_if_overtaken()
     local pid = pc.get_player_id()
     local c, d = mysql_direct_query("SELECT overtaken_by, overtaken_diff, overtaken_label FROM srv1_hunabku.hunter_quest_ranking WHERE player_id=" .. pid .. " AND overtaken_by IS NOT NULL AND overtaken_by != ''")

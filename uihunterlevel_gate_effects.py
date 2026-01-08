@@ -1010,3 +1010,224 @@ def ShowTrialProgress(pType, cur, req):
     global g_popup
     if g_popup is None: g_popup = TrialProgressPopup()
     g_popup.AddPopup(pType, cur, req)
+
+# ==============================================================================
+# 7. GATE SELECTED - Effetto selezione sorteggio Gate
+# ==============================================================================
+class GateSelectedEffect(ui.Window):
+    """Effetto quando il player viene sorteggiato per l'accesso al Gate"""
+
+    def __init__(self):
+        ui.Window.__init__(self)
+        self.screenWidth = wndMgr.GetScreenWidth()
+        self.screenHeight = wndMgr.GetScreenHeight()
+        self.SetSize(self.screenWidth, self.screenHeight)
+        self.SetPosition(0, 0)
+        self.AddFlag("not_pick")
+
+        self.startTime = 0
+        self.gateName = "Gate"
+        self.rankRequired = "E"
+        self.hoursLeft = 2
+        self.minsLeft = 0
+
+        self.__BuildUI()
+        self.Hide()
+
+    def __BuildUI(self):
+        # Sfondo semi-trasparente
+        self.bg = ui.Bar()
+        self.bg.SetParent(self)
+        self.bg.SetPosition(0, 0)
+        self.bg.SetSize(self.screenWidth, self.screenHeight)
+        self.bg.SetColor(0x00000000)
+        self.bg.Show()
+
+        # Banner centrale
+        self.banner = ui.Bar()
+        self.banner.SetParent(self)
+        self.banner.SetSize(500, 180)
+        self.banner.SetPosition(self.screenWidth/2 - 250, self.screenHeight/2 - 90)
+        self.banner.SetColor(0xEE111122)
+        self.banner.Hide()
+
+        # Bordi luminosi
+        self.borderTop = ui.Bar()
+        self.borderTop.SetParent(self.banner)
+        self.borderTop.SetPosition(0, 0)
+        self.borderTop.SetSize(500, 4)
+        self.borderTop.SetColor(0xFFFFD700)
+        self.borderTop.Show()
+
+        self.borderBot = ui.Bar()
+        self.borderBot.SetParent(self.banner)
+        self.borderBot.SetPosition(0, 176)
+        self.borderBot.SetSize(500, 4)
+        self.borderBot.SetColor(0xFFFFD700)
+        self.borderBot.Show()
+
+        # Icona stella/alert
+        self.alertIcon = ui.TextLine()
+        self.alertIcon.SetParent(self.banner)
+        self.alertIcon.SetPosition(250, 15)
+        self.alertIcon.SetHorizontalAlignCenter()
+        self.alertIcon.SetText("*")
+        self.alertIcon.SetPackedFontColor(0xFFFFD700)
+        self.alertIcon.SetOutline()
+        self.alertIcon.Show()
+
+        # Titolo principale
+        self.titleText = ui.TextLine()
+        self.titleText.SetParent(self.banner)
+        self.titleText.SetPosition(250, 35)
+        self.titleText.SetHorizontalAlignCenter()
+        self.titleText.SetText("")
+        self.titleText.SetPackedFontColor(0xFFFFD700)
+        self.titleText.SetOutline()
+        self.titleText.Show()
+
+        # Nome Gate
+        self.gateText = ui.TextLine()
+        self.gateText.SetParent(self.banner)
+        self.gateText.SetPosition(250, 65)
+        self.gateText.SetHorizontalAlignCenter()
+        self.gateText.SetText("")
+        self.gateText.SetPackedFontColor(0xFF00FF00)
+        self.gateText.SetOutline()
+        self.gateText.Show()
+
+        # Rank richiesto
+        self.rankText = ui.TextLine()
+        self.rankText.SetParent(self.banner)
+        self.rankText.SetPosition(250, 95)
+        self.rankText.SetHorizontalAlignCenter()
+        self.rankText.SetText("")
+        self.rankText.SetPackedFontColor(0xFF00FFFF)
+        self.rankText.Show()
+
+        # Tempo rimasto
+        self.timeText = ui.TextLine()
+        self.timeText.SetParent(self.banner)
+        self.timeText.SetPosition(250, 120)
+        self.timeText.SetHorizontalAlignCenter()
+        self.timeText.SetText("")
+        self.timeText.SetPackedFontColor(0xFFFF6600)
+        self.timeText.Show()
+
+        # Istruzioni
+        self.hintText = ui.TextLine()
+        self.hintText.SetParent(self.banner)
+        self.hintText.SetPosition(250, 150)
+        self.hintText.SetHorizontalAlignCenter()
+        self.hintText.SetText("")
+        self.hintText.SetPackedFontColor(0xFFAAAAAA)
+        self.hintText.Show()
+
+        # Particelle decorative
+        self.particles = []
+        for i in xrange(30):
+            p = ui.Bar()
+            p.SetParent(self)
+            p.SetSize(3, 3)
+            p.SetColor(0xFFFFD700)
+            p.Hide()
+            self.particles.append({"bar": p, "x": 0, "y": 0, "vx": 0, "vy": 0})
+
+    def Start(self, gateName, rankRequired, hoursLeft, minsLeft):
+        self.gateName = gateName.replace("+", " ")
+        self.rankRequired = rankRequired
+        self.hoursLeft = hoursLeft
+        self.minsLeft = minsLeft
+        self.startTime = app.GetTime()
+
+        # Prepara testi
+        self.titleText.SetText("SEI STATO SELEZIONATO!")
+        self.gateText.SetText("Gate: " + self.gateName)
+        self.rankText.SetText("Rango: " + self.rankRequired + "-Rank")
+        self.timeText.SetText("Tempo: " + str(self.hoursLeft) + "h " + str(self.minsLeft) + "m")
+        self.hintText.SetText("Apri il Terminale per entrare!")
+
+        # Inizializza particelle
+        cx = self.screenWidth / 2
+        cy = self.screenHeight / 2
+        for p in self.particles:
+            angle = app.GetRandom(0, 360) * 3.14159 / 180.0
+            speed = app.GetRandom(50, 150)
+            p["x"] = cx
+            p["y"] = cy
+            p["vx"] = math.cos(angle) * speed
+            p["vy"] = math.sin(angle) * speed
+
+        self.bg.SetColor(0x00000000)
+        self.banner.Hide()
+        self.Show()
+        self.SetTop()
+
+    def OnUpdate(self):
+        if self.startTime == 0:
+            return
+
+        t = app.GetTime() - self.startTime
+        duration = 5.0
+
+        if t > duration:
+            self.startTime = 0
+            self.Hide()
+            return
+
+        # === FASE 1: Fade in sfondo + particelle esplosione (0-1s) ===
+        if t < 1.0:
+            progress = t / 1.0
+            bgAlpha = int(180 * progress)
+            self.bg.SetColor((bgAlpha << 24) | 0x000011)
+
+            # Anima particelle in esplosione
+            dt = 0.016
+            for p in self.particles:
+                p["x"] += p["vx"] * dt
+                p["y"] += p["vy"] * dt
+                p["vy"] += 100 * dt  # gravita
+
+                pAlpha = int(255 * (1.0 - progress))
+                p["bar"].SetPosition(int(p["x"]), int(p["y"]))
+                p["bar"].SetColor((pAlpha << 24) | 0xFFD700)
+                p["bar"].Show()
+
+        # === FASE 2: Banner appare (1-1.5s) ===
+        elif t < 1.5:
+            for p in self.particles:
+                p["bar"].Hide()
+
+            self.bg.SetColor(0xB4000011)
+            self.banner.Show()
+
+            # Effetto pulse sul bordo
+            pulse = int(127 + 127 * math.sin(t * 10))
+            pulseColor = (0xFF << 24) | (pulse << 16) | (pulse << 8) | 0x00
+            self.borderTop.SetColor(0xFFFFD700)
+            self.borderBot.SetColor(0xFFFFD700)
+
+        # === FASE 3: Testo stabile + pulse icona (1.5-4.5s) ===
+        elif t < duration - 0.5:
+            # Pulse sull'icona alert
+            pulse = 0.7 + 0.3 * math.sin(t * 5)
+            iconAlpha = int(255 * pulse)
+            self.alertIcon.SetPackedFontColor((iconAlpha << 24) | 0xFFD700)
+
+        # === FASE 4: Fade out (4.5-5s) ===
+        else:
+            fadeProgress = (t - (duration - 0.5)) / 0.5
+            fadeAlpha = int(180 * (1.0 - fadeProgress))
+            self.bg.SetColor((fadeAlpha << 24) | 0x000011)
+
+            bannerAlpha = int(238 * (1.0 - fadeProgress))
+            self.banner.SetColor((bannerAlpha << 24) | 0x111122)
+
+g_gateSelected = None
+
+def ShowGateSelected(gateName, rankRequired, hoursLeft, minsLeft):
+    """Mostra effetto selezione Gate con notifica epica"""
+    global g_gateSelected
+    if g_gateSelected is None:
+        g_gateSelected = GateSelectedEffect()
+    g_gateSelected.Start(gateName, rankRequired, hoursLeft, minsLeft)

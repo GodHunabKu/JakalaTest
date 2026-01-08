@@ -2367,6 +2367,7 @@ class GameWindow(ui.ScriptWindow):
 		serverCommandList["HunterGateEntry"]          = self.__HunterGateEntry
 		serverCommandList["HunterGateVictory"]        = self.__HunterGateVictory
 		serverCommandList["HunterGateDefeat"]         = self.__HunterGateDefeat
+		serverCommandList["HunterGateSelected"]       = self.__HunterGateSelected
 		serverCommandList["HunterTrialProgressPopup"] = self.__HunterTrialProgressPopup
 
 		# Classifiche Dettagliate
@@ -4255,6 +4256,30 @@ class GameWindow(ui.ScriptWindow):
 			import dbg
 			dbg.TraceError("HunterGateDefeat error: " + str(e))
 
+	def __HunterGateSelected(self, args):
+		"""Effetto selezione Gate - mostra notifica + apre finestra Gate"""
+		try:
+			parts = args.split("|")
+			gateName = parts[0].replace("+", " ") if len(parts) > 0 else "Gate"
+			rankRequired = parts[1] if len(parts) > 1 else "E"
+			hoursLeft = int(parts[2]) if len(parts) > 2 else 2
+			minsLeft = int(parts[3]) if len(parts) > 3 else 0
+
+			import uihunterlevel_gate_effects
+			uihunterlevel_gate_effects.ShowGateSelected(gateName, rankRequired, hoursLeft, minsLeft)
+
+			# Apri anche la finestra Gate/Trial dopo un breve delay
+			if self.interface and hasattr(self.interface, 'wndHunterLevel'):
+				hunterWnd = self.interface.wndHunterLevel
+				if hunterWnd:
+					hunterWnd.Show()
+					# Seleziona tab Trial/Gate se disponibile
+					if hasattr(hunterWnd, 'OpenGateTab'):
+						hunterWnd.OpenGateTab()
+		except Exception as e:
+			import dbg
+			dbg.TraceError("HunterGateSelected error: " + str(e))
+
 	def __HunterTrialProgressPopup(self, args):
 		"""Popup progresso Trial"""
 		try:
@@ -4262,7 +4287,7 @@ class GameWindow(ui.ScriptWindow):
 			progressType = parts[0] if len(parts) > 0 else "boss"
 			current = int(parts[1]) if len(parts) > 1 else 0
 			required = int(parts[2]) if len(parts) > 2 else 0
-			
+
 			import uihunterlevel_gate_effects
 			uihunterlevel_gate_effects.ShowTrialProgress(progressType, current, required)
 		except Exception as e:
