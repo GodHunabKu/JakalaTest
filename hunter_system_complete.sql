@@ -98,14 +98,14 @@ CREATE TABLE `hunter_chest_rewards`  (
 -- ----------------------------
 -- Records of hunter_chest_rewards
 -- ----------------------------
-INSERT INTO `hunter_chest_rewards` VALUES (63000, 'Cassa E-Rank', 1, 5, 15, 80030, 1, 30, 'GREEN', 1);
-INSERT INTO `hunter_chest_rewards` VALUES (63001, 'Cassa D-Rank', 2, 10, 25, 80030, 2, 25, 'BLUE', 1);
-INSERT INTO `hunter_chest_rewards` VALUES (63002, 'Cassa C-Rank', 3, 18, 40, 80031, 1, 20, 'ORANGE', 1);
-INSERT INTO `hunter_chest_rewards` VALUES (63003, 'Cassa B-Rank', 4, 30, 65, 80031, 2, 15, 'RED', 1);
-INSERT INTO `hunter_chest_rewards` VALUES (63004, 'Cassa A-Rank', 5, 50, 100, 80032, 1, 12, 'PURPLE', 1);
-INSERT INTO `hunter_chest_rewards` VALUES (63005, 'Cassa S-Rank', 6, 80, 160, 80032, 2, 10, 'GOLD', 1);
-INSERT INTO `hunter_chest_rewards` VALUES (63006, 'Cassa N-Rank', 7, 120, 250, 80040, 1, 8, 'BLACKWHITE', 1);
-INSERT INTO `hunter_chest_rewards` VALUES (63007, 'Cassa ???-Rank', 1, 50, 500, 80040, 1, 50, 'PURPLE', 1);
+INSERT INTO `hunter_chest_rewards` VALUES (63000, 'Cassa E-Rank', 1, 30, 60, 80030, 1, 30, 'GREEN', 1);
+INSERT INTO `hunter_chest_rewards` VALUES (63001, 'Cassa D-Rank', 2, 50, 100, 80030, 2, 25, 'BLUE', 1);
+INSERT INTO `hunter_chest_rewards` VALUES (63002, 'Cassa C-Rank', 3, 80, 150, 80031, 1, 20, 'ORANGE', 1);
+INSERT INTO `hunter_chest_rewards` VALUES (63003, 'Cassa B-Rank', 4, 120, 220, 80031, 2, 15, 'RED', 1);
+INSERT INTO `hunter_chest_rewards` VALUES (63004, 'Cassa A-Rank', 5, 170, 300, 80032, 1, 12, 'PURPLE', 1);
+INSERT INTO `hunter_chest_rewards` VALUES (63005, 'Cassa S-Rank', 6, 240, 420, 80032, 2, 10, 'GOLD', 1);
+INSERT INTO `hunter_chest_rewards` VALUES (63006, 'Cassa N-Rank', 7, 350, 600, 80040, 1, 8, 'BLACKWHITE', 1);
+INSERT INTO `hunter_chest_rewards` VALUES (63007, 'Cassa ???-Rank', 1, 200, 800, 80040, 1, 50, 'PURPLE', 1);
 
 -- ----------------------------
 -- Table structure for hunter_event_participants
@@ -957,34 +957,34 @@ CREATE TABLE `hunter_quest_spawns`  (
 -- ----------------------------
 -- Records of hunter_quest_spawns
 -- ----------------------------
-INSERT INTO `hunter_quest_spawns` VALUES (1, 63010, 'Metin Lv.45', 'SUPER_METIN', 35, 55, 20, 'GREEN', 1, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (2, 63011, 'Metin Lv.60', 'SUPER_METIN', 50, 70, 30, 'GREEN', 2, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (3, 63012, 'Metin Lv.75', 'SUPER_METIN', 65, 85, 45, 'BLUE', 2, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (4, 63013, 'Metin Lv.90', 'SUPER_METIN', 80, 100, 60, 'BLUE', 3, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (1, 63010, 'Metin Lv.45', 'SUPER_METIN', 35, 55, 25, 'GREEN', 1, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (2, 63011, 'Metin Lv.60', 'SUPER_METIN', 50, 70, 35, 'GREEN', 2, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (3, 63012, 'Metin Lv.75', 'SUPER_METIN', 65, 85, 50, 'BLUE', 2, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (4, 63013, 'Metin Lv.90', 'SUPER_METIN', 80, 100, 65, 'BLUE', 3, 1);
 INSERT INTO `hunter_quest_spawns` VALUES (5, 63014, 'Metin Lv.95', 'SUPER_METIN', 85, 105, 80, 'ORANGE', 3, 1);
 INSERT INTO `hunter_quest_spawns` VALUES (6, 63015, 'Metin Lv.115', 'SUPER_METIN', 105, 125, 100, 'ORANGE', 4, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (7, 63016, 'Metin Lv.135', 'SUPER_METIN', 125, 150, 130, 'RED', 4, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (8, 63017, 'Metin Lv.165', 'SUPER_METIN', 150, 180, 170, 'GOLD', 5, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (9, 63018, 'Metin Lv.200', 'SUPER_METIN', 180, 250, 220, 'PURPLE', 6, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (10, 4035, 'Funglash', 'BOSS', 65, 85, 50, 'GREEN', 1, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (11, 719, 'Thaloren', 'BOSS', 85, 105, 70, 'BLUE', 2, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (12, 2771, 'Yinlee', 'BOSS', 90, 110, 100, 'BLUE', 3, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (13, 768, 'Slubina', 'BOSS', 105, 125, 130, 'ORANGE', 3, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (14, 6790, 'Alastor', 'BOSS', 115, 135, 170, 'ORANGE', 4, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (15, 6831, 'Grimlor', 'BOSS', 125, 145, 220, 'RED', 4, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (16, 986, 'Branzhul', 'BOSS', 140, 160, 280, 'RED', 5, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (17, 989, 'Torgal', 'BOSS', 155, 175, 350, 'GOLD', 5, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (18, 4011, 'Nerzakar', 'BOSS', 175, 195, 450, 'GOLD', 6, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (19, 6830, 'Nozzera', 'BOSS', 190, 210, 550, 'PURPLE', 6, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (20, 4385, 'Velzahar', 'BOSS', 200, 250, 750, 'BLACKWHITE', 7, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (21, 63000, 'Cassa E-Rank', 'BAULE', 1, 250, 3, 'GREEN', 1, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (22, 63001, 'Cassa D-Rank', 'BAULE', 1, 250, 5, 'BLUE', 2, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (23, 63002, 'Cassa C-Rank', 'BAULE', 1, 250, 8, 'ORANGE', 3, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (24, 63003, 'Cassa B-Rank', 'BAULE', 1, 250, 10, 'RED', 4, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (25, 63004, 'Cassa A-Rank', 'BAULE', 1, 250, 12, 'PURPLE', 5, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (26, 63005, 'Cassa S-Rank', 'BAULE', 1, 250, 15, 'GOLD', 6, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (27, 63006, 'Cassa N-Rank', 'BAULE', 1, 250, 18, 'BLACKWHITE', 7, 1);
-INSERT INTO `hunter_quest_spawns` VALUES (28, 63007, 'Cassa ???-Rank', 'BAULE', 1, 250, 20, 'PURPLE', 7, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (7, 63016, 'Metin Lv.135', 'SUPER_METIN', 125, 150, 125, 'RED', 4, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (8, 63017, 'Metin Lv.165', 'SUPER_METIN', 150, 180, 155, 'GOLD', 5, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (9, 63018, 'Metin Lv.200', 'SUPER_METIN', 180, 250, 190, 'PURPLE', 6, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (10, 4035, 'Funglash', 'BOSS', 65, 85, 10, 'GREEN', 1, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (11, 719, 'Thaloren', 'BOSS', 85, 105, 12, 'BLUE', 2, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (12, 2771, 'Yinlee', 'BOSS', 90, 110, 15, 'BLUE', 3, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (13, 768, 'Slubina', 'BOSS', 105, 125, 18, 'ORANGE', 3, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (14, 6790, 'Alastor', 'BOSS', 115, 135, 22, 'ORANGE', 4, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (15, 6831, 'Grimlor', 'BOSS', 125, 145, 28, 'RED', 4, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (16, 986, 'Branzhul', 'BOSS', 140, 160, 35, 'RED', 5, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (17, 989, 'Torgal', 'BOSS', 155, 175, 42, 'GOLD', 5, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (18, 4011, 'Nerzakar', 'BOSS', 175, 195, 50, 'GOLD', 6, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (19, 6830, 'Nozzera', 'BOSS', 190, 210, 60, 'PURPLE', 6, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (20, 4385, 'Velzahar', 'BOSS', 200, 250, 80, 'BLACKWHITE', 7, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (21, 63000, 'Cassa E-Rank', 'BAULE', 1, 250, 8, 'GREEN', 1, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (22, 63001, 'Cassa D-Rank', 'BAULE', 1, 250, 12, 'BLUE', 2, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (23, 63002, 'Cassa C-Rank', 'BAULE', 1, 250, 18, 'ORANGE', 3, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (24, 63003, 'Cassa B-Rank', 'BAULE', 1, 250, 25, 'RED', 4, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (25, 63004, 'Cassa A-Rank', 'BAULE', 1, 250, 35, 'PURPLE', 5, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (26, 63005, 'Cassa S-Rank', 'BAULE', 1, 250, 50, 'GOLD', 6, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (27, 63006, 'Cassa N-Rank', 'BAULE', 1, 250, 70, 'BLACKWHITE', 7, 1);
+INSERT INTO `hunter_quest_spawns` VALUES (28, 63007, 'Cassa ???-Rank', 'BAULE', 1, 250, 90, 'PURPLE', 7, 1);
 INSERT INTO `hunter_quest_spawns` VALUES (29, 63019, 'Metin Lv.???', 'SUPER_METIN', 180, 250, 300, 'BLACKWHITE', 7, 1);
 
 -- ----------------------------
