@@ -1158,19 +1158,22 @@ function hg_lib.get_text(key, replacements, fallback)
         c, d = mysql_direct_query(q)
     end
 
+    local txt = nil
+
     if c > 0 and d[1] then
-        local txt = d[1].text_value
-        if replacements then
-            for k, v in pairs(replacements) do
-                txt = string.gsub(txt, "{" .. k .. "}", tostring(v))
-            end
-        end
-        return txt
+        txt = d[1].text_value
+    elseif fallback then
+        txt = fallback
     end
 
-    -- Usa fallback se fornito
-    if fallback then return fallback end
-    return nil
+    -- Applica replacements sia al testo DB che al fallback
+    if txt and replacements then
+        for k, v in pairs(replacements) do
+            txt = string.gsub(txt, "{" .. k .. "}", tostring(v))
+        end
+    end
+
+    return txt
 end
 
 function hg_lib.get_text_colored(key, replacements, fallback, default_color)
@@ -1193,28 +1196,31 @@ function hg_lib.get_text_colored(key, replacements, fallback, default_color)
         c, d = mysql_direct_query(q)
     end
 
+    local txt = nil
+    local color = default_color
+
     if c > 0 and d[1] then
-        local txt = d[1].text_value
-        local color = d[1].color_code or default_color
-        if replacements then
-            for k, v in pairs(replacements) do
-                txt = string.gsub(txt, "{" .. k .. "}", tostring(v))
-            end
+        txt = d[1].text_value
+        color = d[1].color_code or default_color
+    elseif fallback then
+        txt = fallback
+    end
+
+    -- Applica replacements sia al testo DB che al fallback
+    if txt and replacements then
+        for k, v in pairs(replacements) do
+            txt = string.gsub(txt, "{" .. k .. "}", tostring(v))
         end
+    end
+
+    -- Applica colore se presente
+    if txt then
         if color and color ~= "" then
             return "|cff" .. color .. txt .. "|r"
         end
         return txt
     end
 
-    -- Usa fallback se fornito
-    if fallback then
-        local color = default_color or ""
-        if color ~= "" then
-            return "|cff" .. color .. fallback .. "|r"
-        end
-        return fallback
-    end
     return nil
 end
 
