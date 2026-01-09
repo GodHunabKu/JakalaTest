@@ -12,6 +12,15 @@
  File Encoding         : 65001
 
  Date: 06/01/2026 15:20:20
+
+ ============================================================================
+ NOTA TRADUZIONI (09/01/2026):
+ Le traduzioni sono ora gestite LATO CLIENT in Python!
+ File: hunter_translations.py + hunter_translations_XX.py
+
+ Le INSERT INTO hunter_translations in questo file possono essere ignorate.
+ Per pulire il DB, eseguire: cleanup_db_translations.sql
+ ============================================================================
 */
 
 SET NAMES utf8mb4;

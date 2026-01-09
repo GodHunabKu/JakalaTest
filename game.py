@@ -2368,6 +2368,7 @@ class GameWindow(ui.ScriptWindow):
 		serverCommandList["HunterGateVictory"]        = self.__HunterGateVictory
 		serverCommandList["HunterGateDefeat"]         = self.__HunterGateDefeat
 		serverCommandList["HunterGateSelected"]       = self.__HunterGateSelected
+		serverCommandList["HunterSyschat"]            = self.__HunterSyschat
 		serverCommandList["HunterTrialProgressPopup"] = self.__HunterTrialProgressPopup
 
 		# Classifiche Dettagliate
@@ -4279,6 +4280,23 @@ class GameWindow(ui.ScriptWindow):
 		except Exception as e:
 			import dbg
 			dbg.TraceError("HunterGateSelected error: " + str(e))
+
+	def __HunterSyschat(self, args):
+		"""
+		Syschat multilingua dal server.
+		Formato: KEY|COLOR|REP1=VAL1|REP2=VAL2
+		Esempio: DEFENSE_FAILED|FF0000
+		Esempio: EVENT_PRIZE|FFD700|PTS=500
+		"""
+		try:
+			import hunter_translations
+			text, color = hunter_translations.ProcessServerSyschat(args)
+			# Mostra il messaggio tradotto con colore
+			import chat
+			chat.AppendChat(chat.CHAT_TYPE_INFO, "|cff" + color + text + "|r")
+		except Exception as e:
+			import dbg
+			dbg.TraceError("HunterSyschat error: " + str(e))
 
 	def __HunterTrialProgressPopup(self, args):
 		"""Popup progresso Trial"""

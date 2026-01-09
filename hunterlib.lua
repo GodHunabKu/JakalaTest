@@ -869,13 +869,30 @@ function hg_lib.hunter_speak_color(msg, color_code)
 end
 
 -- Helper per syschat tradotto con colore
+-- NUOVO: Invia chiave al client che traduce nella lingua del player
 function hg_lib.syschat_t(key, fallback, replacements, color)
-    local txt = hg_lib.get_text(key, replacements, fallback)
-    if txt then
+    color = color or "FFFFFF"
+
+    -- Costruisci stringa per il client: KEY|COLOR|REP1=VAL1|REP2=VAL2
+    local cmd_parts = key .. "|" .. color
+
+    if replacements then
+        for k, v in pairs(replacements) do
+            cmd_parts = cmd_parts .. "|" .. tostring(k) .. "=" .. tostring(v)
+        end
+    end
+
+    -- Invia al client per traduzione locale
+    cmdchat("HunterSyschat " .. cmd_parts)
+end
+
+-- Versione legacy che usa syschat diretto (per messaggi non traducibili)
+function hg_lib.syschat_raw(msg, color)
+    if msg then
         if color then
-            syschat("|cff" .. color .. txt .. "|r")
+            syschat("|cff" .. color .. msg .. "|r")
         else
-            syschat(txt)
+            syschat(msg)
         end
     end
 end
