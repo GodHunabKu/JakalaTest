@@ -1593,7 +1593,7 @@ class HunterLevelWindow(ui.ScriptWindow):
             
             # Se ci sono piu' di 8 eventi, mostra quanti altri
             if len(self.eventsData) > 8:
-                self.__CText(T("MORE_EVENTS", "... e altri %d eventi (clicca 'Apri Eventi')") % (len(self.eventsData) - 8), 100, y, t["text_muted"])
+                self.__CText(T("MORE_EVENTS", "... e altri {COUNT} eventi (clicca 'Apri Eventi')", {"COUNT": len(self.eventsData) - 8}), 100, y, t["text_muted"])
                 y += 19
 
         y += 10
