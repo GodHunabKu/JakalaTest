@@ -1,60 +1,153 @@
 # -*- coding: utf-8 -*-
 # ============================================================================
-#  HUNTER TRANSLATION MANAGER
-#  Sistema multi-lingua per Hunter Terminal
-#  Riceve traduzioni dal server e le gestisce con cache lato client
+#  HUNTER TRANSLATION MANAGER v2.0
+#  Sistema multi-lingua LOCALE per Hunter Terminal
+#  Tutte le traduzioni sono nei file hunter_translations_XX.py
 # ============================================================================
 
-# NOTA: net viene importato lazy nelle funzioni che lo usano
-# per evitare crash se il modulo viene caricato troppo presto
-
 # ============================================================================
-#  TRANSLATION CACHE
+#  IMPORT MODULI LINGUA
 # ============================================================================
 
-# Cache globale delle traduzioni
-_translations = {}
+import hunter_translations_it as LANG_IT
+import hunter_translations_en as LANG_EN
+import hunter_translations_de as LANG_DE
+import hunter_translations_es as LANG_ES
+import hunter_translations_fr as LANG_FR
+import hunter_translations_pt as LANG_PT
+import hunter_translations_pl as LANG_PL
+import hunter_translations_ru as LANG_RU
 
-# Lingua corrente del giocatore
+# ============================================================================
+#  LINGUE DISPONIBILI
+# ============================================================================
+
+LANGUAGE_MODULES = {
+    "it": LANG_IT,
+    "en": LANG_EN,
+    "de": LANG_DE,
+    "es": LANG_ES,
+    "fr": LANG_FR,
+    "pt": LANG_PT,
+    "pl": LANG_PL,
+    "ru": LANG_RU,
+}
+
+AVAILABLE_LANGUAGES = [
+    {"code": "it", "name": "Italiano", "flag": "IT"},
+    {"code": "en", "name": "English", "flag": "EN"},
+    {"code": "de", "name": "Deutsch", "flag": "DE"},
+    {"code": "es", "name": "Espanol", "flag": "ES"},
+    {"code": "fr", "name": "Francais", "flag": "FR"},
+    {"code": "pt", "name": "Portugues", "flag": "PT"},
+    {"code": "pl", "name": "Polski", "flag": "PL"},
+    {"code": "ru", "name": "Russkiy", "flag": "RU"},
+}
+
+# ============================================================================
+#  STATO GLOBALE
+# ============================================================================
+
 _current_language = "it"
-
-# Stato di caricamento
-_is_loading = False
-_is_ready = False
-
-# Callbacks da chiamare quando le traduzioni sono pronte
-_ready_callbacks = []
-
+_current_module = LANG_IT
 
 # ============================================================================
-#  PUBLIC API
+#  PUBLIC API - FUNZIONI PRINCIPALI
 # ============================================================================
 
-def GetText(key, default=None):
+def GetText(key, default=None, replacements=None):
     """
-    Ottiene un testo tradotto dalla cache.
-    Se non trovato, ritorna il default o la chiave stessa.
+    Ottiene un testo tradotto nella lingua corrente.
 
-    Uso:
-        from hunter_translations import GetText as T
-        label.SetText(T("UI_TAB_STATUS"))
+    Args:
+        key: Chiave di traduzione (es. "UI_TAB_SHOP")
+        default: Valore di fallback se la chiave non esiste
+        replacements: Dict per sostituzioni (es. {"PTS": 100})
+
+    Returns:
+        Testo tradotto con eventuali sostituzioni applicate
     """
-    global _translations, _current_language
+    global _current_module
 
-    if key in _translations:
-        return _translations[key]
+    text = None
 
-    if default is not None:
-        return default
+    # Cerca nella lingua corrente
+    if hasattr(_current_module, 'TRANSLATIONS'):
+        text = _current_module.TRANSLATIONS.get(key)
 
-    # Ritorna la chiave come fallback
-    return key
+    # Fallback all'italiano
+    if text is None and _current_module != LANG_IT:
+        text = LANG_IT.TRANSLATIONS.get(key)
+
+    # Fallback al default o alla chiave
+    if text is None:
+        text = default if default is not None else key
+
+    # Applica sostituzioni
+    if replacements and isinstance(replacements, dict):
+        for k, v in replacements.items():
+            text = text.replace("{" + str(k) + "}", str(v))
+
+    return text
 
 
-def T(key, default=None):
+def T(key, default=None, replacements=None):
     """Alias breve per GetText"""
-    return GetText(key, default)
+    return GetText(key, default, replacements)
 
+
+def GetTextColored(key, default=None, replacements=None, color=None):
+    """
+    Ottiene un testo tradotto CON colore applicato.
+
+    Args:
+        key: Chiave di traduzione
+        default: Valore di fallback
+        replacements: Dict per sostituzioni
+        color: Colore hex (es. "FFD700") o nome colore (es. "title", "success")
+
+    Returns:
+        Testo con tag colore: "|cffFFD700Testo|r"
+    """
+    text = GetText(key, default, replacements)
+
+    if color:
+        # Se e' un nome colore, cercalo nel dizionario COLORS
+        if hasattr(_current_module, 'COLORS') and color in _current_module.COLORS:
+            color = _current_module.COLORS[color]
+
+        # Applica il colore
+        return "|cff" + color + text + "|r"
+
+    return text
+
+
+def TC(key, color, default=None, replacements=None):
+    """Alias breve per GetTextColored"""
+    return GetTextColored(key, default, replacements, color)
+
+
+def GetColor(color_name):
+    """
+    Ottiene un codice colore dal dizionario COLORS.
+
+    Args:
+        color_name: Nome colore (es. "title", "success", "error")
+
+    Returns:
+        Codice hex (es. "FFD700") o il nome stesso se non trovato
+    """
+    global _current_module
+
+    if hasattr(_current_module, 'COLORS'):
+        return _current_module.COLORS.get(color_name, color_name)
+
+    return color_name
+
+
+# ============================================================================
+#  GESTIONE LINGUA
+# ============================================================================
 
 def GetCurrentLanguage():
     """Ritorna il codice della lingua corrente"""
@@ -62,252 +155,213 @@ def GetCurrentLanguage():
     return _current_language
 
 
+def GetCurrentLanguageName():
+    """Ritorna il nome della lingua corrente"""
+    global _current_language
+    for lang in AVAILABLE_LANGUAGES:
+        if lang["code"] == _current_language:
+            return lang["name"]
+    return "Unknown"
+
+
+def SetLanguage(lang_code):
+    """
+    Imposta la lingua corrente.
+
+    Args:
+        lang_code: Codice lingua (es. "it", "en", "de")
+
+    Returns:
+        True se la lingua e' valida, False altrimenti
+    """
+    global _current_language, _current_module
+
+    lang_code = str(lang_code).lower()
+
+    if lang_code in LANGUAGE_MODULES:
+        _current_language = lang_code
+        _current_module = LANGUAGE_MODULES[lang_code]
+
+        # Salva la lingua nel file locale
+        _save_language_local(lang_code)
+
+        try:
+            import dbg
+            dbg.TraceError("[HUNTER LANG] Lingua impostata: " + lang_code)
+        except:
+            pass
+
+        return True
+
+    return False
+
+
+def GetAvailableLanguages():
+    """Ritorna la lista delle lingue disponibili"""
+    return AVAILABLE_LANGUAGES
+
+
+def GetLanguageCount():
+    """Ritorna il numero di lingue disponibili"""
+    return len(AVAILABLE_LANGUAGES)
+
+
+# ============================================================================
+#  SALVATAGGIO/CARICAMENTO LINGUA LOCALE
+# ============================================================================
+
+def _save_language_local(lang_code):
+    """Salva la lingua nel file locale"""
+    try:
+        with open("hunter_lang.cfg", "w") as f:
+            f.write(lang_code)
+    except:
+        pass
+
+
+def _load_language_local():
+    """Carica la lingua dal file locale"""
+    global _current_language, _current_module
+    try:
+        with open("hunter_lang.cfg", "r") as f:
+            lang = f.read().strip().lower()
+            if lang in LANGUAGE_MODULES:
+                _current_language = lang
+                _current_module = LANGUAGE_MODULES[lang]
+                return lang
+    except:
+        pass
+    return "it"
+
+
+# ============================================================================
+#  FUNZIONI DI COMPATIBILITA'
+# ============================================================================
+
 def IsReady():
-    """Verifica se le traduzioni sono caricate e pronte"""
-    global _is_ready
-    return _is_ready
+    """Sempre True - le traduzioni sono sempre pronte"""
+    return True
 
 
 def IsLoading():
-    """Verifica se le traduzioni sono in fase di caricamento"""
-    global _is_loading
-    return _is_loading
+    """Sempre False - nessun caricamento necessario"""
+    return False
 
 
 def OnReady(callback):
-    """
-    Registra una callback da chiamare quando le traduzioni sono pronte.
-    Se le traduzioni sono gia' pronte, la callback viene chiamata immediatamente.
-    """
-    global _is_ready, _ready_callbacks
-
-    if _is_ready:
-        try:
-            callback()
-        except:
-            pass
-    else:
-        _ready_callbacks.append(callback)
+    """Esegue immediatamente la callback"""
+    try:
+        callback()
+    except:
+        pass
 
 
 def RequestTranslations():
-    """
-    Richiede al server di inviare le traduzioni.
-    Chiamato automaticamente all'apertura del terminale.
-    """
-    global _is_loading
-    _is_loading = True
-    try:
-        import net
-        net.SendChatPacket("/hunter_request_translations", 1)
-    except:
-        pass
+    """Non necessario - traduzioni locali"""
+    pass
 
 
 def RequestLanguages():
-    """
-    Richiede al server la lista delle lingue disponibili.
-    """
-    try:
-        import net
-        net.SendChatPacket("/hunter_request_languages", 1)
-    except:
-        pass
+    """Non necessario - traduzioni locali"""
+    pass
 
 
 def ChangeLanguage(lang_code):
     """
-    Richiede al server di cambiare lingua.
-    Le nuove traduzioni verranno inviate automaticamente.
+    Cambia lingua localmente E notifica il server.
     """
-    global _is_loading, _is_ready
-    _is_loading = True
-    _is_ready = False
-    try:
-        import net
-        net.SendChatPacket("/hunter_change_language " + str(lang_code), 1)
-    except:
-        pass
+    if SetLanguage(lang_code):
+        try:
+            import net
+            net.SendChatPacket("/hunter_set_language " + str(lang_code), 1)
+        except:
+            pass
+        return True
+    return False
 
-
-# ============================================================================
-#  SERVER MESSAGE HANDLERS
-# ============================================================================
 
 def OnReceiveTranslations(category, data):
-    """
-    Riceve un blocco di traduzioni dal server.
-    Formato data: key1=value1|key2=value2|...
-
-    Chiamato da: cmdchat("HunterTranslations category data")
-    """
-    global _translations
-
-    if not data:
-        return
-
-    try:
-        pairs = data.split("|")
-        for pair in pairs:
-            if "=" in pair:
-                idx = pair.index("=")
-                key = pair[:idx]
-                value = pair[idx + 1:]
-                # Ripristina spazi (erano convertiti in +)
-                value = value.replace("+", " ")
-                _translations[key] = value
-    except:
-        import dbg
-        dbg.TraceError("OnReceiveTranslations parse error")
+    """Ignora - usiamo traduzioni locali"""
+    pass
 
 
 def OnTranslationsReady(lang_code):
-    """
-    Notifica che tutte le traduzioni sono state caricate.
-
-    Chiamato da: cmdchat("HunterTranslationsReady lang_code")
-    """
-    global _current_language, _is_loading, _is_ready, _ready_callbacks
-
-    _current_language = lang_code
-    _is_loading = False
-    _is_ready = True
-
-    # Chiama tutte le callbacks registrate
-    for callback in _ready_callbacks:
-        try:
-            callback()
-        except:
-            pass
-
-    # Pulisci lista callbacks
-    _ready_callbacks = []
-
-
-# ============================================================================
-#  LANGUAGE SELECTOR DATA
-# ============================================================================
-
-# Lista lingue disponibili (ricevute dal server)
-_available_languages = []
-
-
-def GetAvailableLanguages():
-    """
-    Ritorna la lista delle lingue disponibili.
-    Formato: [{"code": "it", "name": "Italiano", "name_en": "Italian"}, ...]
-    """
-    global _available_languages
-    return _available_languages
+    """Imposta la lingua dal server"""
+    SetLanguage(lang_code)
 
 
 def OnReceiveLanguages(current_lang, data):
-    """
-    Riceve la lista delle lingue disponibili dal server.
-    Formato data: code1:name1:name_en1|code2:name2:name_en2|...
-
-    Chiamato da: cmdchat("HunterLanguages current_lang data")
-    """
-    global _available_languages, _current_language
-
-    _current_language = current_lang
-    _available_languages = []
-
-    if not data:
-        return
-
-    try:
-        entries = data.split("|")
-        for entry in entries:
-            parts = entry.split(":")
-            if len(parts) >= 3:
-                _available_languages.append({
-                    "code": parts[0],
-                    "name": parts[1].replace("+", " "),
-                    "name_en": parts[2].replace("+", " ")
-                })
-    except:
-        import dbg
-        dbg.TraceError("OnReceiveLanguages parse error")
-
-
-# ============================================================================
-#  FALLBACK TRANSLATIONS (usate se il server non risponde)
-# ============================================================================
-
-_fallback_translations = {
-    # UI
-    "UI_TERMINAL_TITLE": "HUNTER TERMINAL",
-    "UI_TAB_STATUS": "STATUS",
-    "UI_TAB_RANKING": "RANKING",
-    "UI_TAB_SHOP": "NEGOZIO",
-    "UI_TAB_ACHIEVEMENTS": "OBIETTIVI",
-    "UI_TAB_EVENTS": "EVENTI",
-    "UI_TAB_MISSIONS": "MISSIONI",
-    "UI_TAB_SETTINGS": "IMPOSTAZIONI",
-    "UI_CLOSE": "CHIUDI",
-    "UI_CONFIRM": "CONFERMA",
-    "UI_CANCEL": "ANNULLA",
-    "UI_LOADING": "Caricamento...",
-    "UI_LANGUAGE": "Lingua",
-    "UI_LANGUAGE_SELECT": "Seleziona Lingua",
-
-    # Rank
-    "RANK_E_NAME": "NOVIZIO",
-    "RANK_D_NAME": "APPRENDISTA",
-    "RANK_C_NAME": "GUERRIERO",
-    "RANK_B_NAME": "VETERANO",
-    "RANK_A_NAME": "ELITE",
-    "RANK_S_NAME": "LEGGENDA",
-    "RANK_N_NAME": "MONARCA",
-
-    # Stats
-    "STAT_GLORY": "Gloria",
-    "STAT_GLORY_TOTAL": "Gloria Totale",
-    "STAT_GLORY_SPENDABLE": "Gloria Spendibile",
-    "STAT_KILLS": "Uccisioni",
-    "STAT_RANK_POS": "Posizione Classifica",
-
-    # System
-    "SYS_JACKPOT": "JACKPOT!",
-    "SYS_DANGER": "PERICOLO",
-}
-
-
-def LoadFallbackTranslations():
-    """
-    Carica le traduzioni di fallback nella cache.
-    Usato se il server non risponde o come valori iniziali.
-    """
-    global _translations, _fallback_translations
-
-    for key, value in _fallback_translations.items():
-        if key not in _translations:
-            _translations[key] = value
+    """Imposta la lingua dal server"""
+    SetLanguage(current_lang)
 
 
 def ClearCache():
-    """
-    Pulisce la cache delle traduzioni.
-    Usato quando si cambia lingua.
-    """
-    global _translations, _is_ready
-    _translations = {}
-    _is_ready = False
-    LoadFallbackTranslations()
+    """Non fa nulla - traduzioni statiche"""
+    pass
 
 
-# ============================================================================
-#  INITIALIZATION
-# ============================================================================
+def LoadFallbackTranslations():
+    """Non necessario"""
+    pass
+
 
 def Initialize():
-    """
-    Inizializza il sistema di traduzioni.
-    Chiamato all'avvio del client.
-    """
-    LoadFallbackTranslations()
+    """Non necessario"""
+    pass
 
 
-# Auto-init
-Initialize()
+# ============================================================================
+#  HANDLER PER SYSCHAT DAL SERVER
+#  Il server invia: HunterSyschat KEY|COLOR|REPLACEMENT1=VAL1|REPLACEMENT2=VAL2
+# ============================================================================
+
+def ProcessServerSyschat(args):
+    """
+    Processa un messaggio syschat dal server.
+
+    Args:
+        args: Stringa dal server "KEY|COLOR|REP1=VAL1|REP2=VAL2"
+
+    Returns:
+        Tuple (text, color) con testo tradotto e colore
+    """
+    parts = args.split("|")
+    key = parts[0] if len(parts) > 0 else ""
+    color = parts[1] if len(parts) > 1 else "FFFFFF"
+
+    # Parse replacements
+    replacements = {}
+    for i in range(2, len(parts)):
+        if "=" in parts[i]:
+            k, v = parts[i].split("=", 1)
+            replacements[k] = v
+
+    # Ottieni testo tradotto
+    text = GetText(key, key, replacements)
+
+    return (text, color)
+
+
+def FormatSyschat(key, color="FFFFFF", replacements=None):
+    """
+    Formatta un messaggio syschat con colore.
+
+    Returns:
+        Stringa formattata: "|cffCOLORtesto|r"
+    """
+    text = GetText(key, key, replacements)
+    return "|cff" + color + text + "|r"
+
+
+# ============================================================================
+#  INIZIALIZZAZIONE
+# ============================================================================
+
+# Carica la lingua salvata all'avvio
+_load_language_local()
+
+try:
+    import dbg
+    dbg.TraceError("[HUNTER LANG] Inizializzato - Lingua: " + _current_language)
+except:
+    pass
