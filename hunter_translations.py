@@ -42,7 +42,7 @@ AVAILABLE_LANGUAGES = [
     {"code": "pt", "name": "Portugues", "flag": "PT"},
     {"code": "pl", "name": "Polski", "flag": "PL"},
     {"code": "ru", "name": "Russkiy", "flag": "RU"},
-}
+]
 
 # ============================================================================
 #  STATO GLOBALE
