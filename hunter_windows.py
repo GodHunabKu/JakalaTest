@@ -893,21 +893,21 @@ def OpenWhatIfChoice(qid, text, options, colorCode="PURPLE"):
     """Apre la finestra di scelta What-If"""
     GetWhatIfWindow().Create(qid, text, options, colorCode)
 
-def ShowSystemMessage(msgType, arg1="", arg2="", arg3=""):
+def ShowSystemMessage(msg, color=None):
     """Mostra un messaggio di sistema"""
-    GetSystemMessageWindow().ShowMessage(msgType, arg1, arg2, arg3)
+    GetSystemMessageWindow().ShowMessage(msg, color)
 
-def ShowEmergencyQuest(questName, duration):
+def ShowEmergencyQuest(title, seconds, mobVnum=0, count=0):
     """Mostra notifica quest emergenza"""
-    GetEmergencyWindow().ShowQuest(questName, duration)
+    GetEmergencyWindow().StartMission(title, seconds, mobVnum, count)
 
-def ShowEventStatus(eventName, timeLeft, reward):
+def ShowEventStatus(eventName, duration=0, eventType="default", desc="", reward=""):
     """Mostra stato evento"""
-    GetEventWindow().ShowEvent(eventName, timeLeft, reward)
+    GetEventWindow().ShowEvent(eventName, duration, eventType, desc, reward)
 
-def ShowRivalTracker(rivalName, rivalGlory, myGlory, position):
+def ShowRivalTracker(name, diff, label="Gloria", mode="VICINO"):
     """Mostra tracker rivale"""
-    GetRivalWindow().ShowRival(rivalName, rivalGlory, myGlory, position)
+    GetRivalWindow().ShowRival(name, diff, label, mode)
 
 def ShowOvertake(overtakenName, newPosition):
     """Mostra notifica sorpasso"""
