@@ -401,7 +401,7 @@ class EventStatusWindow(ui.Window, DraggableMixin):
         
         # Bordo colorato
         self.borders = []
-        eventColor = 0xFF00FF88
+        eventColor = 0xFFFFD700
         
         b = ui.Bar(); b.SetParent(self); b.SetPosition(0, 0); b.SetSize(220, 2); b.SetColor(eventColor); b.AddFlag("not_pick"); b.Show()
         self.borders.append(b)
@@ -417,7 +417,7 @@ class EventStatusWindow(ui.Window, DraggableMixin):
         self.glowBar.SetParent(self)
         self.glowBar.SetPosition(2, 2)
         self.glowBar.SetSize(4, 56)
-        self.glowBar.SetColor(0x6600FF88)
+        self.glowBar.SetColor(0x66FFD700)
         self.glowBar.AddFlag("not_pick")
         self.glowBar.Show()
         
@@ -427,7 +427,7 @@ class EventStatusWindow(ui.Window, DraggableMixin):
         self.labelText.SetPosition(110, 8)
         self.labelText.SetHorizontalAlignCenter()
         self.labelText.SetText("EVENTO IN CORSO")
-        self.labelText.SetPackedFontColor(0xFF00FF88)
+        self.labelText.SetPackedFontColor(0xFFFFD700)
         self.labelText.SetOutline()
         self.labelText.AddFlag("not_pick")
         self.labelText.Show()
@@ -499,14 +499,14 @@ class EventStatusWindow(ui.Window, DraggableMixin):
             self.timeText.SetText("")
         
         eventColors = {
-            "default": 0xFF00FF88,
+            "default": 0xFFFFD700,
             "boss_hunt": 0xFFFF0000,
             "fracture": 0xFF9900FF,
             "glory_rush": 0xFFFFD700,
             "time_trial": 0xFFFFD700,
             "custom": 0xFF00FFFF
         }
-        color = eventColors.get(eventType, 0xFF00FF88)
+        color = eventColors.get(eventType, 0xFFFFD700)
         self.SetEventColor(color)
 
         screenWidth = wndMgr.GetScreenWidth()

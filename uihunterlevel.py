@@ -16,8 +16,18 @@ from weakref import proxy
 import hunter_windows
 import hunter_effects
 import hunter_missions
-import hunter_translations
-from hunter_translations import T  # Shorthand per traduzioni
+
+# Fallback per traduzioni se modulo non esiste
+try:
+    import hunter_translations
+    from hunter_translations import T
+except:
+    def T(key, default=None, replacements=None):
+        text = default if default else key
+        if replacements and isinstance(replacements, dict):
+            for k, v in replacements.items():
+                text = text.replace("{" + str(k) + "}", str(v))
+        return text
 
 # Import CENTRALIZZATO da hunter_core.py - NO DUPLICAZIONI
 from hunter_core import (
@@ -1533,7 +1543,7 @@ class HunterLevelWindow(ui.ScriptWindow):
         ev = self.activeEvent[0] if self.activeEvent[0] != "Nessuno" else None
         if ev:
             self.__CBar(5, y, 420, 40, 0x4400FF00)
-            self.__CText(T("EVENT_IN_PROGRESS", "EVENTO IN CORSO!"), 15, y + 5, 0xFF00FF88)
+            self.__CText(T("EVENT_IN_PROGRESS", "EVENTO IN CORSO!"), 15, y + 5, GOLD_COLOR)
             self.__CText(ev.replace("+", " "), 15, y + 22, GOLD_COLOR)
             y += 48
         else:
@@ -1579,7 +1589,7 @@ class HunterLevelWindow(ui.ScriptWindow):
                 # Nome evento (colore in base a status)
                 nameColor = t["text_value"]
                 if status == "active":
-                    nameColor = 0xFF00FF88
+                    nameColor = GOLD_COLOR
                 elif status == "ended":
                     nameColor = 0xFF888888
                 self.__CText(eventName, 60, y, nameColor)
@@ -2452,28 +2462,7 @@ class HunterLevelWindow(ui.ScriptWindow):
     # ========================================================================
     #  PUBLIC METHODS
     # ========================================================================
-    
-    # Colori per ogni rank (usati globalmente)
-    RANK_COLORS = {
-        # Rank giocatore (lettere)
-        "E": 0xFF808080,  # Grigio
-        "D": 0xFF00FF00,  # Verde
-        "C": 0xFF00FFFF,  # Cyan
-        "B": 0xFF0066FF,  # Blu
-        "A": 0xFFAA00FF,  # Viola
-        "S": 0xFFFF6600,  # Arancione
-        "N": 0xFFFF0000,  # Rosso
-        # Colori fratture (nomi)
-        "GREEN": 0xFF00FF00,       # Verde Neon
-        "BLUE": 0xFF0099FF,        # Blu System
-        "CYAN": 0xFF00FFFF,        # Cyan
-        "ORANGE": 0xFFFF6600,      # Arancione Fuoco
-        "RED": 0xFFFF0000,         # Rosso Sangue
-        "GOLD": 0xFFFFD700,        # Oro
-        "PURPLE": 0xFF9900FF,      # Viola Ombra
-        "BLACKWHITE": 0xFFFFFFFF,  # Bianco
-    }
-    
+
     def ShowSystemMessage(self, msg, rankKey="E"):
         """Mostra messaggio del Sistema con colore basato sul rank"""
         if self.systemMsgWnd:
