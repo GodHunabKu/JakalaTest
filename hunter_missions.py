@@ -10,12 +10,9 @@ import app
 
 from hunter_core import DraggableMixin, WINDOW_POSITIONS, COLOR_SCHEMES, FormatNumber
 
-# Import traduzioni con fallback
-try:
-    from hunter_translations import T
-except:
-    def T(key, default=None):
-        return default if default else key
+# Funzione T() - restituisce direttamente il testo (no multilingua)
+def T(key, default=None):
+    return default if default else key
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

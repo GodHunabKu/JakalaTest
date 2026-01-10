@@ -2368,7 +2368,6 @@ class GameWindow(ui.ScriptWindow):
 		serverCommandList["HunterGateVictory"]        = self.__HunterGateVictory
 		serverCommandList["HunterGateDefeat"]         = self.__HunterGateDefeat
 		serverCommandList["HunterGateSelected"]       = self.__HunterGateSelected
-		serverCommandList["HunterSyschat"]            = self.__HunterSyschat
 		serverCommandList["HunterTrialProgressPopup"] = self.__HunterTrialProgressPopup
 
 		# Classifiche Dettagliate
@@ -2435,13 +2434,6 @@ class GameWindow(ui.ScriptWindow):
 		serverCommandList["HunterChestOpened"]   = self.__HunterChestOpened
 		serverCommandList["HunterChestItem"]     = self.__HunterChestItem
 		serverCommandList["HunterPartyChest"]    = self.__HunterPartyChest
-
-		# Multi-Language Translation System
-		serverCommandList["HunterTranslations"]       = self.__HunterTranslations
-		serverCommandList["HunterTranslationsReady"] = self.__HunterTranslationsReady
-		serverCommandList["HunterLanguages"]          = self.__HunterLanguages
-		serverCommandList["HunterLanguageChanged"]   = self.__HunterLanguageChanged
-		serverCommandList["HunterPlayerLanguage"]    = self.__HunterPlayerLanguage
 
 		if app.ENABLE_ODLAMKI_SYSTEM:
 			serverCommandList["OpenOdlamki"] = self.OpenOdlamki
@@ -3785,93 +3777,6 @@ class GameWindow(ui.ScriptWindow):
 			dbg.TraceError("__HunterPartyChest error: " + str(e))
 
 	# ============================================================
-	# MULTI-LANGUAGE TRANSLATION HANDLERS
-	# ============================================================
-
-	def __HunterTranslations(self, data):
-		"""
-		Riceve blocco traduzioni: category key1=val1|key2=val2|...
-		"""
-		try:
-			# Formato: "category key1=val1|key2=val2|..."
-			space_idx = data.find(" ")
-			if space_idx > 0:
-				category = data[:space_idx]
-				trans_data = data[space_idx + 1:]
-
-				import hunter_translations
-				hunter_translations.OnReceiveTranslations(category, trans_data)
-		except Exception as e:
-			import dbg
-			dbg.TraceError("__HunterTranslations error: " + str(e))
-
-	def __HunterTranslationsReady(self, lang_code):
-		"""
-		Notifica che le traduzioni sono state caricate.
-		"""
-		try:
-			import hunter_translations
-			hunter_translations.OnTranslationsReady(str(lang_code))
-
-			# Aggiorna UI se aperta
-			if self.interface and self.interface.wndHunterLevel:
-				self.interface.wndHunterLevel.OnTranslationsReady()
-		except Exception as e:
-			import dbg
-			dbg.TraceError("__HunterTranslationsReady error: " + str(e))
-
-	def __HunterLanguages(self, data):
-		"""
-		Riceve lista lingue: current_lang code1:name1:name_en1|code2:name2:name_en2|...
-		"""
-		try:
-			# Formato: "current_lang code1:name1:name_en1|..."
-			space_idx = data.find(" ")
-			if space_idx > 0:
-				current_lang = data[:space_idx]
-				langs_data = data[space_idx + 1:]
-
-				import hunter_translations
-				hunter_translations.OnReceiveLanguages(current_lang, langs_data)
-
-				# Notifica UI per aggiornare language selector
-				if self.interface and self.interface.wndHunterLevel:
-					self.interface.wndHunterLevel.OnLanguagesReceived()
-		except Exception as e:
-			import dbg
-			dbg.TraceError("__HunterLanguages error: " + str(e))
-
-	def __HunterLanguageChanged(self, langCode):
-		"""
-		Notifica che la lingua e' stata cambiata (dal dialog Lua).
-		"""
-		try:
-			# Aggiorna il bottone lingua nella UI
-			if self.interface and self.interface.wndHunterLevel:
-				self.interface.wndHunterLevel.UpdateLanguageButton(str(langCode))
-				# Salva anche localmente
-				self.interface.wndHunterLevel.SaveLanguageLocal(str(langCode))
-		except Exception as e:
-			import dbg
-			dbg.TraceError("__HunterLanguageChanged error: " + str(e))
-
-	def __HunterPlayerLanguage(self, langCode):
-		"""
-		Riceve la lingua del player dal server al login.
-		Salva localmente e aggiorna la UI.
-		"""
-		try:
-			if self.interface and self.interface.wndHunterLevel:
-				self.interface.wndHunterLevel.UpdateLanguageButton(str(langCode))
-				self.interface.wndHunterLevel.SaveLanguageLocal(str(langCode))
-		except Exception as e:
-			import dbg
-			dbg.TraceError("__HunterPlayerLanguage error: " + str(e))
-
-	# ============================================================
-	# FINE CHEST HANDLERS
-	# ============================================================
-	
 	def __HunterEventsCount(self, data):
 		"""Riceve numero eventi"""
 		try:
@@ -4280,23 +4185,6 @@ class GameWindow(ui.ScriptWindow):
 		except Exception as e:
 			import dbg
 			dbg.TraceError("HunterGateSelected error: " + str(e))
-
-	def __HunterSyschat(self, args):
-		"""
-		Syschat multilingua dal server.
-		Formato: KEY|COLOR|REP1=VAL1|REP2=VAL2
-		Esempio: DEFENSE_FAILED|FF0000
-		Esempio: EVENT_PRIZE|FFD700|PTS=500
-		"""
-		try:
-			import hunter_translations
-			text, color = hunter_translations.ProcessServerSyschat(args)
-			# Mostra il messaggio tradotto con colore
-			import chat
-			chat.AppendChat(chat.CHAT_TYPE_INFO, "|cff" + color + text + "|r")
-		except Exception as e:
-			import dbg
-			dbg.TraceError("HunterSyschat error: " + str(e))
 
 	def __HunterTrialProgressPopup(self, args):
 		"""Popup progresso Trial"""
