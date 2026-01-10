@@ -12,15 +12,6 @@
  File Encoding         : 65001
 
  Date: 06/01/2026 15:20:20
-
- ============================================================================
- NOTA TRADUZIONI (09/01/2026):
- Le traduzioni sono ora gestite LATO CLIENT in Python!
- File: hunter_translations.py + hunter_translations_XX.py
-
- Le INSERT INTO hunter_translations in questo file possono essere ignorate.
- Per pulire il DB, eseguire: cleanup_db_translations.sql
- ============================================================================
 */
 
 SET NAMES utf8mb4;
@@ -3004,73 +2995,5 @@ DO UPDATE hunter_player_trials
     AND expires_at < NOW()
 ;;
 delimiter ;
-
-
--- ============================================================
--- TRANSLATION SYSTEM TABLES
--- Multi-language support for Hunter Terminal
--- ============================================================
-
--- ----------------------------
--- Table: hunter_translations
--- ----------------------------
-DROP TABLE IF EXISTS `hunter_translations`;
-CREATE TABLE `hunter_translations` (
-    `id` INT NOT NULL AUTO_INCREMENT,
-    `translation_key` VARCHAR(100) NOT NULL,
-    `lang_code` VARCHAR(5) NOT NULL,
-    `text_value` TEXT NOT NULL,
-    `color_code` VARCHAR(10) DEFAULT NULL,
-    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`) USING BTREE,
-    UNIQUE INDEX `idx_key_lang` (`translation_key` ASC, `lang_code` ASC) USING BTREE,
-    INDEX `idx_lang` (`lang_code` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
-
--- ----------------------------
--- Table: hunter_player_settings
--- ----------------------------
-DROP TABLE IF EXISTS `hunter_player_settings`;
-CREATE TABLE `hunter_player_settings` (
-    `player_id` INT NOT NULL,
-    `setting_key` VARCHAR(50) NOT NULL,
-    `setting_value` VARCHAR(255) NOT NULL,
-    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`player_id`, `setting_key`) USING BTREE,
-    INDEX `idx_player` (`player_id` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
-
--- ----------------------------
--- Table: hunter_languages
--- ----------------------------
-DROP TABLE IF EXISTS `hunter_languages`;
-CREATE TABLE `hunter_languages` (
-    `lang_code` VARCHAR(5) NOT NULL,
-    `lang_name` VARCHAR(50) NOT NULL,
-    `lang_name_en` VARCHAR(50) NOT NULL,
-    `flag_icon` VARCHAR(20) DEFAULT NULL,
-    `display_order` INT NOT NULL DEFAULT 0,
-    `enabled` TINYINT(1) NOT NULL DEFAULT 1,
-    PRIMARY KEY (`lang_code`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
-
--- ----------------------------
--- Languages data
--- ----------------------------
-INSERT INTO `hunter_languages` VALUES ('it', 'Italiano', 'Italian', 'flag_it', 1, 1);
-INSERT INTO `hunter_languages` VALUES ('en', 'English', 'English', 'flag_en', 2, 1);
-INSERT INTO `hunter_languages` VALUES ('de', 'Deutsch', 'German', 'flag_de', 3, 1);
-INSERT INTO `hunter_languages` VALUES ('es', 'Espanol', 'Spanish', 'flag_es', 4, 1);
-INSERT INTO `hunter_languages` VALUES ('fr', 'Francais', 'French', 'flag_fr', 5, 1);
-INSERT INTO `hunter_languages` VALUES ('pt', 'Portugues', 'Portuguese', 'flag_pt', 6, 1);
-
-
--- ============================================================
--- NOTA: TRADUZIONI RIMOSSE DAL DATABASE
--- ============================================================
--- Le traduzioni sono ora gestite LATO CLIENT in Python!
--- File: hunter_translations.py + hunter_translations_XX.py
--- La tabella hunter_translations rimane vuota per compatibilita'
--- ============================================================
 
 SET FOREIGN_KEY_CHECKS = 1;

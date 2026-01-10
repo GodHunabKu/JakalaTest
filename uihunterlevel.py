@@ -17,17 +17,13 @@ import hunter_windows
 import hunter_effects
 import hunter_missions
 
-# Fallback per traduzioni se modulo non esiste
-try:
-    import hunter_translations
-    from hunter_translations import T
-except:
-    def T(key, default=None, replacements=None):
-        text = default if default else key
-        if replacements and isinstance(replacements, dict):
-            for k, v in replacements.items():
-                text = text.replace("{" + str(k) + "}", str(v))
-        return text
+# Funzione T() - restituisce direttamente il testo (no multilingua)
+def T(key, default=None, replacements=None):
+    text = default if default else key
+    if replacements and isinstance(replacements, dict):
+        for k, v in replacements.items():
+            text = text.replace("{" + str(k) + "}", str(v))
+    return text
 
 # Import CENTRALIZZATO da hunter_core.py - NO DUPLICAZIONI
 from hunter_core import (
@@ -251,12 +247,6 @@ class HunterLevelWindow(ui.ScriptWindow):
         self.fractureBonusActive = False
         self.bonusIndicatorText = ""
 
-        # Multi-Language System
-        self.langButton = None
-        self.langPopup = None
-        self.langPopupButtons = []
-        self.currentLang = self.LoadLanguageLocal()  # Carica lingua da file locale
-
         # Windows dal modulo hunter_windows
         self.systemMsgWnd = hunter_windows.GetSystemMessageWindow()
         self.emergencyWnd = hunter_windows.GetEmergencyQuestWindow()
@@ -400,25 +390,6 @@ class HunterLevelWindow(ui.ScriptWindow):
                 pass
         del self.tabButtons[:]
         self.tabButtons = []
-
-        # Pulizia language selector
-        if getattr(self, 'langPopup', None):
-            try:
-                for btn in getattr(self, 'langPopupButtons', []):
-                    btn.Hide()
-                self.langPopupButtons = []
-                self.langPopup.Hide()
-                self.langPopup = None
-            except:
-                pass
-
-        if self.langButton:
-            try:
-                self.langButton.SetEvent(None)
-                self.langButton.Hide()
-                self.langButton = None
-            except:
-                pass
 
     def __UpdateTheme(self):
         newKey = GetRankKey(self.playerData["total_points"])
@@ -986,9 +957,6 @@ class HunterLevelWindow(ui.ScriptWindow):
         self.__FText("Reset Weekly:", 200, footerY + 10, t["text_muted"])
         self.weeklyTimerLabel = self.__FText("--", 290, footerY + 10, t["text_value"])
 
-        # Language Selector Button
-        self.__CreateLanguageSelector(footerY)
-    
     def __FText(self, text, x, y, color):
         t = ui.TextLine()
         t.SetParent(self.baseWindow)
@@ -1001,84 +969,6 @@ class HunterLevelWindow(ui.ScriptWindow):
         return t
 
     # ========================================================================
-    #  LANGUAGE SELECTOR - Popup Python
-    # ========================================================================
-    def __CreateLanguageSelector(self, footerY):
-        """Crea il selettore lingua nel footer"""
-        t = self.theme
-
-        # Determina testo bottone dalla lingua corrente
-        langNames = {"it": "IT", "en": "EN", "de": "DE", "es": "ES", "fr": "FR", "pt": "PT", "ru": "RU", "pl": "PL"}
-        buttonText = langNames.get(self.currentLang, "IT")
-
-        # Bottone lingua - click mostra messaggio NPC
-        self.langButton = SoloLevelingButton()
-        self.langButton.Create(self.baseWindow, WINDOW_WIDTH - 80, footerY + 5, 60, 26, buttonText, t)
-        self.langButton.SetEvent(ui.__mem_func__(self.__OnClickLangButton))
-        self.footerElements.append(self.langButton)
-
-    def __OnClickLangButton(self):
-        """Mostra messaggio per cambiare lingua via NPC"""
-        try:
-            import chat
-            chat.AppendChat(chat.CHAT_TYPE_INFO, "|cff00AAFF[HUNTER]|r Parla con l'NPC Traduttore per cambiare lingua.")
-        except:
-            pass
-
-    def SaveLanguageLocal(self, langCode):
-        """Salva la lingua in un file locale per accesso rapido"""
-        try:
-            with open("hunter_language.cfg", "w") as f:
-                f.write(str(langCode))
-        except:
-            pass
-
-    def LoadLanguageLocal(self):
-        """Carica la lingua dal file locale"""
-        try:
-            with open("hunter_language.cfg", "r") as f:
-                lang = f.read().strip()
-                if lang in ["it", "en", "de", "es", "fr", "pt", "ru", "pl"]:
-                    return lang
-        except:
-            pass
-        return "it"  # Default italiano
-
-    def UpdateLanguageButton(self, langCode):
-        """Aggiorna il testo del bottone lingua (chiamato dal server)"""
-        self.currentLang = langCode
-        langNames = {"it": "IT", "en": "EN", "de": "DE", "es": "ES", "fr": "FR", "pt": "PT", "ru": "RU", "pl": "PL"}
-        if self.langButton:
-            self.langButton.SetText(langNames.get(langCode, langCode.upper()))
-
-    def OnTranslationsReady(self):
-        """Callback quando le traduzioni sono pronte - ricarica UI con nuove traduzioni"""
-        try:
-            # Aggiorna i nomi dei tab
-            self.__RefreshTabNames()
-            # Ricarica il contenuto del tab corrente
-            self.__LoadTabContent(self.currentTab)
-        except:
-            pass
-
-    def __RefreshTabNames(self):
-        """Aggiorna i nomi dei tab con le traduzioni correnti"""
-        tabNames = [
-            T("UI_TAB_STATS", "Stats"),
-            T("UI_TAB_RANK", "Rank"),
-            T("UI_TAB_SHOP", "Shop"),
-            T("UI_TAB_ACHIEV", "Achiev"),
-            T("UI_TAB_EVENTS", "Eventi"),
-            T("UI_TAB_GUIDE", "Guida")
-        ]
-        for i, btn in enumerate(self.tabButtons):
-            if i < len(tabNames):
-                btn.SetText(tabNames[i])
-
-    def OnLanguagesReceived(self):
-        """Callback - non usato"""
-        pass
-
     # ========================================================================
     #  CONTENT HELPERS
     # ========================================================================
